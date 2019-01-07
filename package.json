@@ -1,0 +1,21 @@
+{
+  "name": "ts-template",
+  "version": "0.0.0",
+  "description": "Typescript template",
+  "main": "build/index.js",
+  "scripts": {
+    "superclean": "rimraf .cache node_modules build dist",
+    "clean": "rimraf build dist",
+    "build": "rimraf build && parcel build src/index.html --public-url ./ -d build",
+    "watch": "rimraf build && parcel watch src/index.html --public-url ./ -d build",
+    "dev": "rimraf build && parcel src/index.html --public-url ./ -d build"
+  },
+  "author": "Markus Feng",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.11.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.12.0",
+    "typescript": "^3.2.2"
+  }
+}
