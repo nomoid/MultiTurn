@@ -20,6 +20,7 @@
         "import-sources-order": "case-insensitive",
         "named-imports-order": "any"
       }],
+      "interface-name": false,
       //For debugging
       "no-console": false
     },
