@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "es6",
-    "strict": true,
-    "typeRoots": [
-      "./typings",
-      "./node_modules/"
-    ],
+    "module": "commonjs",
+    "strict": true
   },
   "include": [
     "src/**/*.ts",
     "typings/**/*.d.ts"
+  ],
+  "exclude": [
+    ".git",
+    "node_modules"
   ]
 }
