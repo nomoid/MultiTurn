@@ -1,49 +1,53 @@
 import { defaultSerializer, defaultDeserializer } from './serializer';
 
 test('testDeserializer', () => {
+  const deserializer = defaultDeserializer();
+
   // Test default
-  expect(defaultDeserializer('a$b')).toEqual([true, 'a', 'b']);
+  expect(deserializer('a$b')).toEqual([true, 'a', 'b']);
 
   // Test no key
-  expect(defaultDeserializer('$message')).toEqual([true, '', 'message']);
+  expect(deserializer('$message')).toEqual([true, '', 'message']);
 
   // Test no value
-  expect(defaultDeserializer('message')).toEqual([true, 'message', '']);
+  expect(deserializer('message')).toEqual([true, 'message', '']);
 
   // Test empty
-  expect(defaultDeserializer('')).toEqual([true, '', '']);
+  expect(deserializer('')).toEqual([true, '', '']);
 
   // Test $ unescaping
-  expect(defaultDeserializer('a$$b')).toEqual([true, 'a$b', '']);
-  expect(defaultDeserializer('a$$b$')).toEqual([true, 'a$b', '']);
-  expect(defaultDeserializer('a$$b$c')).toEqual([true, 'a$b', 'c']);
-  expect(defaultDeserializer('a$$b$c$d')).toEqual([true, 'a$b', 'c$d']);
-  expect(defaultDeserializer('$a$b')).toEqual([true, '', 'a$b']);
-  expect(defaultDeserializer('a$$$b')).toEqual([true, 'a$', 'b']);
-  expect(defaultDeserializer('a$$$$b')).toEqual([true, 'a$$b', '']);
-  expect(defaultDeserializer('a$$$$$b')).toEqual([true, 'a$$', 'b']);
+  expect(deserializer('a$$b')).toEqual([true, 'a$b', '']);
+  expect(deserializer('a$$b$')).toEqual([true, 'a$b', '']);
+  expect(deserializer('a$$b$c')).toEqual([true, 'a$b', 'c']);
+  expect(deserializer('a$$b$c$d')).toEqual([true, 'a$b', 'c$d']);
+  expect(deserializer('$a$b')).toEqual([true, '', 'a$b']);
+  expect(deserializer('a$$$b')).toEqual([true, 'a$', 'b']);
+  expect(deserializer('a$$$$b')).toEqual([true, 'a$$b', '']);
+  expect(deserializer('a$$$$$b')).toEqual([true, 'a$$', 'b']);
 
 });
 
 test('testSerializer', () => {
+  const serializer = defaultSerializer();
+
   // Test default
-  expect(defaultSerializer('a', 'b')).toEqual('a$b');
+  expect(serializer('a', 'b')).toEqual('a$b');
 
   // Test no key
-  expect(defaultSerializer('', 'message')).toEqual('$message');
+  expect(serializer('', 'message')).toEqual('$message');
 
   // Test no value
-  expect(defaultSerializer('message', '')).toEqual('message$');
+  expect(serializer('message', '')).toEqual('message$');
 
   // Test empty
-  expect(defaultSerializer('', '')).toEqual('$');
+  expect(serializer('', '')).toEqual('$');
 
   // Test $ escaping
-  expect(defaultSerializer('a$b', '')).toEqual('a$$b$');
-  expect(defaultSerializer('a$b', 'c')).toEqual('a$$b$c');
-  expect(defaultSerializer('a$b', 'c$d')).toEqual('a$$b$c$d');
-  expect(defaultSerializer('', 'a$b')).toEqual('$a$b');
-  expect(defaultSerializer('a$', 'b')).toEqual('a$$$b');
-  expect(defaultSerializer('a$$b', '')).toEqual('a$$$$b$');
-  expect(defaultSerializer('a$$', 'b')).toEqual('a$$$$$b');
+  expect(serializer('a$b', '')).toEqual('a$$b$');
+  expect(serializer('a$b', 'c')).toEqual('a$$b$c');
+  expect(serializer('a$b', 'c$d')).toEqual('a$$b$c$d');
+  expect(serializer('', 'a$b')).toEqual('$a$b');
+  expect(serializer('a$', 'b')).toEqual('a$$$b');
+  expect(serializer('a$$b', '')).toEqual('a$$$$b$');
+  expect(serializer('a$$', 'b')).toEqual('a$$$$$b');
 });

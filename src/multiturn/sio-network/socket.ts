@@ -13,6 +13,7 @@ export default class SIONetworkSocket implements Socket {
   private promises: Map<string, (s: string) => void>;
   // True if accepted or rejected
   private responded: boolean = false;
+  private closed: boolean = false;
 
   public constructor(private socket: SocketIO.Socket,
     private serialize: Serializer, private deserialize: Deserializer) {
@@ -22,7 +23,7 @@ export default class SIONetworkSocket implements Socket {
 
   public accept() {
     if (this.responded) {
-      return;
+      throw Error('Socket already accepted or rejected');
     }
     this.responded = true;
     this.socket.on(requestId, (value: string) => {
@@ -33,6 +34,7 @@ export default class SIONetworkSocket implements Socket {
           listener(event);
         }
       }
+      // Do nothing on failed deserializing
     });
     this.socket.on(responseId, (value: string) => {
       const [success, key, message] = this.deserialize(value);
@@ -42,30 +44,49 @@ export default class SIONetworkSocket implements Socket {
           resolve(message);
         }
       }
+      // Do nothing on failed deserializing
     });
   }
 
   public reject() {
     if (this.responded) {
-      return;
+      throw Error('Socket already accepted or rejected');
     }
     this.responded = true;
+    this.closed = true;
     this.socket.emit(connRefusedId);
     this.socket.disconnect();
   }
 
   public addRequestListener(callback: (e: RequestEvent) => void): void {
+    if (this.closed){
+      throw Error('Socket already closed');
+    }
     this.listeners.push(callback);
   }
 
   public request(key: string, message: string): Promise<string> {
-    this.socket.emit(requestId, this.serialize(key, message));
+    if (this.closed){
+      throw Error('Socket already closed');
+    }
+    if (!this.responded) {
+      throw Error('Socket not yet accepted');
+    }
     return new Promise<string>((resolve, reject) => {
+      this.socket.emit(requestId, this.serialize(key, message));
       this.promises.set(key, resolve);
     });
   }
 
   public close(): void {
+    if (this.closed) {
+      // Allow close even if rejected or already closed?
+      return;
+    }
+    if (!this.responded) {
+      throw Error('Socket not yet accepted');
+    }
+    this.closed = true;
     this.socket.emit(closeId);
     this.socket.disconnect();
   }
