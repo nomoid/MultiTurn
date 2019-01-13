@@ -1,6 +1,6 @@
 import { Socket, RequestEvent } from '../network';
-import { Serializer, Deserializer } from './layer';
 import SIORequestEvent from './requestevent';
+import { Serializer, Deserializer } from './serializer';
 
 const requestId = 'request';
 const responseId = 'response';
@@ -11,6 +11,8 @@ export default class SIONetworkSocket implements Socket {
 
   private listeners: Array<(e: RequestEvent) => void>;
   private promises: Map<string, (s: string) => void>;
+  // True if accepted or rejected
+  private responded: boolean = false;
 
   public constructor(private socket: SocketIO.Socket,
     private serialize: Serializer, private deserialize: Deserializer) {
@@ -19,6 +21,10 @@ export default class SIONetworkSocket implements Socket {
   }
 
   public accept() {
+    if (this.responded) {
+      return;
+    }
+    this.responded = true;
     this.socket.on(requestId, (value: string) => {
       const [success, key, message] = this.deserialize(value);
       if (success) {
@@ -40,6 +46,10 @@ export default class SIONetworkSocket implements Socket {
   }
 
   public reject() {
+    if (this.responded) {
+      return;
+    }
+    this.responded = true;
     this.socket.emit(connRefusedId);
     this.socket.disconnect();
   }

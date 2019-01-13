@@ -1,48 +1,8 @@
-import { NetworkLayer, ConnectionEvent, Socket, RequestEvent } from '../network';
+import { NetworkLayer, ConnectionEvent } from '../network';
 import SIOConnectionEvent from './connectionevent';
+import { Serializer, Deserializer,
+  defaultSerializer, defaultDeserializer } from './serializer';
 import SIONetworkSocket from './socket';
-
-export type Serializer = (key: string, message: string) => string;
-export type Deserializer = (value: string) => [boolean, string, string];
-
-export function defaultSerializer(key: string, message: string): string {
-  // Replace all $ in key with $$
-  const newKey = key.replace('\\$', '\\$\\$');
-  // Add single $ as separator, don't modify message
-  return newKey + '$' + message;
-}
-
-export function defaultDeserializer(value: string): [boolean, string, string] {
-  let i;
-  for (i = 0; i < value.length; i++) {
-    const c = value[i];
-    if (c === '$') {
-      // Separator detected
-      if (i === value.length - 1) {
-        break;
-      }
-      else if (value[i + 1] !== '$') {
-        break;
-      }
-      else {
-        i++;
-      }
-    }
-  }
-  let key;
-  let message;
-  if (i === value.length) {
-    key = value;
-    message = '';
-  }
-  else {
-    key = value.substring(0, i);
-    message = value.substring(i + 1);
-  }
-  // Replace double dollar signs with single dollar signs
-  const newKey = key.replace('\\$\\$', '\\$');
-  return [true, newKey, message];
-}
 
 /**
  * A socket.io based implementation of the Network layer
