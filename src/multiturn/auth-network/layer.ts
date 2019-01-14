@@ -27,13 +27,13 @@ export default class AuthNetworkLayer implements NetworkLayer {
       this.serializer = serializer;
     }
     else {
-      this.serializer = defaultSerializer('|', '|');
+      this.serializer = defaultSerializer('|');
     }
     if (deserializer) {
       this.deserializer = deserializer;
     }
     else {
-      this.deserializer = defaultDeserializer('|', '|');
+      this.deserializer = defaultDeserializer('|');
     }
   }
 

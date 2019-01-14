@@ -23,11 +23,11 @@ export default class AuthUser {
 
   public request(key: string, message: string): Promise<string> {
     const uid = generateUID();
-    const promise = new Promise<string>((resolve, reject) => {
-      this.socket.request(requestId, s)
-      this.promises.set(uid, this, resolve, reject);
+    const promiseHolder = new PromiseHolder<string>((resolve, reject) => {
+      this.socket.request(requestId, this.serializer(key, message));
     });
-    return promise;
+    this.promises.set(uid, promiseHolder);
+    return promiseHolder.promise;
   }
 
   // Resend all outstanding requests

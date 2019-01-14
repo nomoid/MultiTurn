@@ -1,8 +1,14 @@
 export type Serializer = (key: string, message: string) => string;
 export type Deserializer = (value: string) => [boolean, string, string];
 
-export function defaultSerializer(inToken: string = '$',
-    outToken: string = '$$'): Serializer {
+export function defaultSerializer(inToken: string): Serializer {
+  let outToken: string;
+  if (inToken === '$') {
+    outToken = '$$';
+  }
+  else{
+    outToken = inToken;
+  }
   return (key: string, message: string) => {
     // Replace single dollar signs with double dollar signs
     // Four dollar signs are in the replacement due to regex escaping
@@ -15,13 +21,19 @@ export function defaultSerializer(inToken: string = '$',
 
 // Replace double inTokens with single outTokens
 // Two dollar signs are in the replacement due to regex escaping
-export function defaultDeserializer(inToken: string = '$',
-    outToken: string = '$$'): Deserializer {
+export function defaultDeserializer(inToken: string): Deserializer {
+  let outToken: string;
+  if (inToken === '$') {
+    outToken = '$$';
+  }
+  else{
+    outToken = inToken;
+  }
   return (value: string) => {
     let i;
     for (i = 0; i < value.length; i++) {
       const c = value[i];
-      if (c === '$') {
+      if (c === inToken) {
         // Separator detected
         if (i === value.length - 1) {
           break;
