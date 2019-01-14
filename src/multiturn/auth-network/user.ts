@@ -1,4 +1,4 @@
-import { Socket, RequestEvent } from '../network';
+import { Socket, RequestEvent } from '../network/network';
 import { Serializer, Deserializer } from '../sio-network/serializer';
 import OutgoingRequest from './outgoingrequest';
 import AuthRequestEvent from './requestevent';

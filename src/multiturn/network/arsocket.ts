@@ -1,4 +1,4 @@
-import { Socket } from '../network';
+import { Socket } from './network';
 
 export default interface ARSocket extends Socket {
   accept(): void;
