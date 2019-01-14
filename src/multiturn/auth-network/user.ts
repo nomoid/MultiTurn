@@ -1,12 +1,15 @@
 import { Socket, RequestEvent } from '../network';
+import PromiseHolder from '../promiseholder';
 import { Serializer, Deserializer } from '../sio-network/serializer';
 import AuthRequestEvent from './requestevent';
 import { generateUID } from './uid';
 
+const requestId = 'request';
+
 export default class AuthUser {
 
   private listeners: Array<(e: RequestEvent) => void>;
-  private promises: Map<string, (s: string) => void>;
+  private promises: Map<string, PromiseHolder<string>>;
 
   public constructor(public readonly id: string, public socket: Socket,
     private serializer: Serializer, private deserializer: Deserializer) {
@@ -21,8 +24,8 @@ export default class AuthUser {
   public request(key: string, message: string): Promise<string> {
     const uid = generateUID();
     const promise = new Promise<string>((resolve, reject) => {
-      this.socket.request()
-      this.promises.set(uid, resolve);
+      this.socket.request(requestId, s)
+      this.promises.set(uid, this, resolve, reject);
     });
     return promise;
   }
