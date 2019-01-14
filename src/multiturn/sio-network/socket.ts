@@ -30,7 +30,7 @@ export default class SIONetworkSocket implements Socket {
       const [success, key, message] = this.deserialize(value);
       if (success) {
         for (const listener of this.listeners) {
-          const event = new SIORequestEvent(key, message);
+          const event = new SIORequestEvent(this, key, message);
           listener(event);
         }
       }
@@ -66,29 +66,33 @@ export default class SIONetworkSocket implements Socket {
   }
 
   public request(key: string, message: string): Promise<string> {
-    if (this.closed){
-      throw Error('Socket already closed');
-    }
-    if (!this.responded) {
-      throw Error('Socket not yet accepted');
-    }
+    this.socketReadyCheck();
     return new Promise<string>((resolve, reject) => {
       this.socket.emit(requestId, this.serialize(key, message));
       this.promises.set(key, resolve);
     });
   }
 
+  public respond(key: string, message: string) {
+    this.socketReadyCheck();
+    this.socket.emit(responseId, this.serialize(key, message));
+  }
+
+  // Closing a rejected socket/already closed socket throws an error
   public close(): void {
-    if (this.closed) {
-      // Allow close even if rejected or already closed?
-      return;
+    this.socketReadyCheck();
+    this.closed = true;
+    this.socket.emit(closeId);
+    this.socket.disconnect();
+  }
+
+  private socketReadyCheck() {
+    if (this.closed){
+      throw Error('Socket already closed');
     }
     if (!this.responded) {
       throw Error('Socket not yet accepted');
     }
-    this.closed = true;
-    this.socket.emit(closeId);
-    this.socket.disconnect();
   }
 
 }

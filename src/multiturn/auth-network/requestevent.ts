@@ -9,7 +9,7 @@ export default class AuthRequestEvent implements RequestEvent {
   }
 
   public respond(message: string): void {
-    throw new Error("Method not implemented.");
+    this.user.respond(this.key, message);
   }
 
 }
