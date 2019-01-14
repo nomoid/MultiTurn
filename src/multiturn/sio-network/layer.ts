@@ -1,5 +1,5 @@
-import { NetworkLayer, ConnectionEvent } from '../network';
-import SIOConnectionEvent from './connectionevent';
+import AbstractConnectionEvent from '../network/connectionevent';
+import { NetworkLayer, ConnectionEvent } from '../network/network';
 import { Serializer, Deserializer,
   defaultSerializer, defaultDeserializer } from './serializer';
 import SIONetworkSocket from './socket';
@@ -40,7 +40,7 @@ export default class SIONetworkLayer implements NetworkLayer {
       for (const listener of this.listeners) {
         const internalSocket = new SIONetworkSocket(socket,
           this.serializer, this.deserializer);
-        const event = new SIOConnectionEvent(internalSocket);
+        const event = new AbstractConnectionEvent(internalSocket);
         listener(event);
       }
     });

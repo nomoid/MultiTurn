@@ -11,7 +11,7 @@ export default class PromiseHolder<T> {
   private value: T | undefined = undefined;
   private promiseHolderUpdated: boolean = false;
 
-  public constructor(private callback:
+  public constructor(private callback?:
       (resolve: (t: T) => void, reject: () => void) => void) {
     this.resolve = (t: T) => {
       if (this.promiseHolderUpdated) {
@@ -43,6 +43,9 @@ export default class PromiseHolder<T> {
         else {
           this.reject();
         }
+      }
+      if (callback) {
+        callback(resolve, reject);
       }
     });
 

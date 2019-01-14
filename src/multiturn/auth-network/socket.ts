@@ -1,10 +1,23 @@
-import { Socket, RequestEvent } from '../network';
+import { Socket, RequestEvent } from '../network/network';
 import AuthUser from './user';
 
 export default class AuthSocket implements Socket {
 
-  public constructor(public user: AuthUser){
+  private accepted: boolean = false;
 
+  public constructor(readonly user: AuthUser){
+
+  }
+
+  public accept() {
+    this.accepted = true;
+  }
+
+  public reject() {
+    if (this.accepted) {
+      throw Error('Socket already accepted or rejected');
+    }
+    this.close();
   }
 
   public addRequestListener(callback: (e: RequestEvent) => void): void {

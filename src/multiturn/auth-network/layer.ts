@@ -1,8 +1,8 @@
+import AbstractConnectionEvent from '../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, RequestEvent,
-  Socket } from '../network';
+  Socket } from '../network/network';
 import { Serializer, Deserializer,
   defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
-import AuthConnectionEvent from './connectionevent';
 import AuthSocket from './socket';
 import { generateUID } from './uid';
 import AuthUser from './user';
@@ -43,9 +43,8 @@ export default class AuthNetworkLayer implements NetworkLayer {
     }
     this.listening = true;
     this.network.addConnectionListener((e: ConnectionEvent) => {
-      const socket = e.socket;
+      const socket = e.accept();
       socket.addRequestListener(this.handleRequest(socket).bind(this));
-      e.accept();
     });
     this.network.listen();
   }
@@ -72,7 +71,7 @@ export default class AuthNetworkLayer implements NetworkLayer {
         this.users.set(newId, user);
         for (const listener of this.listeners) {
           const authSock = new AuthSocket(user);
-          listener(new AuthConnectionEvent(authSock));
+          listener(new AbstractConnectionEvent(authSock));
         }
       }
       else if (e.key === loginId) {
@@ -87,7 +86,7 @@ export default class AuthNetworkLayer implements NetworkLayer {
       }
       else if (this.users.has(e.key)) {
         const user = this.users.get(e.key)!;
-        user.handleRequest(e.message);
+        user.handleRequest(e);
       }
     };
   }

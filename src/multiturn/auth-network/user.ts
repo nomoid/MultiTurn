@@ -1,20 +1,19 @@
 import { Socket, RequestEvent } from '../network';
-import PromiseHolder from '../promiseholder';
 import { Serializer, Deserializer } from '../sio-network/serializer';
+import OutgoingRequest from './outgoingrequest';
 import AuthRequestEvent from './requestevent';
-import { generateUID } from './uid';
 
-const requestId = 'request';
+const requestId = '_request';
 
 export default class AuthUser {
 
   private listeners: Array<(e: RequestEvent) => void>;
-  private promises: Map<string, PromiseHolder<string>>;
+  private outgoingRequests: Map<string, OutgoingRequest>;
 
-  public constructor(public readonly id: string, public socket: Socket,
+  public constructor(readonly id: string, public socket: Socket,
     private serializer: Serializer, private deserializer: Deserializer) {
     this.listeners = [];
-    this.promises = new Map();
+    this.outgoingRequests = new Map();
   }
 
   public addRequestListener(callback: (e: RequestEvent) => void) {
@@ -22,27 +21,46 @@ export default class AuthUser {
   }
 
   public request(key: string, message: string): Promise<string> {
-    const uid = generateUID();
-    const promiseHolder = new PromiseHolder<string>((resolve, reject) => {
-      this.socket.request(requestId, this.serializer(key, message));
+    const req = new OutgoingRequest(key, message);
+    this.outgoingRequests.set(req.uid, req);
+    this.fireRequest(req);
+    return req.promiseHolder.promise;
+  }
+
+  public fireRequest(request: OutgoingRequest) {
+    this.socket.request(request.key, request.message)
+    .then((response: string) => {
+      const req = this.outgoingRequests.get(request.uid);
+      if (req) {
+        this.outgoingRequests.delete(request.uid);
+        req.promiseHolder.resolve(response);
+      }
+      // Ignore when promise already previously resolved
+      return response;
     });
-    this.promises.set(uid, promiseHolder);
-    return promiseHolder.promise;
   }
 
   // Resend all outstanding requests
   public refresh() {
-    throw new Error("Method not implemented.");
+    for (const uid of this.outgoingRequests.keys()) {
+      const req = this.outgoingRequests.get(uid)!;
+      this.fireRequest(req);
+    }
   }
 
-  public handleRequest(value: string) {
+  public handleRequest(e: RequestEvent) {
+    const value = e.message;
     const listeners = this.listeners;
     const [success, key, message] = this.deserializer(value);
     if (success) {
       for (const listener of listeners) {
-        listener(new AuthRequestEvent(this, key, message));
+        listener(new AuthRequestEvent(key, message, e.respond.bind(e)));
       }
     }
     // Do nothing on failed deserializing
+  }
+
+  public close() {
+    this.socket.close();
   }
 }

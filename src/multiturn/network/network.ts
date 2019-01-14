@@ -14,8 +14,7 @@ export interface NetworkLayer {
 }
 
 export interface ConnectionEvent {
-  readonly socket: Socket;
-  accept(): void;
+  accept(): Socket;
   reject(): void;
 }
 
