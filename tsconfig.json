@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "typings/**/*.d.ts"
+  ],
+  "exclude": [
+    ".git",
+    "node_modules"
+  ]
+}
