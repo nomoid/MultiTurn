@@ -4,13 +4,11 @@
   "description": "Typescript template",
   "private": true,
   "scripts": {
-    "superclean": "rimraf .cache node_modules build dist",
+    "superclean": "rimraf node_modules build dist",
     "clean": "rimraf build dist",
-    "build": "webpack",
-    "watch": "rimraf build && parcel watch src/index.html --public-url ./ -d build",
-    "dev": "rimraf build && parcel src/index.html --public-url ./ -d build",
-    "serverbuild": "tsc src/server/index.ts --outDir serverbuild --target es6 --module commonjs --strict",
-    "server": "node serverbuild/server/index.js"
+    "build-client": "webpack",
+    "build-server": "tsc src/server/index.ts --outDir build --target es6 --module commonjs --strict",
+    "server": "node build/server/index.js"
   },
   "author": "Markus Feng",
   "license": "MIT",
