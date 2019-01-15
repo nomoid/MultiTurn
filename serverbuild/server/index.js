@@ -5,10 +5,13 @@ const http = require("http");
 const socketio = require("socket.io");
 const layer_1 = require("../multiturn/sio-network/layer");
 const app = express();
-const clientPath = `${__dirname}/../../build`;
+const clientPath = `${__dirname}/../../dist`;
 app.use(express.static(clientPath));
 const server = http.createServer(app);
 const io = socketio(server);
+io.on('connection', (socket) => {
+    console.log('Player joined');
+});
 let i = 0;
 const netLayer = new layer_1.default(io);
 netLayer.addConnectionListener((e) => {

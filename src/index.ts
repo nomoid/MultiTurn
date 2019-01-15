@@ -12,6 +12,7 @@ const serializer = defaultSerializer('$');
 const deserializer = defaultDeserializer('$');
 
 function main() {
+    console.log('Starting client');
     io.on(responseId, (value: string) => {
         const [success, key, message] = deserializer(value);
         if (success) {
@@ -20,3 +21,5 @@ function main() {
     });
     io.emit(requestId, serializer('testKey', 'testMessage'));
 }
+
+main();

@@ -1,19 +1,20 @@
 import * as express from 'express';
 import * as http from 'http';
-import * as Bundler from 'parcel-bundler';
 import * as socketio from 'socket.io';
 import SIONetworkLayer from '../multiturn/sio-network/layer';
 
 const app = express();
 
-const bundler = new Bundler();
-
-const clientPath = `${__dirname}/../../build`;
+const clientPath = `${__dirname}/../../dist`;
 app.use(express.static(clientPath));
 
 const server = http.createServer(app);
 
 const io = socketio(server);
+
+io.on('connection', (socket) => {
+  console.log('Player joined');
+});
 
 let i = 0;
 
