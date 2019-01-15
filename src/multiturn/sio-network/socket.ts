@@ -1,5 +1,5 @@
-import { Socket, RequestEvent } from '../network';
-import SIORequestEvent from './requestevent';
+import { Socket, RequestEvent } from '../network/network';
+import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
 
 const requestId = 'request';
