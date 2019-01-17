@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
-import SIONetworkLayer from '../multiturn/sio-network/layer';
+import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
 
 const app = express();
 
@@ -18,7 +18,7 @@ io.on('connection', (socket) => {
 
 let i = 0;
 
-const netLayer = new SIONetworkLayer(io);
+const netLayer = new SIOServerNetworkLayer(io);
 netLayer.addConnectionListener((e) => {
   const sock = e.accept();
   sock.addRequestListener((e2) => {

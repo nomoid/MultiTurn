@@ -1,4 +1,6 @@
 import * as sio from 'socket.io-client';
+import { ConnectionEvent, RequestEvent } from '../multiturn/network/network';
+import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
 import { defaultSerializer, defaultDeserializer } from '../multiturn/sio-network/serializer';
 
 const requestId = 'request';
@@ -13,13 +15,16 @@ const deserializer = defaultDeserializer('$');
 
 function main() {
     console.log('Starting client');
-    io.on(responseId, (value: string) => {
-        const [success, key, message] = deserializer(value);
-        if (success) {
-            console.log(`Response with key ${key} and message ${message}`);
-        }
+    const layer = new SIOClientNetworkLayer(io);
+    layer.addConnectionListener((e: ConnectionEvent) => {
+        const socket = e.accept();
+        socket.addRequestListener((e2: RequestEvent) => {
+            console.log(`Request: ${e2.message}`);
+        });
+        socket.request('testKey', 'testMesssage').then((resp: string) => {
+            console.log(`Response to testKey: ${resp}`);
+        });
     });
-    io.emit(requestId, serializer('testKey', 'testMessage'));
 }
 
 main();

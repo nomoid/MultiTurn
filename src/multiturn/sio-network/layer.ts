@@ -7,15 +7,13 @@ import SIONetworkSocket from './socket';
 /**
  * A socket.io based implementation of the Network layer
  */
-export default class SIONetworkLayer implements NetworkLayer {
+export default abstract class SIONetworkLayer implements NetworkLayer {
 
-  private serializer: Serializer;
-  private deserializer: Deserializer;
-  private listeners: Array<(e: ConnectionEvent) => void>;
-  private listening: boolean = false;
+  protected serializer: Serializer;
+  protected deserializer: Deserializer;
+  protected listeners: Array<(e: ConnectionEvent) => void>;
 
-  public constructor(private io: SIOServer, serializer?: Serializer,
-    deserializer?: Deserializer) {
+  public constructor(serializer?: Serializer, deserializer?: Deserializer) {
     this.listeners = [];
     if (serializer) {
       this.serializer = serializer;
@@ -31,20 +29,7 @@ export default class SIONetworkLayer implements NetworkLayer {
     }
   }
 
-  public listen(): void {
-    if (this.listening) {
-      return;
-    }
-    this.listening = true;
-    this.io.on('connection', (socket: SIOSocket) => {
-      for (const listener of this.listeners) {
-        const internalSocket = new SIONetworkSocket(socket,
-          this.serializer, this.deserializer);
-        const event = new AbstractConnectionEvent(internalSocket);
-        listener(event);
-      }
-    });
-  }
+  public abstract listen(): void;
 
   public addConnectionListener(callback: (e: ConnectionEvent) => void): void {
     this.listeners.push(callback);
