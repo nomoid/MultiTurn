@@ -1,5 +1,5 @@
 import * as sio from 'socket.io-client';
-import { defaultSerializer, defaultDeserializer } from './multiturn/sio-network/serializer';
+import { defaultSerializer, defaultDeserializer } from '../multiturn/sio-network/serializer';
 
 const requestId = 'request';
 const responseId = 'response';

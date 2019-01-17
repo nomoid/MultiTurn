@@ -1,13 +1,18 @@
 const path = require('path');
+require('file-loader');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: './src/client/index.ts',
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.html/,
+        loader: 'file-loader?name=[name].[ext]',
       }
     ]
   },
