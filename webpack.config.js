@@ -2,7 +2,10 @@ const path = require('path');
 require('file-loader');
 
 module.exports = {
-  entry: './src/client/index.ts',
+  entry: [
+    './src/client/index.ts',
+    './index.html'
+  ],
   module: {
     rules: [
       {

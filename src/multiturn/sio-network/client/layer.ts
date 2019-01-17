@@ -1,6 +1,7 @@
 import AbstractConnectionEvent from '../../network/connectionevent';
 import SIONetworkLayer from '../layer';
 import { Serializer, Deserializer } from '../serializer';
+import { SIOSocket } from '../sio-external';
 import SIONetworkSocket from '../socket';
 
 export default class SIOClientNetworkLayer extends SIONetworkLayer {

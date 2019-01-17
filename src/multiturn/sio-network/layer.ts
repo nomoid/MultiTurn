@@ -1,8 +1,6 @@
-import AbstractConnectionEvent from '../network/connectionevent';
 import { NetworkLayer, ConnectionEvent } from '../network/network';
 import { Serializer, Deserializer,
   defaultSerializer, defaultDeserializer } from './serializer';
-import SIONetworkSocket from './socket';
 
 /**
  * A socket.io based implementation of the Network layer

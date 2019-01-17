@@ -25,6 +25,7 @@ function main() {
             console.log(`Response to testKey: ${resp}`);
         });
     });
+    layer.listen();
 }
 
 main();

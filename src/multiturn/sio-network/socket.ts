@@ -1,6 +1,7 @@
 import { Socket, RequestEvent } from '../network/network';
 import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
+import { SIOSocket } from './sio-external';
 
 const requestId = 'request';
 const responseId = 'response';
