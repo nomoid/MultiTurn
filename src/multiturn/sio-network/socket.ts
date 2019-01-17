@@ -15,7 +15,7 @@ export default class SIONetworkSocket implements Socket {
   private responded: boolean = false;
   private closed: boolean = false;
 
-  public constructor(private socket: SocketIO.Socket,
+  public constructor(private socket: SIOSocket,
     private serialize: Serializer, private deserialize: Deserializer) {
     this.listeners = [];
     this.promises = new Map();

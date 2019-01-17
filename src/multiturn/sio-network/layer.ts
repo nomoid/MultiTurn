@@ -14,7 +14,7 @@ export default class SIONetworkLayer implements NetworkLayer {
   private listeners: Array<(e: ConnectionEvent) => void>;
   private listening: boolean = false;
 
-  public constructor(private io: SocketIO.Server, serializer?: Serializer,
+  public constructor(private io: SIOServer, serializer?: Serializer,
     deserializer?: Deserializer) {
     this.listeners = [];
     if (serializer) {
@@ -36,7 +36,7 @@ export default class SIONetworkLayer implements NetworkLayer {
       return;
     }
     this.listening = true;
-    this.io.on('connection', (socket: SocketIO.Socket) => {
+    this.io.on('connection', (socket: SIOSocket) => {
       for (const listener of this.listeners) {
         const internalSocket = new SIONetworkSocket(socket,
           this.serializer, this.deserializer);
