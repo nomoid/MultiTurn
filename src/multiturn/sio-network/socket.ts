@@ -3,10 +3,10 @@ import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
 import { SIOSocket } from './sio-external';
 
-const requestId = 'request';
-const responseId = 'response';
-const connRefusedId = 'refused';
-const closeId = 'close';
+const requestId = '_request';
+const responseId = '_response';
+const connRefusedId = '_refused';
+const closeId = '_close';
 
 export default class SIONetworkSocket implements Socket {
 
@@ -46,6 +46,16 @@ export default class SIONetworkSocket implements Socket {
         }
       }
       // Do nothing on failed deserializing
+    });
+    this.socket.on(connRefusedId, () => {
+      // Connection refused
+      this.closed = true;
+      this.socket.disconnect();
+    });
+    this.socket.on(closeId, () => {
+      // Connection closed
+      this.closed = true;
+      this.socket.disconnect();
     });
   }
 
