@@ -75,6 +75,7 @@ export default class AuthNetworkLayer implements NetworkLayer {
           const authSock = new AuthSocket(user);
           listener(new AbstractConnectionEvent(authSock));
         }
+        e.respond(newId);
       }
       else if (e.key === loginId) {
         // If id exists, replace sock with the given id

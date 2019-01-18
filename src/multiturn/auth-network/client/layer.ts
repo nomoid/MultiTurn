@@ -43,6 +43,9 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
       if (this.token) {
         this.tryLogin(socket, this.token);
       }
+      else {
+        this.tryRegister(socket);
+      }
     });
     this.network.listen();
   }
