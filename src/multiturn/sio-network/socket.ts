@@ -79,8 +79,8 @@ export default class SIONetworkSocket implements Socket {
   public request(key: string, message: string): Promise<string> {
     this.socketReadyCheck();
     return new Promise<string>((resolve, reject) => {
-      this.socket.emit(requestId, this.serialize(key, message));
       this.promises.set(key, resolve);
+      this.socket.emit(requestId, this.serialize(key, message));
     });
   }
 
