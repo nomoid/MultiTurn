@@ -15,7 +15,7 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   private serializer: Serializer;
   private deserializer: Deserializer;
 
-  public constructor(private network: NetworkLayer, private token?: string,
+  public constructor(private network: NetworkLayer, public token?: string,
     serializer?: Serializer, deserializer?: Deserializer) {
     this.listeners = [];
     if (serializer) {
