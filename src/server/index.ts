@@ -13,15 +13,12 @@ const server = http.createServer(app);
 
 const io = socketio(server);
 
-io.on('connection', (socket) => {
-  console.log('Player joined');
-});
-
 let i = 0;
 
 const netLayer = new SIOServerNetworkLayer(io);
 const authLayer = new AuthServerNetworkLayer(netLayer);
 authLayer.addConnectionListener((e) => {
+  console.log('Player joined');
   const sock = e.accept();
   sock.addRequestListener((e2) => {
     console.log(`Key: ${e2.key}, Message: ${e2.message}`);

@@ -12,6 +12,8 @@ const loginId = '_login';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
 
+const verbose = true;
+
 export default class AuthNetworkLayer implements NetworkLayer {
 
   private users: Map<string, AuthUser>;
@@ -58,10 +60,16 @@ export default class AuthNetworkLayer implements NetworkLayer {
   private handleRequest(socket: Socket) {
     return (e: RequestEvent) => {
       if (e.key === registerId) {
+        if (verbose) {
+          console.log('New registration request');
+        }
         // Check if socket is already registered, if so, give them their ID
         for (const id of this.users.keys()) {
           const existingUser = this.users.get(id)!;
           if (existingUser.socket === socket) {
+            if (verbose) {
+              console.log(`Socket is already registered with id ${id}`);
+            }
             e.respond(id);
             return;
           }
@@ -75,19 +83,31 @@ export default class AuthNetworkLayer implements NetworkLayer {
           const authSock = new AuthSocket(user);
           listener(new AbstractConnectionEvent(authSock));
         }
+        if (verbose) {
+          console.log(`Socket registered with id ${newId}`);
+        }
         e.respond(newId);
       }
       else if (e.key === loginId) {
         // If id exists, replace sock with the given id
         const id = e.message;
+        if (verbose) {
+          console.log(`New login request with id ${id}`);
+        }
         if (this.users.has(id)) {
           const user = this.users.get(id)!;
+          if (verbose) {
+            console.log(`User found with id ${id}`);
+          }
           e.respond(loginSuccessId);
           user.socket = socket;
           // Resend all outstanding requests
           user.refresh();
         }
         else {
+          if (verbose) {
+            console.log(`User not found with id ${id}`);
+          }
           e.respond(loginFailId);
           // TODO deal with repeated failure to login?
         }
