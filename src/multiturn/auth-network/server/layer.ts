@@ -1,14 +1,16 @@
-import AbstractConnectionEvent from '../network/connectionevent';
+import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, RequestEvent,
-  Socket } from '../network/network';
+  Socket } from '../../network/network';
 import { Serializer, Deserializer,
-  defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
+  defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
+import { generateUID } from '../../uid';
 import AuthSocket from './socket';
-import { generateUID } from './uid';
 import AuthUser from './user';
 
 const registerId = '_register';
 const loginId = '_login';
+const loginSuccessId = '_login_success';
+const loginFailId = '_login_fail';
 
 export default class AuthNetworkLayer implements NetworkLayer {
 
@@ -79,9 +81,14 @@ export default class AuthNetworkLayer implements NetworkLayer {
         const id = e.message;
         if (this.users.has(id)) {
           const user = this.users.get(id)!;
+          e.respond(loginSuccessId);
           user.socket = socket;
           // Resend all outstanding requests
           user.refresh();
+        }
+        else {
+          e.respond(loginFailId);
+          // TODO deal with repeated failure to login?
         }
       }
       else if (this.users.has(e.key)) {

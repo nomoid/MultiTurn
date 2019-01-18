@@ -1,4 +1,4 @@
-import { Socket, RequestEvent } from '../network/network';
+import { Socket, RequestEvent } from '../../network/network';
 import AuthUser from './user';
 
 export default class AuthSocket implements Socket {

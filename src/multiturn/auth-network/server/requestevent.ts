@@ -1,4 +1,4 @@
-import { RequestEvent } from '../network/network';
+import { RequestEvent } from '../../network/network';
 import AuthUser from './user';
 
 export default class AuthRequestEvent implements RequestEvent {

@@ -1,5 +1,5 @@
-import PromiseHolder from '../promiseholder';
-import { generateUID } from './uid';
+import PromiseHolder from '../../promiseholder';
+import { generateUID } from '../../uid';
 
 export default class OutgoingRequest {
 

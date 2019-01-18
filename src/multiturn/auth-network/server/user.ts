@@ -1,9 +1,7 @@
-import { Socket, RequestEvent } from '../network/network';
-import { Serializer, Deserializer } from '../sio-network/serializer';
+import { Socket, RequestEvent } from '../../network/network';
+import { Serializer, Deserializer } from '../../sio-network/serializer';
 import OutgoingRequest from './outgoingrequest';
 import AuthRequestEvent from './requestevent';
-
-const requestId = '_request';
 
 export default class AuthUser {
 
