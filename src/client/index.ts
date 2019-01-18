@@ -1,17 +1,8 @@
 import * as sio from 'socket.io-client';
 import { ConnectionEvent, RequestEvent } from '../multiturn/network/network';
 import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
-import { defaultSerializer, defaultDeserializer } from '../multiturn/sio-network/serializer';
-
-const requestId = 'request';
-const responseId = 'response';
-const connRefusedId = 'refused';
-const closeId = 'close';
 
 const io = sio();
-
-const serializer = defaultSerializer('$');
-const deserializer = defaultDeserializer('$');
 
 function main() {
     console.log('Starting client');
