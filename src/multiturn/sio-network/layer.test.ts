@@ -1,8 +1,9 @@
-import { ConnectionEvent, RequestEvent } from '../network/network';
+import { randomData } from '../jest-helper';
+import { ConnectionEvent, RequestEvent, NetworkLayer } from '../network/network';
 import SIOClientNetworkLayer from './client/layer';
 import MockSIOServer from './mock/server';
 import SIOServerNetworkLayer from './server/layer';
-import { SIOSocket } from './sio-external';
+import { SIOSocket, SIOServer } from './sio-external';
 
 test('testMockSIO', (done) => {
   const testKey1 = '$$$$';
@@ -28,45 +29,8 @@ test('testMockSIO', (done) => {
   client.emit(testKey1, testValue1);
 });
 
-function randomChar(): string {
-  // Minimum ascii value, inclusive
-  const alphaMin = 32;
-  // Maximum ascii value, exclusive
-  const alphaMax = 127;
-  const charCode =
-    Math.floor(Math.random() * (alphaMax - alphaMin)) + alphaMin;
-  return String.fromCharCode(charCode);
-}
-
-function randomString(): string {
-  // Generate a random length
-  const minLength = 0;
-  const maxLength = 20;
-  const length =
-    Math.floor(Math.random() * (maxLength - minLength)) + minLength;
-  let s = '';
-  for (let i = 0; i < length; i++) {
-    s += randomChar();
-  }
-  return s;
-}
-
-function randomData(length: number): string[] {
-  const arr = [];
-  for (let i = 0; i < length; i++) {
-    arr.push(randomString());
-  }
-  return arr;
-}
-
-function randomTimeout(): number {
-  // Random timeout between 0 seconds and 2 seconds
-  const minTime = 0;
-  const maxTime = 2000;
-  return (Math.random() * (maxTime - minTime)) + minTime;
-}
-
-test('testSIOLayer', () => {
+export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer,
+    clientGenerator: (s: SIOSocket) => NetworkLayer) {
 
   // Randomly choose between 10 and 20 messages
   const len = Math.floor(Math.random() * 10) + 10;
@@ -77,9 +41,9 @@ test('testSIOLayer', () => {
   expect.assertions(3 * len);
 
   const server = new MockSIOServer();
-  const serverLayer = new SIOServerNetworkLayer(server);
+  const serverLayer = serverGenerator(server);
   const client = server.connect();
-  const clientLayer = new SIOClientNetworkLayer(client);
+  const clientLayer = clientGenerator(client);
   serverLayer.addConnectionListener((e: ConnectionEvent) => {
     const socket = e.accept();
     socket.addRequestListener((e2: RequestEvent) => {
@@ -111,5 +75,13 @@ test('testSIOLayer', () => {
       ));
     }
     return Promise.all(promises);
+  });
+}
+
+test('testSIOLayer', () => {
+  return testNetworkLayer((server: SIOServer) => {
+    return new SIOServerNetworkLayer(server);
+  }, (client: SIOSocket) => {
+    return new SIOClientNetworkLayer(client);
   });
 });

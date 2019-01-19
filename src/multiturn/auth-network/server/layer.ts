@@ -12,9 +12,9 @@ const loginId = '_login';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
 
-const verbose = true;
+const verbose = false;
 
-export default class AuthNetworkLayer implements NetworkLayer {
+export default class AuthServerNetworkLayer implements NetworkLayer {
 
   private users: Map<string, AuthUser>;
   private listeners: Array<(e: ConnectionEvent) => void>;
