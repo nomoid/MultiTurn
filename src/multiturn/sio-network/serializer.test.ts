@@ -62,7 +62,7 @@ test('testRandomSerializeDeserialize', () => {
   const serializer = ([key, message]: [string, string]) => {
     return ser(key, message);
   };
-  const deser = defaultDeserializer(t)
+  const deser = defaultDeserializer(t);
   const deserializer: (s: string) => [string, string] = (s: string) => {
     const [success, key, message] = deser(s);
     if (success) {
@@ -78,7 +78,7 @@ test('testRandomSerializeDeserialize', () => {
   const data2 = randomData(len);
   const zipper: (s: string, i: number) => [string, string] = (x, i) => {
     return [x, data2[i]];
-  }
+  };
   const pairs: Array<[string, string]> = data.map(zipper);
 
   for (const pair of pairs) {
