@@ -29,6 +29,8 @@ test('testMockSIO', (done) => {
   client.emit(testKey1, testValue1);
 });
 
+const verbose = false;
+
 export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer,
     clientGenerator: (s: SIOSocket) => NetworkLayer) {
 
@@ -40,9 +42,11 @@ export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer
 
   expect.assertions(3 * len);
 
-  console.log(testKeys);
-  console.log(testValues);
-  console.log(testResponses);
+  if (verbose) {
+    console.log(testKeys);
+    console.log(testValues);
+    console.log(testResponses);
+  }
 
   const server = new MockSIOServer();
   const serverLayer = serverGenerator(server);
@@ -72,7 +76,9 @@ export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer
     const promises = [];
     const request = (i: number) => {
       return (value: string) => {
-        console.log(i);
+        if (verbose) {
+          console.log(i);
+        }
         expect(value).toEqual(testResponses[i]);
         return true;
       };
