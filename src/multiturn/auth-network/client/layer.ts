@@ -22,13 +22,13 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
       this.serializer = serializer;
     }
     else {
-      this.serializer = defaultSerializer('|');
+      this.serializer = defaultSerializer('*');
     }
     if (deserializer) {
       this.deserializer = deserializer;
     }
     else {
-      this.deserializer = defaultDeserializer('|');
+      this.deserializer = defaultDeserializer('*');
     }
   }
 
