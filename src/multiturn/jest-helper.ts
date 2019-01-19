@@ -32,10 +32,17 @@ export function randomUniqueString(): string {
   return s;
 }
 
+const nonRandom = false;
+
 export function randomData(length: number): string[] {
   const arr = [];
   for (let i = 0; i < length; i++) {
-    arr.push(randomUniqueString());
+    if (nonRandom) {
+      arr.push(i.toString());
+    }
+    else {
+      arr.push(randomUniqueString());
+    }
   }
   return arr;
 }

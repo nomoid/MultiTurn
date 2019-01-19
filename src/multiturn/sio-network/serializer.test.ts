@@ -1,7 +1,8 @@
+import { randomData } from '../jest-helper';
 import { defaultSerializer, defaultDeserializer } from './serializer';
 
 test('testDeserializer', () => {
-  const t = '|';
+  const t = '$';
   const deserializer = defaultDeserializer(t);
 
   // Test default
@@ -30,7 +31,7 @@ test('testDeserializer', () => {
 });
 
 test('testSerializer', () => {
-  const t = '|';
+  const t = '$';
   const serializer = defaultSerializer(t);
 
   // Test default
@@ -53,4 +54,36 @@ test('testSerializer', () => {
   expect(serializer(`a${t}`, 'b')).toEqual(`a${t}${t}${t}b`);
   expect(serializer(`a${t}${t}b`, '')).toEqual(`a${t}${t}${t}${t}b${t}`);
   expect(serializer(`a${t}${t}`, 'b')).toEqual(`a${t}${t}${t}${t}${t}b`);
+});
+
+test('testRandomSerializeDeserialize', () => {
+  const t = '$';
+  const ser = defaultSerializer(t);
+  const serializer = ([key, message]: [string, string]) => {
+    return ser(key, message);
+  };
+  const deser = defaultDeserializer(t)
+  const deserializer: (s: string) => [string, string] = (s: string) => {
+    const [success, key, message] = deser(s);
+    if (success) {
+      return [key, message];
+    }
+    else {
+      throw Error('Error deserializing');
+    }
+  };
+
+  const len = 1000;
+  const data = randomData(len);
+  const data2 = randomData(len);
+  const zipper: (s: string, i: number) => [string, string] = (x, i) => {
+    return [x, data2[i]];
+  }
+  const pairs: Array<[string, string]> = data.map(zipper);
+
+  for (const pair of pairs) {
+    expect(deserializer(serializer(pair))).toEqual(pair);
+    expect(deserializer(serializer(
+      deserializer(serializer(pair))))).toEqual(pair);
+  }
 });

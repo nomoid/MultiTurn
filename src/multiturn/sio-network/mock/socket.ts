@@ -1,4 +1,7 @@
+import { generateUID } from '../../uid';
 import { SIOSocket } from '../sio-external';
+
+const verbose = false;
 
 export default class MockSIOSocket implements SIOSocket {
 
@@ -15,16 +18,23 @@ export default class MockSIOSocket implements SIOSocket {
   private other!: MockSIOSocket;
   private handlers: Map<string, Array<(s: string) => void>>;
   private disconnected: boolean = false;
+  private id: string;
 
   private constructor() {
     // No public constructor
     this.handlers = new Map();
+    this.id = generateUID();
   }
 
   public emit(key: string, message?: string): void {
     if (this.disconnected) {
       return;
     }
+    let msg = '';
+    if (message) {
+      msg = `;message=${message}`;
+    }
+    this.log(`emit key=${key}${msg}`);
     this.other.onEmit(key, message);
   }
 
@@ -56,6 +66,12 @@ export default class MockSIOSocket implements SIOSocket {
           handler('');
         }
       }
+    }
+  }
+
+  private log(s: string) {
+    if (verbose) {
+      console.log(`[${this.id}]: ${s}`);
     }
   }
 }

@@ -5,7 +5,7 @@ import { SIOServer, SIOSocket } from '../sio-network/sio-external';
 import AuthClientNetworkLayer from './client/layer';
 import AuthServerNetworkLayer from './server/layer';
 
-test('testSIOLayer', () => {
+test('testAuthLayer', () => {
   return testNetworkLayer((server: SIOServer) => {
     return new AuthServerNetworkLayer(new SIOServerNetworkLayer(server));
   }, (client: SIOSocket) => {

@@ -40,6 +40,10 @@ export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer
 
   expect.assertions(3 * len);
 
+  console.log(testKeys);
+  console.log(testValues);
+  console.log(testResponses);
+
   const server = new MockSIOServer();
   const serverLayer = serverGenerator(server);
   const client = server.connect();
@@ -66,12 +70,16 @@ export function testNetworkLayer(serverGenerator: (s: SIOServer) => NetworkLayer
   return promise.then((e: ConnectionEvent) => {
     const socket = e.accept();
     const promises = [];
+    const request = (i: number) => {
+      return (value: string) => {
+        console.log(i);
+        expect(value).toEqual(testResponses[i]);
+        return true;
+      };
+    };
     for (let i = 0; i < len; i++) {
       promises.push(socket.request(testKeys[i], testValues[i]).then(
-        (value: string) => {
-          expect(value).toEqual(testResponses[i]);
-          return true;
-        }
+        request(i)
       ));
     }
     return Promise.all(promises);
