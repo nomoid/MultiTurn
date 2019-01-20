@@ -1,7 +1,7 @@
-import Server from '../multiturn/server';
+import Server from '../../multiturn/server';
+import Move from '../move';
+import Remote from '../remote/player';
 import Board from './board';
-import Move from './move';
-import Remote from './remote/player';
 
 function main() {
     const options = {
