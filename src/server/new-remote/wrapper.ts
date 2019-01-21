@@ -9,15 +9,16 @@ const REMOTE_NAME_KEY = 'remoteName';
 
 export function remote() {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    Reflect.defineMetadata(REMOTE_NAME_KEY, propertyKey, target[propertyKey]);
+    Reflect.defineMetadata(REMOTE_NAME_KEY, `${target.constructor.name}.${propertyKey}`, target[propertyKey]);
   };
 }
 
 function getFromRemote(key: string): Promise<string> {
+  console.log(key);
   return Promise.resolve(JSON.stringify(new Move(1, 1)));
 }
 
-export default function remoteCall<T>(t: (() => T), typePath: string, basePath: string): () => Promise<T> {
+export default function remoteCall<T>(t: (() => T), typePath: string): () => Promise<T> {
   const compilerOptions: TJS.CompilerOptions = {
     target: ts.ScriptTarget.Latest,
     module: ts.ModuleKind.CommonJS,
@@ -46,7 +47,6 @@ export default function remoteCall<T>(t: (() => T), typePath: string, basePath: 
     throw Error(`Multiple symbols found in: ${typePath}`);
   }
   const schema = generator.getSchemaForSymbol(symbols[0]);
-  console.log(schema);
   const ajv = new AJV();
   const validate = ajv.compile(schema);
   return () => {
