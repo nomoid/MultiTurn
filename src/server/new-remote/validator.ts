@@ -7,13 +7,19 @@ import * as TJS from 'typescript-json-schema';
 const REMOTE_NAME_KEY = 'remoteName';
 const REMOTE_RETURN_TYPE_KEY = 'remoteReturnType';
 
-export function remote() {
+export function remote(namedType?: {name: string}) {
   return (target: any, propertyKey: string,
       descriptor: PropertyDescriptor) => {
     Reflect.defineMetadata(REMOTE_NAME_KEY,
       `${target.constructor.name}.${propertyKey}`, target[propertyKey]);
-    const returnType = Reflect.getMetadata('design:returntype', target,
-      propertyKey);
+    let returnType;
+    if (namedType) {
+      returnType = namedType;
+    }
+    else {
+      returnType = Reflect.getMetadata('design:returntype', target,
+        propertyKey);
+    }
     Reflect.defineMetadata(REMOTE_RETURN_TYPE_KEY, returnType.name,
       target[propertyKey]);
   };
@@ -63,11 +69,20 @@ export default class RemoteValidator {
   }
 
   public call<T>(t: (() => T)): () => Promise<T> {
+    return this.internalCall(t);
+  }
+
+  public flatCall<T>(t: (() => Promise<T>)): () => Promise<T> {
+    return this.internalCall(t);
+  }
+
+  private internalCall<T>(t: any): () => Promise<T> {
     const remoteName: string = Reflect.getMetadata(REMOTE_NAME_KEY, t);
     if (!remoteName) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
     const remoteType: string = Reflect.getMetadata(REMOTE_RETURN_TYPE_KEY, t);
+    console.log(remoteType);
     if (!remoteType) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }

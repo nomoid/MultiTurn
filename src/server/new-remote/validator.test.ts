@@ -15,8 +15,9 @@ class TestGetter {
 const getter = new TestGetter();
 const remote = new RemoteValidator(getter.get.bind(getter), path);
 const getMove = remote.call(Player.prototype.getMove);
+const getDelayedMove = remote.flatCall(Player.prototype.getDelayedMove);
 
-test('testValidator', async () => {
+test('testValidatorCall', async () => {
   const move = new Move(1, 1);
   const moveSupplier = (key: string) => {
     if (key !== 'Player.getMove') {
@@ -26,6 +27,18 @@ test('testValidator', async () => {
   };
   getter.fun = moveSupplier;
   await expect(getMove()).resolves.toEqual(move);
+});
+
+test('testValidatorFlatCall', async () => {
+  const move = new Move(1, 1);
+  const moveSupplier = (key: string) => {
+    if (key !== 'Player.getDelayedMove') {
+      throw Error('Incorrect name');
+    }
+    return Promise.resolve(JSON.stringify(move));
+  };
+  getter.fun = moveSupplier;
+  await expect(getDelayedMove()).resolves.toEqual(move);
 });
 
 test('testValidatorFailMaximum', async () => {
