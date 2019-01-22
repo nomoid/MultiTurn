@@ -54,7 +54,7 @@ export default class RemoteValidator {
     const symbols = generator.getUserSymbols();
     const i = symbols.indexOf(typeName);
     if (i < 0) {
-      throw Error(`Type '${typeName}' not found in file '${typePath}'`);
+      throw Error(`Type '${typeName}' not found in file '${this.typePath}'`);
     }
     const schema = generator.getSchemaForSymbol(symbols[i]);
     const validate = this.ajv.compile(schema);
