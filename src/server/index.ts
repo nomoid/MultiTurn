@@ -13,12 +13,18 @@ async function main() {
     return Promise.resolve('{"x":1,"y":1}');
   };
   */
+  console.log('Setting up remote responder...');
   const player = new Player();
   const responder = new RemoteResponder(player);
+
+  console.log('Setting up remote validator...');
   const getter = responder.onValidationRequest.bind(responder);
   const remote = new RemoteValidator(getter, './src/server/index.ts');
   // remote.addTypeValidator(Move);
+
+  console.log('Setting up remote call...');
   const getMove = remote.flatCall(Player.prototype.getDelayedMove);
+
   console.log('Finished setting up');
   for (let i = 0; i < 10; i++) {
     const move = await getMove();
