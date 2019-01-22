@@ -10,6 +10,10 @@ export default class Player {
 
   @remote(Move)
   public getDelayedMove(): Promise<Move> {
-    return Promise.resolve(new Move(1, 1));
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(new Move(1, 0));
+      }, 1000);
+    });
   }
 }

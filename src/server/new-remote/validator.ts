@@ -82,7 +82,6 @@ export default class RemoteValidator {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
     const remoteType: string = Reflect.getMetadata(REMOTE_RETURN_TYPE_KEY, t);
-    console.log(remoteType);
     if (!remoteType) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
