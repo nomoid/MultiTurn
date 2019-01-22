@@ -1,7 +1,7 @@
 import * as path from 'path';
 import Move from './move';
 import Player from './new-remote/player';
-import Remote from './new-remote/wrapper';
+import RemoteValidator from './new-remote/validator';
 
 async function main() {
   console.log('Starting');
@@ -10,7 +10,7 @@ async function main() {
     const output = JSON.stringify(new Move(1, 1));
     return Promise.resolve('{"x":1,"y":3}');
   };
-  const remote = new Remote(getter, './src/server/index.ts');
+  const remote = new RemoteValidator(getter, './src/server/index.ts');
   // remote.addTypeValidator(Move);
   const getMove = remote.call(Player.prototype.getMove);
   const move = await getMove();

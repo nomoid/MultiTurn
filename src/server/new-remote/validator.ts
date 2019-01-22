@@ -19,7 +19,7 @@ export function remote() {
   };
 }
 
-export default class Remote {
+export default class RemoteValidator {
 
   private validators: Map<string, AJV.ValidateFunction> = new Map();
   private ajv: AJV.Ajv;
