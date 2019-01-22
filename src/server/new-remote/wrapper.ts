@@ -8,10 +8,14 @@ const REMOTE_NAME_KEY = 'remoteName';
 const REMOTE_RETURN_TYPE_KEY = 'remoteReturnType';
 
 export function remote() {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    Reflect.defineMetadata(REMOTE_NAME_KEY, `${target.constructor.name}.${propertyKey}`, target[propertyKey]);
-    const returnType = Reflect.getMetadata('design:returntype', target, propertyKey);
-    Reflect.defineMetadata(REMOTE_RETURN_TYPE_KEY, returnType.name, target[propertyKey]);
+  return (target: any, propertyKey: string,
+      descriptor: PropertyDescriptor) => {
+    Reflect.defineMetadata(REMOTE_NAME_KEY,
+      `${target.constructor.name}.${propertyKey}`, target[propertyKey]);
+    const returnType = Reflect.getMetadata('design:returntype', target,
+      propertyKey);
+    Reflect.defineMetadata(REMOTE_RETURN_TYPE_KEY, returnType.name,
+      target[propertyKey]);
   };
 }
 
@@ -41,7 +45,8 @@ export default class Remote {
       required: true,
       noExtraProps: true
     };
-    const program = ts.createProgram([path.resolve(this.typePath)], compilerOptions);
+    const program = ts.createProgram([path.resolve(this.typePath)],
+      compilerOptions);
     const generator = TJS.buildGenerator(program, settings);
     if (!generator) {
       throw Error(`Invalid type path: ${typePath}`);
