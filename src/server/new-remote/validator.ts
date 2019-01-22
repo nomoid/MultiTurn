@@ -49,7 +49,7 @@ export default class RemoteValidator {
       compilerOptions);
     const generator = TJS.buildGenerator(program, settings);
     if (!generator) {
-      throw Error(`Invalid type path: ${typePath}`);
+      throw Error(`Invalid type path: ${this.typePath}`);
     }
     const symbols = generator.getUserSymbols();
     const i = symbols.indexOf(typeName);
