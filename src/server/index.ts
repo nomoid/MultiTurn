@@ -7,12 +7,13 @@ async function main() {
   console.log('Starting');
   const getter = (key: string) => {
     console.log(key);
-    return Promise.resolve(JSON.stringify(new Move(1, 1)));
+    const output = JSON.stringify(new Move(1, 1));
+    return Promise.resolve('{"x":1,"y":3}');
   };
-  const remote = new Remote(getter);
-  remote.addTypeValidator(Move, './src/server/move.ts');
-  const remoteCaller = remote.call(Player.prototype.getMove);
-  const move = await remoteCaller();
+  const remote = new Remote(getter, './src/server/index.ts');
+  // remote.addTypeValidator(Move);
+  const getMove = remote.call(Player.prototype.getMove);
+  const move = await getMove();
   console.log(move);
   console.log('Done');
 }

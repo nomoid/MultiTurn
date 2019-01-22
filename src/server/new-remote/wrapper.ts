@@ -18,12 +18,17 @@ export function remote() {
 export default class Remote {
 
   private validators: Map<string, AJV.ValidateFunction> = new Map();
+  private ajv: AJV.Ajv;
 
-  public constructor(private getter: (key: string) => Promise<string>) {
-
+  public constructor(private getter: (key: string) => Promise<string>,
+      private typePath: string) {
+    this.ajv = new AJV();
   }
 
-  public addTypeValidator(type: {name: string}, typePath: string) {
+  public addTypeValidator(type: {name: string}, typePath?: string) {
+    if (typePath) {
+      this.typePath = typePath;
+    }
     const typeName = type.name;
     const compilerOptions: TJS.CompilerOptions = {
       target: ts.ScriptTarget.Latest,
@@ -36,28 +41,20 @@ export default class Remote {
       required: true,
       noExtraProps: true
     };
-    const program = ts.createProgram([path.resolve(typePath)], compilerOptions);
+    const program = ts.createProgram([path.resolve(this.typePath)], compilerOptions);
     const generator = TJS.buildGenerator(program, settings);
     if (!generator) {
       throw Error(`Invalid type path: ${typePath}`);
     }
-    const symbols = generator.getMainFileSymbols(program);
-    /*
-    if (symbols.length <= 0) {
-      throw Error(`No symbols found in: ${typePath}`);
-    }
-    else if (symbols.length > 1) {
-      throw Error(`Multiple symbols found in: ${typePath}`);
-    }
-    */
+    const symbols = generator.getUserSymbols();
     const i = symbols.indexOf(typeName);
     if (i < 0) {
       throw Error(`Type '${typeName}' not found in file '${typePath}'`);
     }
     const schema = generator.getSchemaForSymbol(symbols[i]);
-    const ajv = new AJV();
-    const validate = ajv.compile(schema);
+    const validate = this.ajv.compile(schema);
     this.validators.set(typeName, validate);
+    return validate;
   }
 
   public call<T>(t: (() => T)): () => Promise<T> {
@@ -69,9 +66,13 @@ export default class Remote {
     if (!remoteType) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
-    const validate = this.validators.get(remoteType);
-    if (!validate) {
-      throw Error(`No validator found for type '${remoteType}'`);
+    let validate: AJV.ValidateFunction;
+    const existingValidate = this.validators.get(remoteType);
+    if (!existingValidate) {
+      validate = this.addTypeValidator({name: remoteType});
+    }
+    else {
+      validate = existingValidate;
     }
     return () => {
       return this.getter(remoteName).then((s: string) => {
