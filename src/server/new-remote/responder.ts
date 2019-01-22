@@ -2,8 +2,10 @@ export class RemoteResponder {
 
   private responders: Map<string, any> = new Map();
 
-  public constructor() {
-    //
+  public constructor(...responders: any) {
+    for (const responder of responders) {
+      this.addResponder(responder);
+    }
   }
 
   public addResponder(responder: any) {

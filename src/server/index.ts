@@ -13,8 +13,8 @@ async function main() {
     return Promise.resolve('{"x":1,"y":1}');
   };
   */
-  const responder = new RemoteResponder();
-  responder.addResponder(new Player());
+  const player = new Player();
+  const responder = new RemoteResponder(player);
   const getter = responder.onValidationRequest.bind(responder);
   const remote = new RemoteValidator(getter, './src/server/index.ts');
   // remote.addTypeValidator(Move);
