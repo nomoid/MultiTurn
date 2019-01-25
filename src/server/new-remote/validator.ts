@@ -3,27 +3,7 @@ import * as path from 'path';
 import 'reflect-metadata';
 import * as ts from 'typescript';
 import * as TJS from 'typescript-json-schema';
-
-const REMOTE_NAME_KEY = 'remoteName';
-const REMOTE_RETURN_TYPE_KEY = 'remoteReturnType';
-
-export function remote(namedType?: {name: string}) {
-  return (target: any, propertyKey: string,
-      descriptor: PropertyDescriptor) => {
-    Reflect.defineMetadata(REMOTE_NAME_KEY,
-      `${target.constructor.name}.${propertyKey}`, target[propertyKey]);
-    let returnType;
-    if (namedType) {
-      returnType = namedType;
-    }
-    else {
-      returnType = Reflect.getMetadata('design:returntype', target,
-        propertyKey);
-    }
-    Reflect.defineMetadata(REMOTE_RETURN_TYPE_KEY, returnType.name,
-      target[propertyKey]);
-  };
-}
+import { REMOTE_NAME_KEY, REMOTE_RETURN_TYPE_KEY } from './remote';
 
 export default class RemoteValidator {
 

@@ -10,6 +10,7 @@ export class RemoteResponder {
 
   public addResponder(responder: any) {
     const typeName = responder.constructor.name;
+    console.log(`Adding responder for type ${typeName}`);
     this.responders.set(typeName, responder);
   }
 
@@ -22,6 +23,9 @@ export class RemoteResponder {
       const typeName = requestParts[0];
       const methodName = requestParts[1];
       const resp: any = this.responders.get(typeName);
+      if (!resp) {
+        throw Error(`No responder found for type ${typeName}`);
+      }
       const respMethod = resp[methodName];
       if (respMethod && typeof respMethod === 'function') {
         const returned = respMethod();
@@ -36,7 +40,7 @@ export class RemoteResponder {
         }
       }
       else {
-        throw Error('Function not found');
+        throw Error(`No responder found for method ${methodName}`);
       }
     }
     catch (e) {

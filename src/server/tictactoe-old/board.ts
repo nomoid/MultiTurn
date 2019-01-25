@@ -1,4 +1,4 @@
-import Move from '../move';
+import Move from '../tictactoe/move';
 
 const rows = 3;
 const cols = 3;

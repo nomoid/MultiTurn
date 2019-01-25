@@ -40,9 +40,12 @@ function main() {
       console.log(`Request: ${e2.message}`);
       if (e2.key === updateStateId) {
         state = JSON.parse(e2.message) as Board;
+        e2.respond('');
       }
       else if (e2.key === getRemoteId) {
-        responder.onValidationRequest(e2.message);
+        responder.onValidationRequest(e2.message).then((s: string) => {
+          e2.respond(s);
+        });
       }
       else if (e2.key === gameEndId) {
         if (e2.message === winId) {
@@ -51,6 +54,7 @@ function main() {
         else {
           console.log('You lose');
         }
+        e2.respond('');
       }
       else {
         console.log(`Invalid key: ${e2.key}`);

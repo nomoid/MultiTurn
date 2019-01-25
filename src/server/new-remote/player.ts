@@ -1,5 +1,5 @@
-import Move from '../move';
-import { remote } from './validator';
+import Move from '../tictactoe/move';
+import { remote } from './remote';
 
 export default class Player {
 

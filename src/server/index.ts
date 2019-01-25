@@ -1,10 +1,10 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
+import Player from '../client/player';
 import AuthServerNetworkLayer from '../multiturn/auth-network/server/layer';
 import { Socket } from '../multiturn/network/network';
 import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
-import Player from './new-remote/player';
 import RemoteValidator from './new-remote/validator';
 import Board from './tictactoe/board';
 
@@ -53,7 +53,8 @@ server.listen(port, () => {
 });
 
 function updateState(socket: Socket) {
-  socket.request(updateStateId, JSON.stringify(board));
+  console.log('Updating state');
+  return socket.request(updateStateId, JSON.stringify(board));
 }
 
 function victory(player: number) {
@@ -69,9 +70,10 @@ function victory(player: number) {
 }
 
 async function startServer() {
+  console.log('Starting server');
   try {
     while (true) {
-      const promises = [];
+      const promises: Array<Promise<any>> = [];
       for (let i = 0; i < maxPlayers; i++){
         if (i === currentPlayer) {
           continue;
@@ -90,20 +92,31 @@ async function startServer() {
 }
 
 async function main() {
+  console.log(`Starting turn for Player ${currentPlayer}`);
   const player = players[currentPlayer];
   const getDelayedMove = player.call(Player.prototype.getMove);
   let valid = false;
   let move;
   do {
+    console.log('Waiting for move...');
     move = await getDelayedMove();
+    console.log(`Got move ${move}`);
     if (!board.occupied(move)) {
       valid = true;
+      console.log('Move valid. Continuing.');
+    }
+    else {
+      console.log('Move invalid. Retrying!');
     }
   }
   while (!valid);
   board.occupy(move, currentPlayer);
   const win = board.checkVictory();
   if (win >= 0) {
-      victory(currentPlayer);
+    console.log(`Victory for Player ${currentPlayer}`);
+    victory(currentPlayer);
+  }
+  else {
+    console.log('No victory, continuing');
   }
 }

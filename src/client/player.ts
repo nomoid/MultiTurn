@@ -1,4 +1,4 @@
-import { remote } from '../server/new-remote/validator';
+import { remote } from '../server/new-remote/remote';
 import Move from '../server/tictactoe/move';
 
 function randomMove(): Move {
@@ -8,6 +8,11 @@ function randomMove(): Move {
 }
 
 export default class Player {
+
+  public constructor() {
+    // TODO
+  }
+
   @remote(Move)
   public getMove(): Promise<Move> {
     console.log('Calculating...');

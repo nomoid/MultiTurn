@@ -1,4 +1,4 @@
-import { remote } from '../validator';
+import { remote } from '../remote';
 import Move from './move';
 
 export default class Player {

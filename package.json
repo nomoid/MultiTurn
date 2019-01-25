@@ -8,7 +8,7 @@
     "clean": "rimraf build dist",
     "build-client": "webpack",
     "build-server": "tsc src/server/index.ts --outDir build --target es6 --module commonjs --strict --experimentalDecorators --emitDecoratorMetadata",
-    "server": "node build/index.js"
+    "server": "node build/server/index.js"
   },
   "author": "Markus Feng",
   "license": "MIT",
