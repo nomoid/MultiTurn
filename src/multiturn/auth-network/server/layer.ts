@@ -12,7 +12,7 @@ const loginId = '_login';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
 
-const verbose = false;
+export const verbose = true;
 
 export default class AuthServerNetworkLayer implements NetworkLayer {
 
@@ -61,14 +61,14 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
     return (e: RequestEvent) => {
       if (e.key === registerId) {
         if (verbose) {
-          console.log('New registration request');
+          console.log('[Auth] New registration request');
         }
         // Check if socket is already registered, if so, give them their ID
         for (const id of this.users.keys()) {
           const existingUser = this.users.get(id)!;
           if (existingUser.socket === socket) {
             if (verbose) {
-              console.log(`Socket is already registered with id ${id}`);
+              console.log(`[Auth] Socket is already registered with id ${id}`);
             }
             e.respond(id);
             return;
@@ -84,7 +84,7 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
           listener(new AbstractConnectionEvent(authSock));
         }
         if (verbose) {
-          console.log(`Socket registered with id ${newId}`);
+          console.log(`[Auth] Socket registered with id ${newId}`);
         }
         e.respond(newId);
       }
@@ -92,12 +92,12 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
         // If id exists, replace sock with the given id
         const id = e.message;
         if (verbose) {
-          console.log(`New login request with id ${id}`);
+          console.log(`[Auth] New login request with id ${id}`);
         }
         if (this.users.has(id)) {
           const user = this.users.get(id)!;
           if (verbose) {
-            console.log(`User found with id ${id}`);
+            console.log(`[Auth] User found with id ${id}`);
           }
           e.respond(loginSuccessId);
           user.socket = socket;
@@ -106,7 +106,7 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
         }
         else {
           if (verbose) {
-            console.log(`User not found with id ${id}`);
+            console.log(`[Auth]User not found with id ${id}`);
           }
           e.respond(loginFailId);
           // TODO deal with repeated failure to login?

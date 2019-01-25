@@ -1,5 +1,6 @@
 import { Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
+import { verbose } from './layer';
 import OutgoingRequest from './outgoingrequest';
 import AuthRequestEvent from './requestevent';
 
@@ -21,6 +22,9 @@ export default class AuthUser {
   public request(key: string, message: string): Promise<string> {
     const req = new OutgoingRequest(key, message);
     this.outgoingRequests.set(req.uid, req);
+    if (verbose) {
+      console.log(`[Auth] Firing request ${req.uid}: ${key},${message}`);
+    }
     this.fireRequest(req);
     return req.promiseHolder.promise;
   }
@@ -28,6 +32,9 @@ export default class AuthUser {
   public fireRequest(request: OutgoingRequest) {
     this.socket.request(request.key, request.message)
     .then((response: string) => {
+      if (verbose) {
+        console.log(`[Auth] Response for request ${request.uid}: ${response}`);
+      }
       const req = this.outgoingRequests.get(request.uid);
       if (req) {
         this.outgoingRequests.delete(request.uid);

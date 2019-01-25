@@ -71,6 +71,7 @@ function victory(player: number) {
 
 async function startServer() {
   console.log('Starting server');
+  console.log('debug');
   try {
     while (true) {
       const promises: Array<Promise<any>> = [];
