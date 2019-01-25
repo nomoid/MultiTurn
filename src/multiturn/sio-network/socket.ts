@@ -8,6 +8,8 @@ const responseId = '_response';
 const connRefusedId = '_refused';
 const closeId = '_close';
 
+const verbose = true;
+
 export default class SIONetworkSocket implements Socket {
 
   private listeners: Array<(e: RequestEvent) => void>;
@@ -31,21 +33,37 @@ export default class SIONetworkSocket implements Socket {
       const [success, key, message] = this.deserialize(value);
       if (success) {
         for (const listener of this.listeners) {
+          if (verbose) {
+            console.log(`[Net] Incoming Request: ${key},${message}`);
+          }
           const event = new SIORequestEvent(this, key, message);
           listener(event);
         }
       }
       // Do nothing on failed deserializing
+      else {
+        if (verbose) {
+          console.log('[Net] Failed deserializing');
+        }
+      }
     });
     this.socket.on(responseId, (value: string) => {
       const [success, key, message] = this.deserialize(value);
       if (success) {
         if (this.promises.has(key)) {
+          if (verbose) {
+            console.log(`[Net] Incoming Response: ${key},${message}`);
+          }
           const resolve = this.promises.get(key) as (s: string) => void;
           resolve(message);
         }
       }
       // Do nothing on failed deserializing
+      else {
+        if (verbose) {
+          console.log('[Net] Failed deserializing');
+        }
+      }
     });
     this.socket.on(connRefusedId, () => {
       // Connection refused
@@ -79,6 +97,9 @@ export default class SIONetworkSocket implements Socket {
   public request(key: string, message: string): Promise<string> {
     this.socketReadyCheck();
     return new Promise<string>((resolve, reject) => {
+      if (verbose) {
+        console.log(`[Net] Outgoing Request: ${key},${message}`);
+      }
       this.promises.set(key, resolve);
       this.socket.emit(requestId, this.serialize(key, message));
     });
@@ -86,6 +107,9 @@ export default class SIONetworkSocket implements Socket {
 
   public respond(key: string, message: string) {
     this.socketReadyCheck();
+    if (verbose) {
+      console.log(`[Net] Outgoing Response: ${key},${message}`);
+    }
     this.socket.emit(responseId, this.serialize(key, message));
   }
 

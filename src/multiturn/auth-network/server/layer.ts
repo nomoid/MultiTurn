@@ -79,6 +79,7 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
         const user = new AuthUser(newId, socket, this.serializer,
           this.deserializer);
         this.users.set(newId, user);
+        e.respond(newId);
         for (const listener of this.listeners) {
           const authSock = new AuthSocket(user);
           listener(new AbstractConnectionEvent(authSock));
@@ -86,7 +87,6 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
         if (verbose) {
           console.log(`[Auth] Socket registered with id ${newId}`);
         }
-        e.respond(newId);
       }
       else if (e.key === loginId) {
         // If id exists, replace sock with the given id
