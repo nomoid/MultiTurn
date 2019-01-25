@@ -1,5 +1,5 @@
-import { remote } from '../new-remote/validator';
-import Move from './move';
+import { remote } from '../server/new-remote/validator';
+import Move from '../server/tictactoe/move';
 
 function randomMove(): Move {
   const x = Math.floor(Math.random() * 3);
@@ -10,9 +10,12 @@ function randomMove(): Move {
 export default class Player {
   @remote(Move)
   public getMove(): Promise<Move> {
+    console.log('Calculating...');
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(randomMove());
+        const move = randomMove();
+        console.log(`Move: ${JSON.stringify(move)}`);
+        resolve(move);
       }, 1000);
     });
   }
