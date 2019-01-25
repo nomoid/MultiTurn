@@ -1,6 +1,6 @@
 import Server from '../../multiturn/server';
-import Move from '../move';
 import Remote from '../remote/player';
+import Move from '../tictactoe/move';
 import Board from './board';
 
 function main() {
