@@ -28,7 +28,7 @@ export default class Board {
   }
 
   public occupied(move: Move) {
-    return this.spaces[move.x][move.y] !== 0;
+    return this.spaces[move.x][move.y] !== -1;
   }
 
   public occupy(move: Move, n: number) {
@@ -66,7 +66,7 @@ export default class Board {
     lines.push(arr);
     arr = [];
     for (let i = 0; i < rows; i++) {
-        const player = spaces[cols - i][i];
+        const player = spaces[cols - i - 1][i];
         arr.push(player);
     }
     lines.push(arr);

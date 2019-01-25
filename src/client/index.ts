@@ -37,7 +37,7 @@ function main() {
     const remoteToken = authLayer.token!;
     Cookie.set(authTokenId, remoteToken);
     socket.addRequestListener((e2: RequestEvent) => {
-      console.log(`Request: ${e2.message}`);
+      console.log(`Request: ${e2.key},${e2.message}`);
       if (e2.key === updateStateId) {
         state = JSON.parse(e2.message) as Board;
         e2.respond('');

@@ -53,7 +53,7 @@ server.listen(port, () => {
 });
 
 function updateState(socket: Socket) {
-  console.log('Updating state');
+  console.log('Updating state...');
   return socket.request(updateStateId, JSON.stringify(board));
 }
 
@@ -87,7 +87,7 @@ async function startServer() {
     }
   }
   catch (e) {
-    console.log('Complete');
+    throw e;
   }
 }
 
@@ -100,10 +100,10 @@ async function main() {
   do {
     console.log('Waiting for move...');
     move = await getDelayedMove();
-    console.log(`Got move ${move}`);
+    console.log(`Got move ${JSON.stringify(move)}`);
     if (!board.occupied(move)) {
       valid = true;
-      console.log('Move valid. Continuing.');
+      console.log('Move valid.');
     }
     else {
       console.log('Move invalid. Retrying!');
@@ -117,6 +117,6 @@ async function main() {
     victory(currentPlayer);
   }
   else {
-    console.log('No victory, continuing');
+    console.log('No victory. Continuing');
   }
 }
