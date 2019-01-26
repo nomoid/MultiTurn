@@ -12,7 +12,7 @@ const loginId = '_login';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
 
-export const verbose = true;
+export const verbose = false;
 
 export default class AuthServerNetworkLayer implements NetworkLayer {
 

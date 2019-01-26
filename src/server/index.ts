@@ -7,6 +7,7 @@ import { Socket } from '../multiturn/network/network';
 import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
 import RemoteValidator from './new-remote/validator';
 import Board from './tictactoe/board';
+import Move from './tictactoe/move';
 
 const app = express();
 
@@ -22,6 +23,7 @@ const getRemoteId = '_getRemote';
 const gameEndId = '_gameEnd';
 const winId = 'win';
 const loseId = 'lose';
+const tieId = 'tie';
 
 const players: RemoteValidator[] = [];
 const sockets: Socket[] = [];
@@ -57,7 +59,7 @@ function updateState(socket: Socket) {
   return socket.request(updateStateId, JSON.stringify(board));
 }
 
-function victory(player: number) {
+function sendVictory(player: number) {
   for (let i = 0; i < maxPlayers; i++){
     const socket = sockets[i];
     if (i === player) {
@@ -66,6 +68,13 @@ function victory(player: number) {
     else {
       socket.request(gameEndId, loseId);
     }
+  }
+}
+
+function sendTie() {
+  for (let i = 0; i < maxPlayers; i++){
+    const socket = sockets[i];
+    socket.request(gameEndId, tieId);
   }
 }
 
@@ -82,7 +91,10 @@ async function startServer() {
         promises.push(updateState(sockets[i]));
       }
       promises.push(main());
-      await Promise.all(promises);
+      const done = await Promise.all(promises);
+      if (done[promises.length - 1]) {
+        break;
+      }
       currentPlayer += 1;
       currentPlayer %= maxPlayers;
     }
@@ -90,14 +102,15 @@ async function startServer() {
   catch (e) {
     throw e;
   }
+  console.log('Completed!');
 }
 
-async function main() {
+async function main(): Promise<boolean> {
   console.log(`Starting turn for Player ${currentPlayer}`);
   const player = players[currentPlayer];
-  const getDelayedMove = player.call(Player.prototype.getMove);
+  const getDelayedMove = player.flatCall(Player.prototype.getMove);
   let valid = false;
-  let move;
+  let move: Move;
   do {
     console.log('Waiting for move...');
     move = await getDelayedMove();
@@ -115,9 +128,19 @@ async function main() {
   const win = board.checkVictory();
   if (win >= 0) {
     console.log(`Victory for Player ${currentPlayer}`);
-    victory(currentPlayer);
+    sendVictory(currentPlayer);
+    return true;
   }
   else {
-    console.log('No victory. Continuing');
+    const tie = board.checkTie();
+    if (tie) {
+      console.log('Game is tied');
+      sendTie();
+      return true;
+    }
+    else {
+      console.log('No victory. Continuing');
+      return false;
+    }
   }
 }

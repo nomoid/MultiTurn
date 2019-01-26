@@ -15,6 +15,7 @@ const getRemoteId = '_getRemote';
 const gameEndId = '_gameEnd';
 const winId = 'win';
 const loseId = 'lose';
+const tieId = 'tie';
 
 let state = new Board();
 
@@ -51,8 +52,11 @@ function main() {
         if (e2.message === winId) {
           console.log('You win!');
         }
-        else {
+        else if (e2.message === loseId) {
           console.log('You lose');
+        }
+        else {
+          console.log('You tie');
         }
         e2.respond('');
       }
