@@ -1,4 +1,3 @@
-import CancelablePromise from '../../cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
 import { verbose } from './layer';
@@ -20,7 +19,7 @@ export default class AuthUser {
     this.listeners.push(callback);
   }
 
-  public request(key: string, message: string): CancelablePromise<string> {
+  public request(key: string, message: string): Promise<string> {
     const req = new OutgoingRequest(key, message, () => {
       this.outgoingRequests.delete(req.uid);
     });
@@ -43,7 +42,7 @@ export default class AuthUser {
         this.outgoingRequests.delete(request.uid);
         req.promiseHolder.resolve(response);
       }
-      // Ignore when promise already previously resolved
+      // Ignore when promise already previously resolved or when cancelled
       return response;
     });
   }

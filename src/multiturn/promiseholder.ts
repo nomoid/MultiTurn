@@ -1,9 +1,6 @@
-import CallbackCancelablePromise from '../callbackcancelablepromise';
-import CancelablePromise from './cancelablepromise';
-
 export default class PromiseHolder<T> {
 
-  public readonly promise: CancelablePromise<T>;
+  public readonly promise: Promise<T>;
   public resolve: (t: T) => void;
   public reject: () => void;
 
@@ -36,23 +33,21 @@ export default class PromiseHolder<T> {
         this.resolved = false;
       }
     };
-    this.promise = new CallbackCancelablePromise<T>(
-      new Promise<T>((resolve, reject) => {
-        this.resolve = resolve;
-        this.reject = reject;
-        this.promiseHolderUpdated = true;
-        if (this.resolvedOrRejected) {
-          if (this.resolved) {
-            this.resolve(this.value!);
-          }
-          else {
-            this.reject();
-          }
+    this.promise = new Promise<T>((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+      this.promiseHolderUpdated = true;
+      if (this.resolvedOrRejected) {
+        if (this.resolved) {
+          this.resolve(this.value!);
         }
-        if (this.callback) {
-          this.callback(resolve, reject);
+        else {
+          this.reject();
         }
-      }), this.cancelCallback
-    );
+      }
+      if (this.callback) {
+        this.callback(resolve, reject);
+      }
+    });
   }
 }
