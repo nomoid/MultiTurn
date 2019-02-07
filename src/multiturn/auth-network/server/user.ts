@@ -1,3 +1,4 @@
+import CancelablePromise from '../../cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
 import { verbose } from './layer';
@@ -19,8 +20,10 @@ export default class AuthUser {
     this.listeners.push(callback);
   }
 
-  public request(key: string, message: string): Promise<string> {
-    const req = new OutgoingRequest(key, message);
+  public request(key: string, message: string): CancelablePromise<string> {
+    const req = new OutgoingRequest(key, message, () => {
+      this.outgoingRequests.delete(req.uid);
+    });
     this.outgoingRequests.set(req.uid, req);
     if (verbose) {
       console.log(`[Auth] Firing request ${req.uid}: ${key},${message}`);

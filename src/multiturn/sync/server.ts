@@ -15,7 +15,7 @@ export interface ServerSyncLayer {
   listen(): void;
 
   // Send state update to all players without a request
-  update(): void;
+  update(): Promise<void>;
   getUser(id: IdType): SyncUser;
   getUsers(): SyncUser[];
 }
@@ -28,7 +28,7 @@ export interface SyncUserEvent {
 export interface SyncUser {
   readonly id: IdType;
   // On request, send a state update to all players
-  request(key: string, value: string, timeout?: number): Promise<void>;
+  request(key: string, value: string, timeout?: number): Map<IdType, SyncRequest>;
   close(): void;
 }
 
@@ -38,9 +38,12 @@ export interface SyncStateEvent {
   readonly message: string;
 }
 
+export interface SyncRequest {
+  readonly result: Promise<string>;
+
+  cancel(): void;
+}
+
 export interface StateManager {
-  onNewUser(e: SyncUserEvent): void;
-  // returns true if accepted, false if rejected
-  onStateChanged(e: SyncStateEvent): Promise<boolean>;
-  getState(id: IdType): StateType;
+  getState(id: IdType): string;
 }
