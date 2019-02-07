@@ -12,8 +12,7 @@ export default class PromiseHolder<T> {
   private promiseHolderUpdated: boolean = false;
 
   public constructor(private callback?:
-      (resolve: (t: T) => void, reject: () => void) => void,
-      private cancelCallback?: () => void) {
+      (resolve: (t: T) => void, reject: () => void) => void) {
     this.resolve = (t: T) => {
       if (this.promiseHolderUpdated) {
         this.resolve(t);

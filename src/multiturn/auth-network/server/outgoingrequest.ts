@@ -9,6 +9,9 @@ export default class OutgoingRequest {
   public constructor(public key: string, public message: string,
     cancelCallback: () => void) {
     this.uid = generateUID();
-    this.promiseHolder = new PromiseHolder<string>(undefined, cancelCallback);
+    this.promiseHolder = new PromiseHolder<string>(undefined);
+    this.promiseHolder.promise.catch(() => {
+      cancelCallback();
+    });
   }
 }
