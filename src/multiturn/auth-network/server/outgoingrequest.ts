@@ -1,3 +1,4 @@
+import { CancelToken } from '../../cancelablepromise';
 import PromiseHolder from '../../promiseholder';
 import { generateUID } from '../../uid';
 
@@ -10,8 +11,10 @@ export default class OutgoingRequest {
     cancelCallback: () => void) {
     this.uid = generateUID();
     this.promiseHolder = new PromiseHolder<string>(undefined);
-    this.promiseHolder.promise.catch(() => {
-      cancelCallback();
+    this.promiseHolder.promise.catch((reason) => {
+      if (reason === CancelToken) {
+        cancelCallback();
+      }
     });
   }
 }
