@@ -18,7 +18,7 @@ export interface ServerSyncLayer {
 
   // Send state update to all players without a request
   update(): SyncResponse;
-  getUser(id: IdType): SyncUser;
+  getUser(id: IdType): SyncUser | undefined;
   getUsers(): SyncUser[];
 }
 
@@ -41,7 +41,7 @@ export interface SyncStateEvent {
 }
 
 export interface SyncResponse {
-  readonly result: CancelablePromise<string>;
+  readonly result?: CancelablePromise<string>;
   readonly updates: Map<IdType, CancelablePromise<void>>;
   cancel(): void;
 }
