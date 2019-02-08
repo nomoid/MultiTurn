@@ -1,3 +1,4 @@
+import CancelablePromise from '../cancelablepromise';
 import { NetworkLayer } from './network';
 /**
  * The network layer handles transferring information from the client to the
@@ -20,7 +21,7 @@ export interface ConnectionEvent {
 
 export interface Socket {
   addRequestListener(callback: (e: RequestEvent) => void): void;
-  request(key: string, message: string): Promise<string>;
+  request(key: string, message: string): CancelablePromise<string>;
   close(): void;
 }
 

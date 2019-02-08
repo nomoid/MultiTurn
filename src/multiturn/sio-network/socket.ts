@@ -1,3 +1,4 @@
+import CancelablePromise, { cancelablePromise } from '../cancelablepromise';
 import { Socket, RequestEvent } from '../network/network';
 import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
@@ -94,9 +95,9 @@ export default class SIONetworkSocket implements Socket {
     this.listeners.push(callback);
   }
 
-  public request(key: string, message: string): Promise<string> {
+  public request(key: string, message: string): CancelablePromise<string> {
     this.socketReadyCheck();
-    return new Promise<string>((resolve, reject) => {
+    return cancelablePromise((resolve, reject) => {
       if (verbose) {
         console.log(`[Net] Outgoing Request: ${key},${message}`);
       }

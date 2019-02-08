@@ -1,3 +1,4 @@
+import CancelablePromise from '../../cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import { Deserializer, Serializer } from '../../sio-network/serializer';
 
@@ -25,7 +26,7 @@ export default class AuthClientSocket implements Socket {
     this.socket.addRequestListener(callback);
   }
 
-  public request(key: string, message: string): Promise<string> {
+  public request(key: string, message: string): CancelablePromise<string> {
     return this.socket.request(this.token, this.serializer(key, message));
   }
 

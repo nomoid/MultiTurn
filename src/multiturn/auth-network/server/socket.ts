@@ -1,3 +1,4 @@
+import CancelablePromise from '../../cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import AuthUser from './user';
 
@@ -24,7 +25,7 @@ export default class AuthSocket implements Socket {
     this.user.addRequestListener(callback);
   }
 
-  public request(key: string, message: string): Promise<string> {
+  public request(key: string, message: string): CancelablePromise<string> {
     return this.user.request(key, message);
   }
 
