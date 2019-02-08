@@ -1,3 +1,5 @@
+import CancelablePromise from '../cancelablepromise';
+
 /**
  * The synchronization layer handles synchronizing the client state to the
  * server state, ensuring that all parties are working with the most up to
@@ -15,7 +17,7 @@ export interface ServerSyncLayer {
   listen(): void;
 
   // Send state update to all players without a request
-  update(): Promise<void>;
+  update(): SyncResponse;
   getUser(id: IdType): SyncUser;
   getUsers(): SyncUser[];
 }
@@ -28,7 +30,7 @@ export interface SyncUserEvent {
 export interface SyncUser {
   readonly id: IdType;
   // On request, send a state update to all players
-  request(key: string, value: string, timeout?: number): Map<IdType, SyncRequest>;
+  request(key: string, value: string, timeout?: number): SyncResponse;
   close(): void;
 }
 
@@ -38,12 +40,13 @@ export interface SyncStateEvent {
   readonly message: string;
 }
 
-export interface SyncRequest {
-  readonly result: Promise<string>;
-
+export interface SyncResponse {
+  readonly result: CancelablePromise<string>;
+  readonly updates: Map<IdType, CancelablePromise<void>>;
   cancel(): void;
 }
 
 export interface StateManager {
-  getState(id: IdType): string;
+  onNewUser(e: SyncUserEvent): void;
+  getState(id: IdType): StateType;
 }
