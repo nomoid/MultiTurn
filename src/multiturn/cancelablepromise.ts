@@ -19,3 +19,9 @@ export function cancelablePromise<T>(callback?:
   const holder = new PromiseHolder<T>(callback);
   return holder.promise;
 }
+
+export function cancelableThen<T, S>(oldPromise: CancelablePromise<T>,
+    continuation: (res: T) => S): CancelablePromise<S> {
+  return cancelable(oldPromise.then(continuation),
+    oldPromise.cancel.bind(oldPromise));
+}
