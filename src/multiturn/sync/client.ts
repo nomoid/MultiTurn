@@ -16,3 +16,9 @@ export interface ClientSyncRequestEvent {
   readonly key: string;
   readonly message: string;
 }
+
+export interface ClientSyncCombinedEvent {
+  readonly key: string;
+  readonly message: string;
+  readonly state: string;
+}
