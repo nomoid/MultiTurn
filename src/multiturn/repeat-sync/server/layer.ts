@@ -8,6 +8,7 @@ import RepeatSyncUserEvent from './userevent';
 export default class RepeatServerSyncLayer implements ServerSyncLayer {
   private userMap: Map<string, RepeatSyncUser>;
   private users: RepeatSyncUser[];
+  private listening: boolean = false;
 
   public constructor(private network: NetworkLayer,
       public state: StateManager) {
@@ -16,6 +17,10 @@ export default class RepeatServerSyncLayer implements ServerSyncLayer {
   }
 
   public listen(): void {
+    if (this.listening) {
+      return;
+    }
+    this.listening = true;
     this.network.addConnectionListener((e: ConnectionEvent) => {
       this.state.onNewUser(new RepeatSyncUserEvent(this, e));
     });

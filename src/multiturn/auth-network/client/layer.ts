@@ -2,6 +2,7 @@ import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
 import AuthClientSocket from './socket';
+import TokenHandler from './token';
 
 const registerId = '_register';
 const loginId = '_login';
@@ -14,6 +15,7 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   private listening: boolean = false;
   private serializer: Serializer;
   private deserializer: Deserializer;
+  private tokenHandler?: TokenHandler;
 
   public constructor(private network: NetworkLayer, public token?: string,
     serializer?: Serializer, deserializer?: Deserializer) {
@@ -30,6 +32,11 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     else {
       this.deserializer = defaultDeserializer('*');
     }
+  }
+
+  public setTokenHandler(handler: TokenHandler) {
+    this.tokenHandler = handler;
+    this.token = handler.getLocalToken();
   }
 
   public listen(): void {
@@ -71,6 +78,10 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   private tryRegister(socket: Socket) {
     socket.request(registerId, '').then((response: string) => {
       this.token = response;
+      const handler = this.tokenHandler;
+      if (handler) {
+        handler.setLocalToken(response);
+      }
       this.authSuccess(socket, this.token);
     });
   }

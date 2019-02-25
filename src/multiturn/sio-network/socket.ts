@@ -9,7 +9,7 @@ const responseId = '_response';
 const connRefusedId = '_refused';
 const closeId = '_close';
 
-const verbose = false;
+const verbose = true;
 
 export default class SIONetworkSocket implements Socket {
 

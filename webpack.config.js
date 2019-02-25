@@ -1,5 +1,6 @@
 const path = require('path');
 require('file-loader');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: [
@@ -27,7 +28,16 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   optimization: {
-    minimize: false
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: true, // Must be set to true if using source-maps in production
+        terserOptions: {
+          mangle: false
+        }
+      }),
+    ],
   },
   mode: 'production'
 };

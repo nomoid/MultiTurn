@@ -1,23 +1,39 @@
 import * as Cookie from 'js-cookie';
 import * as sio from 'socket.io-client';
+import AuthClientCookieTokenHandler from '../multiturn/auth-network/client/cookie';
 import AuthClientNetworkLayer from '../multiturn/auth-network/client/layer';
-import { ConnectionEvent, RequestEvent } from '../multiturn/network/network';
+import RepeatClientSyncLayer from '../multiturn/repeat-sync/client/layer';
 import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
-import { RemoteResponder } from '../server/new-remote/responder';
-import Board from '../server/tictactoe/board';
-import Player from './player';
+import { ClientSyncResponder, ClientSyncRequestEvent, ClientSyncStateEvent } from '../multiturn/sync/client';
 
 const io = sio();
 const authTokenId = 'auth.token';
 
-const updateStateId = '_updateState';
-const getRemoteId = '_getRemote';
-const gameEndId = '_gameEnd';
-const winId = 'win';
-const loseId = 'lose';
-const tieId = 'tie';
+class TestResponder implements ClientSyncResponder {
 
-let state = new Board();
+  private localState: number = 0;
+
+  public onUpdateState(e: ClientSyncStateEvent): void {
+    console.log(`State updated, new state: ${e.state}`);
+    this.localState = parseInt(e.state, 10);
+  }
+
+  public onRequest(e: ClientSyncRequestEvent): Promise<string> {
+    console.log(`Request: ${e.key}, ${e.message}`);
+    if (e.key === 'response') {
+      if (e.message === 'double') {
+        this.localState *= 2;
+        return Promise.resolve(this.localState.toString());
+      }
+      else if (e.message === 'increment') {
+        this.localState += 1;
+        return Promise.resolve(this.localState.toString());
+      }
+      throw new Error(`Request ${e.message} not found`);
+    }
+    throw new Error(`Key ${e.key} not found`);
+  }
+}
 
 function main() {
   console.log('Starting client');
@@ -28,44 +44,12 @@ function main() {
   else {
     console.log('No local token found, requesting new token');
   }
-  const responder = new RemoteResponder();
   const netLayer = new SIOClientNetworkLayer(io);
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
-  const player = new Player();
-  responder.addResponder(player);
-  authLayer.addConnectionListener((e: ConnectionEvent) => {
-    const socket = e.accept();
-    const remoteToken = authLayer.token!;
-    Cookie.set(authTokenId, remoteToken);
-    socket.addRequestListener((e2: RequestEvent) => {
-      console.log(`Request: ${e2.key},${e2.message}`);
-      if (e2.key === updateStateId) {
-        state = JSON.parse(e2.message) as Board;
-        e2.respond('');
-      }
-      else if (e2.key === getRemoteId) {
-        responder.onValidationRequest(e2.message).then((s: string) => {
-          e2.respond(s);
-        });
-      }
-      else if (e2.key === gameEndId) {
-        if (e2.message === winId) {
-          console.log('You win!');
-        }
-        else if (e2.message === loseId) {
-          console.log('You lose');
-        }
-        else {
-          console.log('You tie');
-        }
-        e2.respond('');
-      }
-      else {
-        console.log(`Invalid key: ${e2.key}`);
-      }
-    });
-  });
-  authLayer.listen();
+  authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
+  const responder = new TestResponder();
+  const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
+  syncLayer.listen();
 }
 
 main();

@@ -6,7 +6,7 @@ const updateId = '_syncUpdate';
 const emptyResponse = '';
 
 function validateRequest(r: any): r is ClientSyncCombinedEvent {
-  if (r.key !== undefined && r.value !== undefined && r.state !== undefined) {
+  if (r.key !== undefined && r.message !== undefined && r.state !== undefined) {
     return true;
   }
   else {
@@ -16,12 +16,18 @@ function validateRequest(r: any): r is ClientSyncCombinedEvent {
 
 export default class RepeatClientSyncLayer implements ClientSyncLayer {
 
+  private listening: boolean = false;
+
   public constructor(public layer: NetworkLayer,
     public responder: ClientSyncResponder) {
 
   }
 
   public listen(): void {
+    if (this.listening) {
+      return;
+    }
+    this.listening = true;
     this.layer.addConnectionListener((e: ConnectionEvent) => {
       const sock = e.accept();
       sock.addRequestListener((e2: RequestEvent) => {
