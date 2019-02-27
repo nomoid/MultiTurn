@@ -1,9 +1,9 @@
+import { generateUID } from '../../helper/uid';
 import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, RequestEvent,
   Socket } from '../../network/network';
 import { Serializer, Deserializer,
   defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
-import { generateUID } from '../../uid';
 import AuthSocket from './socket';
 import AuthUser from './user';
 

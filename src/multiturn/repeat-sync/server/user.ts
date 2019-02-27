@@ -1,8 +1,8 @@
-import CancelablePromise, { cancelableThen } from '../../cancelablepromise';
+import CancelablePromise, { cancelableThen } from '../../helper/cancelablepromise';
+import { generateUID } from '../../helper/uid';
 import { Socket } from '../../network/network';
 import { ClientSyncCombinedEvent } from '../../sync/client';
 import { SyncUser, SyncResponse } from '../../sync/server';
-import { generateUID } from '../../uid';
 import RepeatServerSyncLayer from './layer';
 import RepeatSyncResponse from './response';
 
