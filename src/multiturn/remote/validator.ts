@@ -88,3 +88,23 @@ export default class RemoteValidator {
     };
   }
 }
+
+// Replace all functions in object with "remote" versions of the function
+// All functions, however, now return promises rather than their original types
+// Therefore, to keep the type declaration consistent, all remote functions
+// of T should return promises
+export function setupRemote<T>(t: T, validator: RemoteValidator): T {
+  const props = Object.getOwnPropertyNames(t);
+  for (const propName of props) {
+    const prop = (t as any)[propName];
+    if (typeof prop === 'function') {
+      // Check if function has @remote tag, if so, convert to remote version
+      const remoteName: string = Reflect.getMetadata(REMOTE_NAME_KEY, prop);
+      if (!remoteName) {
+        continue;
+      }
+      (t as any)[propName] = validator.flatCall(prop);
+    }
+  }
+  return t;
+}

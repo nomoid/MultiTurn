@@ -1,5 +1,5 @@
-import Move from '../tictactoe/move';
-import { remote } from './remote';
+import { remote } from '../../multiturn/remote/remote';
+import Move from './move';
 
 export default class Player {
 

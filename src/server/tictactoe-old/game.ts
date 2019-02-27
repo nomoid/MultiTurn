@@ -1,4 +1,5 @@
-import Server from '../../multiturn/server';
+/*
+import Server from '../../multiturn/game/server';
 import Remote from '../remote/player';
 import Move from '../tictactoe/move';
 import Board from './board';
@@ -24,3 +25,4 @@ async function runner(game: Server<Remote, Board>): Promise<void> {
         player.win();
     }
 }
+*/

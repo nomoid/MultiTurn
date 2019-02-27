@@ -1,34 +1,47 @@
-import PlayerSet from './playerset';
+import { ServerSyncLayer, StateManager } from '../sync/server';
+import Player from './player';
+import ServerStateManager from './state';
 
+// Type of player: R
+// Type of state: T
 export default class Server<R, T> {
-  public state: T;
-  public players: PlayerSet<R>;
 
-  private remoteGenerator: RemoteConstructor<R>;
-  private mainLoop: (server: Server<R, T>) => Promise<void>;
+  public readonly maxPlayers: number;
+
+  private state: ServerStateManager<R, T>;
 
   public constructor(
-    remoteGenerator: RemoteConstructor<R>,
-    mainLoop: (server: Server<R, T>) => Promise<void>,
+    private mainLoop: (server: Server<R, T>) => Promise<void>,
+    private syncLayer: ServerSyncLayer,
+    private stateMask: (state: T, player: Player<R>) => string,
+    private remoteGenerator: new () => R,
     options: ServerOptions<T>
   ) {
-    this.remoteGenerator = remoteGenerator;
-    this.state = options.state;
-    this.mainLoop = mainLoop;
-    this.players = new PlayerSet();
+    this.maxPlayers = options.maxPlayers;
+    this.state = new ServerStateManager(this, options.state,
+      stateMask, remoteGenerator, options.typePath);
+    this.syncLayer.state = this.state;
   }
 
-  public start() {
-    this.remoteGenerator.setup();
-    this.mainLoop.call(this.mainLoop, this);
+  public async start() {
+    this.syncLayer.listen();
+
+    // Wait until enough players have joined
+    await this.state.waitForPlayers();
+
+    // Run main loop forever
+    while (true) {
+      await this.mainLoop.call(this.mainLoop, this);
+    }
+  }
+
+  public getPlayers(): Array<Player<R>> {
+    return this.state.getPlayers();
   }
 }
 
 interface ServerOptions<T> {
   state: T;
-}
-
-interface RemoteConstructor<R> {
-  setup: () => void;
-  new (): R;
+  maxPlayers: number;
+  typePath: string;
 }

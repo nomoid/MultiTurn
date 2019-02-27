@@ -4,8 +4,8 @@ import * as socketio from 'socket.io';
 import Player from '../client/player';
 import AuthServerNetworkLayer from '../multiturn/auth-network/server/layer';
 import { Socket } from '../multiturn/network/network';
+import RemoteValidator from '../multiturn/remote/validator';
 import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
-import RemoteValidator from './new-remote/validator';
 import Board from './tictactoe/board';
 import Move from './tictactoe/move';
 

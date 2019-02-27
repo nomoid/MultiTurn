@@ -1,8 +1,8 @@
 import * as path from 'path';
-import Player from './new-remote/player';
-import { RemoteResponder } from './new-remote/responder';
-import RemoteValidator from './new-remote/validator';
+import { RemoteResponder } from '../multiturn/remote/responder';
+import RemoteValidator from '../multiturn/remote/validator';
 import Move from './tictactoe/move';
+import Player from './tictactoe/player';
 
 async function main() {
   console.log('Starting');

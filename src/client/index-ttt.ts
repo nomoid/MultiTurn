@@ -2,8 +2,8 @@ import * as Cookie from 'js-cookie';
 import * as sio from 'socket.io-client';
 import AuthClientNetworkLayer from '../multiturn/auth-network/client/layer';
 import { ConnectionEvent, RequestEvent } from '../multiturn/network/network';
+import { RemoteResponder } from '../multiturn/remote/responder';
 import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
-import { RemoteResponder } from '../server/new-remote/responder';
 import Board from '../server/tictactoe/board';
 import Player from './player';
 
