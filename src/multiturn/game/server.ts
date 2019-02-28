@@ -8,18 +8,19 @@ export default class Server<R, T> {
 
   public readonly maxPlayers: number;
 
+  private syncLayer: ServerSyncLayer;
   private state: ServerStateManager<R, T>;
 
   public constructor(
     private mainLoop: (server: Server<R, T>) => Promise<void>,
-    private syncLayer: ServerSyncLayer,
-    stateMask: (state: T, player: Player<R>) => string,
     remoteGenerator: new () => R,
-    options: ServerOptions<T>
+    state: T,
+    options: ServerOptions<R, T>
   ) {
     this.maxPlayers = options.maxPlayers;
-    this.state = new ServerStateManager(this, options.state,
-      stateMask, remoteGenerator, options.typePath);
+    this.syncLayer = options.syncLayer;
+    this.state = new ServerStateManager(this, state,
+      options.stateMask, remoteGenerator, options.typePath);
     this.syncLayer.state = this.state;
   }
 
@@ -46,8 +47,11 @@ export default class Server<R, T> {
   }
 }
 
-interface ServerOptions<T> {
-  state: T;
+type StateMask<R, T> = (state: T, player: Player<R>) => string;
+
+export interface ServerOptions<R, T> {
+  syncLayer: ServerSyncLayer;
+  stateMask: StateMask<R, T>;
   maxPlayers: number;
   typePath: string;
 }
