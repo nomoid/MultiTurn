@@ -22,9 +22,14 @@ export function defaultStateMask<R, T>():
   };
 }
 
-export function defaultOptions<R, T>(io: SIOServer): ServerOptions<R, T> {
+// User needs to pass in io
+export function defaultOptions<R, T>(io?: SIOServer): ServerOptions<R, T> {
+  let layer: ServerSyncLayer;
+  if (io) {
+    layer = defaultSyncLayer(io);
+  }
   const def: ServerOptions<R, T> = {
-    syncLayer: defaultSyncLayer(io),
+    syncLayer: layer!,
     maxPlayers: 2,
     stateMask: defaultStateMask(),
     typePath: './src/typepath.ts',
@@ -33,8 +38,13 @@ export function defaultOptions<R, T>(io: SIOServer): ServerOptions<R, T> {
   return def;
 }
 
-export function fillDefault<R, T>(
-    options: Partial<ServerOptions<R, T>>, io: SIOServer): ServerOptions<R, T> {
+export function fillDefault<R, T>(options: Partial<ServerOptions<R, T>>,
+    io?: SIOServer): ServerOptions<R, T> {
   const def = defaultOptions(io);
-  return {...def, ...options};
+  const filled = {...def, ...options};
+  if (!filled.syncLayer) {
+    throw new Error('SIOServer argument needs to be passed in if syncLayer' +
+      'is not being supplied!');
+  }
+  return filled;
 }
