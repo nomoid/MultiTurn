@@ -5,6 +5,38 @@ export default interface CancelablePromise<T> extends Promise<T> {
   cancel: () => void;
 }
 
+export function cancelableResolve<T>(t: T): CancelablePromise<T>;
+export function cancelableResolve<T>(): CancelablePromise<void>;
+
+export function cancelableResolve<T>(t?: T): CancelablePromise<void | T> {
+  if (t) {
+    return cancelable(Promise.resolve(t), () => {
+      return;
+    });
+  }
+  else {
+    return cancelable(Promise.resolve(), () => {
+      return;
+    });
+  }
+}
+
+export function cancelableReject<T>(t: T): CancelablePromise<T>;
+export function cancelableReject<T>(): CancelablePromise<void>;
+
+export function cancelableReject<T>(t?: T): CancelablePromise<void | T> {
+  if (t) {
+    return cancelable(Promise.reject(t), () => {
+      return;
+    });
+  }
+  else {
+    return cancelable(Promise.reject(), () => {
+      return;
+    });
+  }
+}
+
 export function cancelable<T>(oldPromise: Promise<T>,
     reject: (reason?: any) => void): CancelablePromise<T> {
   const promise: Partial<CancelablePromise<T>> = oldPromise;

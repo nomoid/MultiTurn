@@ -1,4 +1,5 @@
 import CancelablePromise, { cancelableThen } from '../../helper/cancelablepromise';
+import { cancelableResolve } from '../../helper/cancelablepromise';
 import { generateUID } from '../../helper/uid';
 import { Socket } from '../../network/network';
 import { ClientSyncCombinedEvent } from '../../sync/client';
@@ -11,6 +12,10 @@ const updateId = '_syncUpdate';
 
 export default class RepeatSyncUser implements SyncUser {
   public readonly id: string;
+
+  // Keep track of last update state so that update is only sent when it
+  // changes
+  private lastUpdateState?: string;
 
   public constructor(private layer: RepeatServerSyncLayer,
       private sock: Socket) {
@@ -40,10 +45,16 @@ export default class RepeatSyncUser implements SyncUser {
   // TODO retry on failure, consistency ensuring
   public update(): CancelablePromise<void> {
     const state = this.layer.state.getState(this.id);
-    return cancelableThen(this.sock.request(updateId, state),
-      (res) => {
-        return;
-      });
+    if (this.lastUpdateState && this.lastUpdateState === state) {
+      // State hasn't changed, avoid sending
+      return cancelableResolve();
+    }
+    else {
+      return cancelableThen(this.sock.request(updateId, state),
+        (res) => {
+          return;
+        });
+      }
   }
 
 }
