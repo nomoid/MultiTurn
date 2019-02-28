@@ -20,6 +20,7 @@ export interface ServerSyncLayer {
   update(): SyncResponse;
   getUser(id: IdType): SyncUser | undefined;
   getUsers(): SyncUser[];
+  requestAll(key: string, value: string): SyncResponse;
 }
 
 export interface SyncUserEvent {

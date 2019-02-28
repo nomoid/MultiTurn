@@ -1,9 +1,10 @@
 import PromiseHolder from '../helper/promiseholder';
 import RemoteValidator, { setupRemote } from '../remote/validator';
-import { StateManager, SyncUserEvent, SyncUser } from '../sync/server';
+import { StateManager, SyncUserEvent, SyncUser, ServerSyncLayer } from '../sync/server';
 import Player from './player';
 import Server from './server';
 
+const assignNumId = '_assignNum';
 const remoteCallId = '_remoteCall';
 
 export default class ServerStateManager<R, T> implements StateManager {
@@ -13,6 +14,7 @@ export default class ServerStateManager<R, T> implements StateManager {
   private playerPromises: Array<PromiseHolder<void>> = [];
 
   public constructor(private server: Server<R, T>,
+    private syncLayer: ServerSyncLayer,
     private state: T, private stateMask: (state: T,
     player: Player<R>) => string, private remoteGenerator: new () => R,
     private typePath: string) {
@@ -59,8 +61,10 @@ export default class ServerStateManager<R, T> implements StateManager {
       return user.request(remoteCallId, req).result!;
     };
     setupRemote(remote, new RemoteValidator(func, this.typePath));
-    const player = new Player(remote, this.users.length);
+    const playerNum = this.users.length;
+    const player = new Player(remote, playerNum);
     this.playerMap.set(user.id, player);
+    user.request(assignNumId, playerNum.toString());
     if (this.users.length >= this.server.maxPlayers) {
       for (const holder of this.playerPromises) {
         holder.resolve();

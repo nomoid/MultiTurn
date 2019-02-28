@@ -27,7 +27,8 @@ export function defaultOptions<R, T>(io: SIOServer): ServerOptions<R, T> {
     syncLayer: defaultSyncLayer(io),
     maxPlayers: 2,
     stateMask: defaultStateMask(),
-    typePath: './src/typepath.ts'
+    typePath: './src/typepath.ts',
+    standardTurns: true
   };
   return def;
 }

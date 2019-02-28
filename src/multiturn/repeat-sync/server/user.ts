@@ -23,17 +23,30 @@ export default class RepeatSyncUser implements SyncUser {
     layer.addUser(this);
   }
 
+  public requestSingle(key: string, message: string,
+      timeout?: number, preState?: string): CancelablePromise<string> {
+    let state: string;
+    if (preState) {
+      state = preState;
+    }
+    else {
+      state = this.layer.state.getState(this.id);
+    }
+    const requestObject: ClientSyncCombinedEvent = {
+      key, message, state
+    };
+    const requestString = JSON.stringify(requestObject);
+    const result = this.sock.request(requestId, requestString);
+    return result;
+  }
+
   // TODO retry on failure, consistency ensuring
   public request(key: string, message: string, timeout?: number): SyncResponse {
     // Send out an update to everyone else
     const response = this.layer.update(this.id);
     // Send a combined update & request to the recipient
     const state = this.layer.state.getState(this.id);
-    const requestObject: ClientSyncCombinedEvent = {
-      key, message, state
-    };
-    const requestString = JSON.stringify(requestObject);
-    const result = this.sock.request(requestId, requestString);
+    const result = this.requestSingle(key, message, timeout, state);
     const newResponse = new RepeatSyncResponse(response.updates, result);
     return newResponse;
   }

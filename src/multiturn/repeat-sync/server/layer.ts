@@ -1,4 +1,4 @@
-import CancelablePromise from '../../helper/cancelablepromise';
+import CancelablePromise, { cancelableThen } from '../../helper/cancelablepromise';
 import { NetworkLayer, ConnectionEvent } from '../../network/network';
 import { ServerSyncLayer, SyncResponse, StateManager, SyncUser } from '../../sync/server';
 import RepeatSyncResponse from './response';
@@ -25,6 +25,22 @@ export default class RepeatServerSyncLayer implements ServerSyncLayer {
       this.state.onNewUser(new RepeatSyncUserEvent(this, e));
     });
     this.network.listen();
+  }
+
+  public requestAll(key: string, message: string): SyncResponse {
+    const promises: Map<string, CancelablePromise<void>> = new Map();
+    for (const user of this.userMap.values()) {
+      if (user.id === exclude) {
+        continue;
+      }
+      promises.set(user.id, cancelableThen(
+        user.requestSingle(key, message),
+        (s) => {
+          return;
+        }
+      ));
+    }
+    return new RepeatSyncResponse(promises);
   }
 
   public update(exclude?: string): SyncResponse {
