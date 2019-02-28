@@ -3,9 +3,9 @@ import Move from './move';
 
 export default class Remote {
 
-  @remote()
-  public getMove(): Move {
-    return new Move(1, 1);
+  @remote(Move)
+  public getMove(): Promise<Move> {
+    return Promise.resolve(new Move(1, 1));
   }
 
   @remote(Move)
