@@ -2,7 +2,7 @@ import Move from './test/move';
 import Player from './test/player';
 import RemoteValidator from './validator';
 
-const path = './src/server/new-remote/validator.test.ts';
+const path = './src/multiturn/remote/validator.test.ts';
 
 class TestGetter {
   public fun!: (s: string) => Promise<string>;
