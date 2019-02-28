@@ -13,8 +13,8 @@ export default class Server<R, T> {
   public constructor(
     private mainLoop: (server: Server<R, T>) => Promise<void>,
     private syncLayer: ServerSyncLayer,
-    private stateMask: (state: T, player: Player<R>) => string,
-    private remoteGenerator: new () => R,
+    stateMask: (state: T, player: Player<R>) => string,
+    remoteGenerator: new () => R,
     options: ServerOptions<T>
   ) {
     this.maxPlayers = options.maxPlayers;
@@ -31,7 +31,13 @@ export default class Server<R, T> {
 
     // Run main loop forever
     while (true) {
-      await this.mainLoop.call(this.mainLoop, this);
+      try {
+        await this.mainLoop.call(this.mainLoop, this);
+      }
+      catch (err) {
+        console.log('Error occurred while running main loop!');
+        console.error(err);
+      }
     }
   }
 
