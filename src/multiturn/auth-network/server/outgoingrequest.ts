@@ -1,6 +1,6 @@
-import { CancelToken } from '../../cancelablepromise';
-import PromiseHolder from '../../promiseholder';
-import { generateUID } from '../../uid';
+import { CancelToken } from '../../helper/cancelablepromise';
+import PromiseHolder from '../../helper/promiseholder';
+import { generateUID } from '../../helper/uid';
 
 export default class OutgoingRequest {
 

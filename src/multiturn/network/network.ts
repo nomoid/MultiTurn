@@ -1,4 +1,4 @@
-import CancelablePromise from '../cancelablepromise';
+import CancelablePromise from '../helper/cancelablepromise';
 import { NetworkLayer } from './network';
 /**
  * The network layer handles transferring information from the client to the

@@ -1,4 +1,4 @@
-import CancelablePromise from '../../cancelablepromise';
+import CancelablePromise from '../../helper/cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import { Deserializer, Serializer } from '../../sio-network/serializer';
 

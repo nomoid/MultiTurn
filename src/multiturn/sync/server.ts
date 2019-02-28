@@ -1,4 +1,4 @@
-import CancelablePromise from '../cancelablepromise';
+import CancelablePromise from '../helper/cancelablepromise';
 
 /**
  * The synchronization layer handles synchronizing the client state to the

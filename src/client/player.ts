@@ -1,4 +1,4 @@
-import { remote } from '../server/new-remote/remote';
+import { remote } from '../multiturn/remote/remote';
 import Move from '../server/tictactoe/move';
 
 function randomMove(): Move {

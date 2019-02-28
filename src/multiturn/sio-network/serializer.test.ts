@@ -1,4 +1,4 @@
-import { randomData } from '../jest-helper';
+import { randomData } from '../helper/jest-helper';
 import { defaultSerializer, defaultDeserializer } from './serializer';
 
 test('testDeserializer', () => {

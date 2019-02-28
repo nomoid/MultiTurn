@@ -1,4 +1,4 @@
-import CancelablePromise from '../../cancelablepromise';
+import CancelablePromise from '../../helper/cancelablepromise';
 import { SyncResponse } from '../../sync/server';
 
 export default class RepeatSyncResponse implements SyncResponse {

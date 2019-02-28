@@ -1,4 +1,4 @@
-import CancelablePromise from '../../cancelablepromise';
+import CancelablePromise from '../../helper/cancelablepromise';
 import { NetworkLayer, ConnectionEvent } from '../../network/network';
 import { ServerSyncLayer, SyncResponse, StateManager, SyncUser } from '../../sync/server';
 import RepeatSyncResponse from './response';

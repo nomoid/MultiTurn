@@ -1,4 +1,4 @@
-import { generateUID } from '../../uid';
+import { generateUID } from '../../helper/uid';
 import { SIOSocket } from '../sio-external';
 
 const verbose = false;

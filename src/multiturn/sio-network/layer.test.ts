@@ -1,4 +1,4 @@
-import { randomData } from '../jest-helper';
+import { randomData } from '../helper/jest-helper';
 import { ConnectionEvent, RequestEvent, NetworkLayer } from '../network/network';
 import SIOClientNetworkLayer from './client/layer';
 import MockSIOServer from './mock/server';
