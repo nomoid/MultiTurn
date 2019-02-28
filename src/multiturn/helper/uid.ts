@@ -14,3 +14,13 @@ export function generateUID(): string {
   idsInUse.add(newId);
   return newId;
 }
+
+export function compareNumber(a: number, b: number) {
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+  return 0;
+}

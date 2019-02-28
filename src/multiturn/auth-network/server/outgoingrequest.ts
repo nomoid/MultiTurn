@@ -7,7 +7,8 @@ export default class OutgoingRequest {
   public readonly uid: string;
   public readonly promiseHolder: PromiseHolder<string>;
 
-  public constructor(public key: string, public message: string,
+  public constructor(readonly key: string, readonly message: string,
+    readonly orderId: number,
     cancelCallback: () => void) {
     this.uid = generateUID();
     this.promiseHolder = new PromiseHolder<string>(undefined);

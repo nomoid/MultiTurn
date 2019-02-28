@@ -1,4 +1,5 @@
 import CancelablePromise from '../../helper/cancelablepromise';
+import { compareNumber } from '../../helper/uid';
 import { Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
 import { verbose } from './layer';
@@ -9,6 +10,7 @@ export default class AuthUser {
 
   private listeners: Array<(e: RequestEvent) => void>;
   private outgoingRequests: Map<string, OutgoingRequest>;
+  private requestCounter = 0;
 
   public constructor(readonly id: string, public socket: Socket,
     private serializer: Serializer, private deserializer: Deserializer) {
@@ -21,10 +23,12 @@ export default class AuthUser {
   }
 
   public request(key: string, message: string): CancelablePromise<string> {
-    const req = new OutgoingRequest(key, message, () => {
+    const orderId = this.requestCounter;
+    const req = new OutgoingRequest(key, message, orderId, () => {
       this.outgoingRequests.delete(req.uid);
     });
     this.outgoingRequests.set(req.uid, req);
+    this.requestCounter += 1;
     if (verbose) {
       console.log(`[Auth] Firing request ${req.uid}: ${key},${message}`);
     }
@@ -48,10 +52,13 @@ export default class AuthUser {
     });
   }
 
-  // Resend all outstanding requests
+  // Resend all outstanding requests, in order of request creation
   public refresh() {
-    for (const uid of this.outgoingRequests.keys()) {
-      const req = this.outgoingRequests.get(uid)!;
+    const reqs = Array.from(this.outgoingRequests.values());
+    reqs.sort((a: OutgoingRequest, b: OutgoingRequest) => {
+      return compareNumber(a.orderId, b.orderId);
+    });
+    for (const req of reqs) {
       this.fireRequest(req);
     }
   }
