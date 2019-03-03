@@ -3,6 +3,7 @@ import Player from './player';
 import ServerStateManager from './state';
 
 const gameOverId = '_gameOver';
+const verbose = true;
 
 // Type of player: R
 // Type of state: T
@@ -41,14 +42,30 @@ export default class Server<R, T> {
       throw new Error('Game cannot be started more than once!');
     }
     this.started = true;
+
+    if (verbose) {
+      console.log('Server listening.');
+    }
+
     this.syncLayer.listen();
+
+    if (verbose) {
+      console.log('Waiting for players...');
+    }
 
     // Wait until enough players have joined
     await this.state.waitForPlayers();
 
+    if (verbose) {
+      console.log('Starting mail loop.');
+    }
+
     // Run main loop forever
     while (true) {
       try {
+        if (verbose) {
+          console.log(`Starting turn ${this.turn}`);
+        }
         await this.mainLoop.call(this.mainLoop, this);
         if (this.standardTurns) {
           if (this.turnIncrementDisabled) {

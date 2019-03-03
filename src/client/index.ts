@@ -1,5 +1,5 @@
 import * as sio from 'socket.io-client';
-import defaultClientSyncLayer from '../multiturn/game/client';
+import { defaultClientSyncLayer } from '../multiturn/game/client';
 import { ClientSyncResponder, ClientSyncStateEvent, ClientSyncRequestEvent } from '../multiturn/sync/client';
 
 const io = sio();

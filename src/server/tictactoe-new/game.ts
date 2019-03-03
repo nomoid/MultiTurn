@@ -27,7 +27,7 @@ function getRunner(state: Board) {
 export default function main() {
   const app = express();
 
-  const clientPath = `${__dirname}/../../dist`;
+  const clientPath = `${__dirname}/../../../dist`;
   app.use(express.static(clientPath));
 
   const server = http.createServer(app);
@@ -41,4 +41,10 @@ export default function main() {
   const gameServer = new Server<Remote, Board>(
     getRunner(state), Remote, state, options);
   gameServer.start();
+
+  const port = process.env.PORT || 8080;
+  server.listen(port, () => {
+    console.log('Server started on ' + port);
+  });
+
 }
