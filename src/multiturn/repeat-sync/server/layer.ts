@@ -30,9 +30,6 @@ export default class RepeatServerSyncLayer implements ServerSyncLayer {
   public requestAll(key: string, message: string): SyncResponse {
     const promises: Map<string, CancelablePromise<void>> = new Map();
     for (const user of this.userMap.values()) {
-      if (user.id === exclude) {
-        continue;
-      }
       promises.set(user.id, cancelableThen(
         user.requestSingle(key, message),
         (s) => {
@@ -46,7 +43,7 @@ export default class RepeatServerSyncLayer implements ServerSyncLayer {
   public update(exclude?: string): SyncResponse {
     const promises: Map<string, CancelablePromise<void>> = new Map();
     for (const user of this.userMap.values()) {
-      if (user.id === exclude) {
+      if (exclude && user.id === exclude) {
         continue;
       }
       promises.set(user.id, user.update());

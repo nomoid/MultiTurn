@@ -24,4 +24,5 @@ export default function defaultClientSyncLayer(io: SIOSocket,
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
+  return syncLayer;
 }

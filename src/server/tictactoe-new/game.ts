@@ -7,34 +7,38 @@ import Move from '../tictactoe/move';
 import Board from './board';
 import Remote from './remote';
 
-const app = express();
+function getRunner(state: Board) {
+  return async function runner(game: Server<Remote, Board>): Promise<void> {
+    const player = game.getCurrentPlayer();
+    const board = state;
+    const validator = (possibleMove: Move) => !board.occupied(possibleMove);
+    let move;
+    do {
+      move = await player.remote.getMove();
+    } while (!validator(move));
+    board.occupy(move, player.num);
+    const win = board.checkVictory();
+    if (win >= 0) {
+      game.gameOver(player.num.toString());
+    }
+  };
+}
 
-const clientPath = `${__dirname}/../../dist`;
-app.use(express.static(clientPath));
+export default function main() {
+  const app = express();
 
-const server = http.createServer(app);
+  const clientPath = `${__dirname}/../../dist`;
+  app.use(express.static(clientPath));
 
-const io = socketio(server);
+  const server = http.createServer(app);
 
-const state = new Board();
+  const io = socketio(server);
 
-const options = fillDefault({
-
-}, io);
-const gameServer = new Server<Remote, Board>(runner, Remote, state, options);
-gameServer.start();
-
-async function runner(game: Server<Remote, Board>): Promise<void> {
-  const player = game.getCurrentPlayer();
-  const board = state;
-  const validator = (possibleMove: Move) => !board.occupied(possibleMove);
-  let move;
-  do {
-    move = await player.remote.getMove();
-  } while (!validator(move));
-  board.occupy(move, player.num);
-  const win = board.checkVictory();
-  if (win >= 0) {
-    game.gameOver(player.num.toString());
-  }
+  const options = fillDefault({
+    typePath: './server/tictactoe-new/game.ts'
+  }, io);
+  const state = new Board();
+  const gameServer = new Server<Remote, Board>(
+    getRunner(state), Remote, state, options);
+  gameServer.start();
 }
