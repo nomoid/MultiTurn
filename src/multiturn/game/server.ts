@@ -57,11 +57,11 @@ export default class Server<R, T> {
     await this.state.waitForPlayers();
 
     if (verbose) {
-      console.log('Starting mail loop.');
+      console.log('Starting main loop.');
     }
 
     // Run main loop forever
-    while (true) {
+    while (!this.gameIsOver) {
       try {
         if (verbose) {
           console.log(`Starting turn ${this.turn}`);

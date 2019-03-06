@@ -28,7 +28,7 @@ export class RemoteResponder {
       }
       const respMethod = resp[methodName];
       if (respMethod && typeof respMethod === 'function') {
-        const returned = respMethod();
+        const returned = respMethod.bind(resp)();
         // Check if the returned object is a promise
         if (returned.then) {
           return returned.then((o: any) => {

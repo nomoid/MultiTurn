@@ -5,9 +5,13 @@ import * as ts from 'typescript';
 import * as TJS from 'typescript-json-schema';
 import { REMOTE_NAME_KEY, REMOTE_RETURN_TYPE_KEY } from './remote';
 
+const verbose = true;
+
+// Validators are cached globally, beware of name conflicts
+const validators: Map<string, AJV.ValidateFunction> = new Map();
+
 export default class RemoteValidator {
 
-  private validators: Map<string, AJV.ValidateFunction> = new Map();
   private ajv: AJV.Ajv;
 
   public constructor(private getter: (key: string) => Promise<string>,
@@ -16,6 +20,9 @@ export default class RemoteValidator {
   }
 
   public addTypeValidator(type: {name: string}, typePath?: string) {
+    if (verbose) {
+      console.log(`[Valid] Adding type validator for type ${type.name}`);
+    }
     if (typePath) {
       this.typePath = typePath;
     }
@@ -31,6 +38,9 @@ export default class RemoteValidator {
       required: true,
       noExtraProps: true
     };
+    if (verbose) {
+      console.log('[Valid] Compiling program');
+    }
     const program = ts.createProgram([path.resolve(this.typePath)],
       compilerOptions);
     const generator = TJS.buildGenerator(program, settings);
@@ -42,9 +52,18 @@ export default class RemoteValidator {
     if (i < 0) {
       throw Error(`Type '${typeName}' not found in file '${this.typePath}'`);
     }
+    if (verbose) {
+      console.log('[Valid] Creating JSON schema');
+    }
     const schema = generator.getSchemaForSymbol(symbols[i]);
+    if (verbose) {
+      console.log('[Valid] Compiling JSON schema');
+    }
     const validate = this.ajv.compile(schema);
-    this.validators.set(typeName, validate);
+    validators.set(typeName, validate);
+    if (verbose) {
+      console.log(`[Valid] Type validator added for type ${type.name}`);
+    }
     return validate;
   }
 
@@ -65,12 +84,21 @@ export default class RemoteValidator {
     if (!remoteType) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
+    if (verbose) {
+      console.log(`[Valid] Adding call for ${remoteName} with type ${remoteType}`);
+    }
     let validate: AJV.ValidateFunction;
-    const existingValidate = this.validators.get(remoteType);
+    const existingValidate = validators.get(remoteType);
     if (!existingValidate) {
+      if (verbose) {
+        console.log(`[Valid] No existing validator found for type ${remoteType}`);
+      }
       validate = this.addTypeValidator({name: remoteType});
     }
     else {
+      if (verbose) {
+        console.log(`[Valid] Existing validator found for type ${remoteType}`);
+      }
       validate = existingValidate;
     }
     return () => {
@@ -94,7 +122,7 @@ export default class RemoteValidator {
 // Therefore, to keep the type declaration consistent, all remote functions
 // of T should return promises
 export function setupRemote<T>(t: T, validator: RemoteValidator): T {
-  const props = Object.getOwnPropertyNames(t);
+  const props = Object.getOwnPropertyNames(Object.getPrototypeOf(t));
   for (const propName of props) {
     const prop = (t as any)[propName];
     if (typeof prop === 'function') {

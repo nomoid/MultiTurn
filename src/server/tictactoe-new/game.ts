@@ -16,6 +16,7 @@ function getRunner(state: Board) {
     do {
       move = await player.remote.getMove();
     } while (!validator(move));
+    console.log(`Valid move: {${move.x}, ${move.y}}`);
     board.occupy(move, player.num);
     const win = board.checkVictory();
     if (win >= 0) {
@@ -35,7 +36,7 @@ export default function main() {
   const io = socketio(server);
 
   const options = fillDefault({
-    typePath: './server/tictactoe-new/game.ts'
+    typePath: './src/server/tictactoe-new/game.ts'
   }, io);
   const state = new Board();
   const gameServer = new Server<Remote, Board>(
