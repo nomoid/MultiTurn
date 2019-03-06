@@ -63,6 +63,7 @@ export default class RepeatSyncUser implements SyncUser {
       return cancelableResolve();
     }
     else {
+      this.lastUpdateState = state;
       return cancelableThen(this.sock.request(updateId, state),
         (res) => {
           return;
