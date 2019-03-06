@@ -21,6 +21,11 @@ function getRunner(state: Board) {
     const win = board.checkVictory();
     if (win >= 0) {
       game.gameOver(player.num.toString());
+      return;
+    }
+    const full = board.checkFull();
+    if (full) {
+      game.gameOver((-1).toString());
     }
   };
 }
@@ -41,7 +46,10 @@ export default function main() {
   const state = new Board();
   const gameServer = new Server<Remote, Board>(
     getRunner(state), Remote, state, options);
-  gameServer.start();
+  gameServer.start().then(() => {
+    console.log('Closing server.');
+    server.close();
+  });
 
   const port = process.env.PORT || 8080;
   server.listen(port, () => {

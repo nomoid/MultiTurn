@@ -27,12 +27,23 @@ export default class Board {
     }
   }
 
-  public occupied(move: Move) {
+  public occupied(move: Move): boolean {
     return this.spaces[move.x][move.y] !== -1;
   }
 
   public occupy(move: Move, n: number) {
     this.spaces[move.x][move.y] = n;
+  }
+
+  public checkFull(): boolean {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (this.spaces[i][j] === -1) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   public checkVictory() {
