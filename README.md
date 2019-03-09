@@ -1,7 +1,5 @@
 # MultiTurn: A Turn-Based Multiplayer Game Framework
 
-By Markus Feng
-
 Disclaimer: This is currently under active development, so changes may occur at
 any moment without prior notice. Many features are not yet complete. Use at
 your own risk!
