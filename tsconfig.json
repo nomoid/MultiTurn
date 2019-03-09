@@ -8,7 +8,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "typings/**/*.d.ts"
+    "typings/**/*.d.ts", "src/client/helper/logging.js"
   ],
   "exclude": [
     ".git",
