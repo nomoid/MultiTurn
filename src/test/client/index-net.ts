@@ -1,6 +1,6 @@
 import * as sio from 'socket.io-client';
-import { ConnectionEvent, RequestEvent } from '../multiturn/network/network';
-import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
+import { ConnectionEvent, RequestEvent } from '../../multiturn/network/network';
+import SIOClientNetworkLayer from '../../multiturn/sio-network/client/layer';
 
 const io = sio();
 

@@ -1,6 +1,6 @@
-import { RemoteResponder } from '../multiturn/remote/responder';
-import RemoteValidator from '../multiturn/remote/validator';
-import Player from '../tictactoe/remote';
+import { RemoteResponder } from '../../multiturn/remote/responder';
+import RemoteValidator from '../../multiturn/remote/validator';
+import Player from '../../tictactoe/remote';
 
 async function main() {
   console.log('Starting');

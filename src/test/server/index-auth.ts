@@ -1,8 +1,8 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
-import AuthServerNetworkLayer from '../multiturn/auth-network/server/layer';
-import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
+import AuthServerNetworkLayer from '../../multiturn/auth-network/server/layer';
+import SIOServerNetworkLayer from '../../multiturn/sio-network/server/layer';
 
 const app = express();
 

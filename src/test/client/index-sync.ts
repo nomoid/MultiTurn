@@ -1,10 +1,10 @@
 import * as Cookie from 'js-cookie';
 import * as sio from 'socket.io-client';
-import AuthClientCookieTokenHandler from '../multiturn/auth-network/client/cookie';
-import AuthClientNetworkLayer from '../multiturn/auth-network/client/layer';
-import RepeatClientSyncLayer from '../multiturn/repeat-sync/client/layer';
-import SIOClientNetworkLayer from '../multiturn/sio-network/client/layer';
-import { ClientSyncResponder, ClientSyncRequestEvent, ClientSyncStateEvent } from '../multiturn/sync/client';
+import AuthClientCookieTokenHandler from '../../multiturn/auth-network/client/cookie';
+import AuthClientNetworkLayer from '../../multiturn/auth-network/client/layer';
+import RepeatClientSyncLayer from '../../multiturn/repeat-sync/client/layer';
+import SIOClientNetworkLayer from '../../multiturn/sio-network/client/layer';
+import { ClientSyncResponder, ClientSyncRequestEvent, ClientSyncStateEvent } from '../../multiturn/sync/client';
 
 const io = sio();
 const authTokenId = 'auth.token';

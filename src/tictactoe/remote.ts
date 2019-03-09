@@ -21,6 +21,7 @@ export default class Remote implements Client<Remote> {
   // Client methods
   public assignNumber(num: number) {
     this.playerNum = num;
+    console.log(`You are player ${num}!`);
   }
 
   public updateState(e: ClientSyncStateEvent) {
@@ -32,7 +33,7 @@ export default class Remote implements Client<Remote> {
   }
 
   public gameOver(message: string) {
-    console.log(`Game over! ${message}`);
+    console.log(`Game over! Player ${message} wins!`);
   }
 
   private getRandomMove(): Move {

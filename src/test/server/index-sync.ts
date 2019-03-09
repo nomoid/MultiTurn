@@ -1,10 +1,10 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
-import AuthServerNetworkLayer from '../multiturn/auth-network/server/layer';
-import RepeatServerSyncLayer from '../multiturn/repeat-sync/server/layer';
-import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
-import UniversalStateManager from '../multiturn/state/universal';
+import AuthServerNetworkLayer from '../../multiturn/auth-network/server/layer';
+import RepeatServerSyncLayer from '../../multiturn/repeat-sync/server/layer';
+import SIOServerNetworkLayer from '../../multiturn/sio-network/server/layer';
+import UniversalStateManager from '../../multiturn/state/universal';
 
 const app = express();
 

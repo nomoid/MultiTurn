@@ -10,7 +10,7 @@ import Remote from './remote';
 function main() {
   const app = express();
 
-  const clientPath = `${__dirname}/../../../dist`;
+  const clientPath = `${__dirname}/../../dist`;
   app.use(express.static(clientPath));
 
   const server = http.createServer(app);
@@ -18,7 +18,7 @@ function main() {
   const io = socketio(server);
 
   const options = fillDefault({
-    typePath: './src/server/tictactoe-new/game.ts'
+    typePath: './src/tictactoe/game.ts'
   }, io);
   const state = new Board();
   const gameServer = new Server<Remote, Board>(
