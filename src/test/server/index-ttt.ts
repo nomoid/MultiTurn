@@ -1,13 +1,13 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
-import Player from '../client/player';
+import Player from '../client-test/player';
 import AuthServerNetworkLayer from '../multiturn/auth-network/server/layer';
 import { Socket } from '../multiturn/network/network';
 import RemoteValidator from '../multiturn/remote/validator';
 import SIOServerNetworkLayer from '../multiturn/sio-network/server/layer';
-import Board from './tictactoe/board';
-import Move from './tictactoe/move';
+import Board from '../tictactoe/board';
+import Move from '../tictactoe/move';
 
 const app = express();
 
@@ -132,7 +132,7 @@ async function main(): Promise<boolean> {
     return true;
   }
   else {
-    const tie = board.checkTie();
+    const tie = board.checkFull();
     if (tie) {
       console.log('Game is tied');
       sendTie();

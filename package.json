@@ -7,8 +7,8 @@
     "superclean": "rimraf node_modules build dist",
     "clean": "rimraf build dist",
     "build-client": "webpack",
-    "build-server": "tsc src/server/index.ts --outDir build --target es6 --module commonjs --strict --experimentalDecorators --emitDecoratorMetadata",
-    "server": "node build/server/index.js"
+    "build-server": "tsc src/tictactoe/server.ts --outDir build --target es6 --module commonjs --strict --experimentalDecorators --emitDecoratorMetadata",
+    "server": "node build/tictactoe/server.js"
   },
   "author": "Markus Feng",
   "license": "MIT",

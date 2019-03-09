@@ -1,6 +1,6 @@
-import { Client } from '../../multiturn/game/client';
-import { remote } from '../../multiturn/remote/remote';
-import { ClientSyncStateEvent } from '../../multiturn/sync/client';
+import { Client } from '../multiturn/game/client';
+import { remote } from '../multiturn/remote/remote';
+import { ClientSyncStateEvent } from '../multiturn/sync/client';
 import Board from './board';
 import Move from './move';
 

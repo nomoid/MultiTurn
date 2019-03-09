@@ -1,8 +1,6 @@
-import * as path from 'path';
 import { RemoteResponder } from '../multiturn/remote/responder';
 import RemoteValidator from '../multiturn/remote/validator';
-import Move from './tictactoe/move';
-import Player from './tictactoe/player';
+import Player from '../tictactoe/remote';
 
 async function main() {
   console.log('Starting');
@@ -23,7 +21,7 @@ async function main() {
   // remote.addTypeValidator(Move);
 
   console.log('Setting up remote call...');
-  const getMove = remote.flatCall(Player.prototype.getDelayedMove);
+  const getMove = remote.flatCall(Player.prototype.getMove);
 
   console.log('Finished setting up');
   for (let i = 0; i < 10; i++) {

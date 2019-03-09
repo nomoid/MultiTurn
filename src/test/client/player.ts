@@ -1,5 +1,5 @@
 import { remote } from '../multiturn/remote/remote';
-import Move from '../server/tictactoe/move';
+import Move from '../tictactoe/move';
 
 function randomMove(): Move {
   const x = Math.floor(Math.random() * 3);
