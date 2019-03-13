@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "build/",
+    "target": "es6",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true
+  },
+  "files": [
+    "src/tictactoe/server.ts"
+  ],
+  "exclude": [
+    ".git",
+    "node_modules"
+  ]
+}

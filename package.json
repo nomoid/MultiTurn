@@ -7,7 +7,7 @@
     "superclean": "rimraf node_modules build dist",
     "clean": "rimraf build dist",
     "build-client": "webpack",
-    "build-server": "tsc src/tictactoe/server.ts --outDir build --target es6 --module commonjs --strict --experimentalDecorators --emitDecoratorMetadata",
+    "build-server": "tsc --p server.tsconfig.json",
     "server": "node build/tictactoe/server.js"
   },
   "author": "Markus Feng",

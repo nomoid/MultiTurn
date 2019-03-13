@@ -11,8 +11,11 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          configFile: 'client.tsconfig.json'
+        }
       },
       {
         test: /\.html/,
