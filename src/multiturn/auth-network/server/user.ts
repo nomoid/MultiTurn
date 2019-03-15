@@ -61,10 +61,10 @@ export default class AuthUser {
 
   // Resend all outstanding requests, in order of request creation
   public refresh() {
+    const reqs = Array.from(this.outgoingRequests.values());
     for (const listener of this.refreshListeners) {
       listener(new AbstractRefreshEvent(this.request.bind(this)));
     }
-    const reqs = Array.from(this.outgoingRequests.values());
     reqs.sort((a: OutgoingRequest, b: OutgoingRequest) => {
       return compareNumber(a.orderId, b.orderId);
     });
