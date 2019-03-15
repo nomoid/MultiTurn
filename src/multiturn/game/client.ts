@@ -1,6 +1,7 @@
 import * as Cookie from 'js-cookie';
 import AuthClientCookieTokenHandler from '../auth-network/client/cookie';
 import AuthClientNetworkLayer from '../auth-network/client/layer';
+import { NetworkLayer } from '../network/network';
 import { RemoteResponder } from '../remote/responder';
 import RepeatClientSyncLayer from '../repeat-sync/client/layer';
 import SIOClientNetworkLayer from '../sio-network/client/layer';
@@ -27,6 +28,23 @@ export function defaultClientSyncLayer(io: SIOSocket,
     }
   }
   const netLayer = new SIOClientNetworkLayer(io);
+  const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
+  authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
+  const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
+  return syncLayer;
+}
+
+export function defaultClientSyncLayerFromNetLayer(netLayer: NetworkLayer,
+  responder: ClientSyncResponder) {
+  const localToken = Cookie.get(authTokenId);
+  if (verbose) {
+    if (localToken) {
+      console.log(`Local token found ${localToken}`);
+    }
+    else {
+      console.log('No local token found, requesting new token');
+    }
+  }
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);

@@ -64,6 +64,11 @@ export default class SIONetworkSocket implements Socket {
           const resolve = this.promises.get(key) as (s: string) => void;
           resolve(message);
         }
+        else {
+          if (verbose) {
+            console.log(`[Net][Warn] Incoming Response Rejected: ${key},${message}`);
+          }
+        }
       }
       // Do nothing on failed deserializing
       else {

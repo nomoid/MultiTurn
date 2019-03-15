@@ -11,10 +11,11 @@ export default class Remote implements Client<Remote> {
   @remote(Move)
   public getMove(): Promise<Move> {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
+      /*setTimeout(() => {
         const move = this.getRandomMove();
         resolve(move);
-      }, 1000);
+      }, 1000);*/
+      // Never resolve?
     });
   }
 
