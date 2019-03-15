@@ -21,6 +21,8 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   private tokenHandler?: TokenHandler;
 
   public constructor(private network: NetworkLayer, public token?: string,
+    // Timeout in milliseconds between refreshes, 0 for no repeat
+    private repeatDelay?: number,
     serializer?: Serializer, deserializer?: Deserializer) {
     this.listeners = [];
     if (serializer) {
@@ -64,18 +66,32 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     this.listeners.push(callback);
   }
 
-  public refresh(socket: Socket, token: string) {
-    socket.request(refreshId, token).then((response: string) => {
+  public async refresh(socket: Socket, token: string) {
+    let failures = 0;
+    while (true) {
+      const response = await socket.request(refreshId, token);
       if (response === refreshSuccessId) {
-        // Done refreshing
+        failures = 0;
+        if (this.repeatDelay && this.repeatDelay > 0) {
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, this.repeatDelay);
+          });
+        }
+        else {
+          break;
+        }
       }
       else if (response === refreshFailId) {
-        // Try refreshing again?
+        failures += 1;
+        if (failures > 3) {
+          break;
+        }
+        continue;
       }
       else {
-        // TODO Invalid server response
+        break;
       }
-    });
+    }
   }
 
   private tryLogin(socket: Socket, token: string) {

@@ -16,6 +16,8 @@ const failureId = 'failure';
 const authTokenId = 'auth.token';
 const verbose = false;
 
+const defaultRefreshRepeatDelay = 0;
+
 export function defaultClientSyncLayer(io: SIOSocket,
     responder: ClientSyncResponder) {
   const localToken = Cookie.get(authTokenId);
@@ -28,7 +30,8 @@ export function defaultClientSyncLayer(io: SIOSocket,
     }
   }
   const netLayer = new SIOClientNetworkLayer(io);
-  const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
+  const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
+    defaultRefreshRepeatDelay);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
@@ -45,7 +48,8 @@ export function defaultClientSyncLayerFromNetLayer(netLayer: NetworkLayer,
       console.log('No local token found, requesting new token');
     }
   }
-  const authLayer = new AuthClientNetworkLayer(netLayer, localToken);
+  const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
+    defaultRefreshRepeatDelay);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
