@@ -101,18 +101,29 @@ export default class RemoteValidator {
       }
       validate = existingValidate;
     }
-    return () => {
-      return this.getter(remoteName).then((s: string) => {
-        return new Promise<T>((resolve, reject) => {
+    return async () => {
+      // TODO implement timeouts
+      while (true) {
+        const s = await this.getter(remoteName);
+        try {
           const obj = JSON.parse(s);
           if (!validate(obj)) {
-            reject(validate.errors);
+            if (verbose) {
+              console.log('[Valid] Incoming object failed validation');
+            }
+            // Retry rather than throwing an exception here
           }
           else {
-            resolve(obj as T);
+            return (obj as T);
           }
-        });
-      });
+        }
+        catch (e) {
+          if (verbose) {
+            console.log('[Valid] Incoming object threw an error on validation');
+          }
+          // Retry rather than throwing an exception here
+        }
+      }
     };
   }
 }

@@ -8,7 +8,7 @@ export default function getRunner(state: Board) {
     const player = game.getCurrentPlayer();
     const board = state;
     const validator = (possibleMove: Move) => !board.occupied(possibleMove);
-    let move;
+    let move: Move;
     do {
       move = await player.remote.getMove();
     } while (!validator(move));
