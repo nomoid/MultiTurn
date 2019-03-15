@@ -6,8 +6,11 @@ import TokenHandler from './token';
 
 const registerId = '_register';
 const loginId = '_login';
+const refreshId = '_refresh';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
+const refreshSuccessId = '_refresh_success';
+const refreshFailId = '_refresh_fail';
 
 export default class AuthClientNetworkLayer implements NetworkLayer {
 
@@ -61,6 +64,20 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     this.listeners.push(callback);
   }
 
+  public refresh(socket: Socket, token: string) {
+    socket.request(refreshId, token).then((response: string) => {
+      if (response === refreshSuccessId) {
+        // Done refreshing
+      }
+      else if (response === refreshFailId) {
+        // Try refreshing again?
+      }
+      else {
+        // TODO Invalid server response
+      }
+    });
+  }
+
   private tryLogin(socket: Socket, token: string) {
     socket.request(loginId, token).then((response: string) => {
       if (response === loginSuccessId) {
@@ -92,5 +109,6 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
         this.serializer, this.deserializer);
       listener(new AbstractConnectionEvent(authSock));
     }
+    this.refresh(socket, token);
   }
 }

@@ -4,7 +4,7 @@ export interface ClientSyncLayer {
 }
 
 export interface ClientSyncResponder {
-  onUpdateState(e: ClientSyncStateEvent): void;
+  onUpdateState(e: ClientSyncStateEvent): Promise<void>;
   onRequest(e: ClientSyncRequestEvent): Promise<string>;
 }
 

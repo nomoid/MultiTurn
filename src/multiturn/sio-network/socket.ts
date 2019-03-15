@@ -40,6 +40,12 @@ export default class SIONetworkSocket implements Socket {
           const event = new SIORequestEvent(this, key, message);
           listener(event);
         }
+        if (this.listeners.length === 0) {
+          if (verbose) {
+            console.log(`[Net] Warning: No listeners listened for the incoming
+              request!`);
+          }
+        }
       }
       // Do nothing on failed deserializing
       else {

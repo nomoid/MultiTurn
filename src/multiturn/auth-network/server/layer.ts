@@ -9,10 +9,13 @@ import AuthUser from './user';
 
 const registerId = '_register';
 const loginId = '_login';
+const refreshId = '_refresh';
 const loginSuccessId = '_login_success';
 const loginFailId = '_login_fail';
+const refreshSuccessId = '_refresh_success';
+const refreshFailId = '_refresh_fail';
 
-export const verbose = false;
+export const verbose = true;
 
 export default class AuthServerNetworkLayer implements NetworkLayer {
 
@@ -99,10 +102,8 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
           if (verbose) {
             console.log(`[Auth] User found with id ${id}`);
           }
-          e.respond(loginSuccessId);
           user.socket = socket;
-          // Resend all outstanding requests
-          user.refresh();
+          e.respond(loginSuccessId);
         }
         else {
           if (verbose) {
@@ -110,6 +111,27 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
           }
           e.respond(loginFailId);
           // TODO deal with repeated failure to login?
+        }
+      }
+      else if (e.key === refreshId) {
+        const id = e.message;
+        if (verbose) {
+          console.log(`[Auth] New refresh request with id ${id}`);
+        }
+        if (this.users.has(id)) {
+          const user = this.users.get(id)!;
+          if (verbose) {
+            console.log(`[Auth] User found with id ${id}`);
+          }
+          // Resend all outstanding requests
+          user.refresh();
+          e.respond(refreshSuccessId);
+        }
+        else {
+          if (verbose) {
+            console.log(`[Auth]User not found with id ${id}`);
+          }
+          e.respond(refreshFailId);
         }
       }
       else if (this.users.has(e.key)) {

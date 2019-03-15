@@ -13,9 +13,10 @@ class TestResponder implements ClientSyncResponder {
 
   private localState: number = 0;
 
-  public onUpdateState(e: ClientSyncStateEvent): void {
+  public onUpdateState(e: ClientSyncStateEvent): Promise<void> {
     console.log(`State updated, new state: ${e.state}`);
     this.localState = parseInt(e.state, 10);
+    return Promise.resolve();
   }
 
   public onRequest(e: ClientSyncRequestEvent): Promise<string> {

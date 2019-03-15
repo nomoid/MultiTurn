@@ -18,7 +18,7 @@ export default class ServerStateManager<R, T> implements StateManager {
     private state: T, private stateMask: (state: T,
     player: Player<R>) => string, private remoteGenerator: new () => R,
     private typePath: string) {
-
+      this.setupDummyRemote();
   }
 
   public onNewUser(e: SyncUserEvent): void {
@@ -70,5 +70,15 @@ export default class ServerStateManager<R, T> implements StateManager {
         holder.resolve();
       }
     }
+  }
+
+  // Setup dummy player to enable remote validation
+  // Do this before player connect because it may take some time
+  private setupDummyRemote() {
+    const remote = new this.remoteGenerator();
+    const func = (req: string) => {
+      return Promise.resolve(req);
+    };
+    setupRemote(remote, new RemoteValidator(func, this.typePath));
   }
 }

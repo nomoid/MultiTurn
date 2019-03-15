@@ -6,7 +6,7 @@ const updateId = '_syncUpdate';
 const emptyResponse = '';
 
 function validateRequest(r: any): r is ClientSyncCombinedEvent {
-  if (r.key !== undefined && r.message !== undefined && r.state !== undefined) {
+  if (r.state !== undefined) {
     return true;
   }
   else {
@@ -31,19 +31,20 @@ export default class RepeatClientSyncLayer implements ClientSyncLayer {
     this.layer.addConnectionListener((e: ConnectionEvent) => {
       const sock = e.accept();
       sock.addRequestListener((e2: RequestEvent) => {
-        const requestEvent = JSON.parse(e2.message);
-        if (validateRequest(requestEvent)) {
-          if (e2.key === requestId) {
-            this.responder.onUpdateState(requestEvent);
-            this.responder.onRequest(requestEvent)
+        if (e2.key === requestId) {
+          const requestEvent = JSON.parse(e2.message);
+          if (validateRequest(requestEvent)) {
+            this.responder.onUpdateState(requestEvent)
+              .then(() => this.responder.onRequest(requestEvent))
               .then((s: string) => e2.respond(s));
-          } else if (e2.key === updateId) {
-            this.responder.onUpdateState(requestEvent);
-            e2.respond(emptyResponse);
           }
-          // Invalid server request, silently ignore for now
+          else {
+            console.log('[Sync][Warn] Invalid request!');
+          }
+        } else if (e2.key === updateId) {
+          this.responder.onUpdateState({state: e2.message})
+            .then(() => e2.respond(emptyResponse));
         }
-        // Invalid server request, silently ignore for now
       });
     });
     this.layer.listen();

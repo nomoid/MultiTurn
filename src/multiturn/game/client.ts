@@ -44,8 +44,9 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
     this.responder.addResponder(this.remote);
   }
 
-  public onUpdateState(e: ClientSyncStateEvent): void {
+  public onUpdateState(e: ClientSyncStateEvent): Promise<void> {
     this.client.updateState(e);
+    return Promise.resolve();
   }
 
   public onRequest(e: ClientSyncRequestEvent): Promise<string> {

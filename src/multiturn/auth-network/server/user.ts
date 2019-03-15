@@ -59,6 +59,9 @@ export default class AuthUser {
       return compareNumber(a.orderId, b.orderId);
     });
     for (const req of reqs) {
+      if (verbose) {
+        console.log(`[Auth] Firing refresh request ${req.uid}: ${req.key},${req.message}`);
+      }
       this.fireRequest(req);
     }
   }
