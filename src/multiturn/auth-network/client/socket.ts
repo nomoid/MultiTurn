@@ -6,6 +6,7 @@ import AuthClientRequestEvent from './requetevent';
 export default class AuthClientSocket implements Socket {
 
   private accepted: boolean = false;
+  private seen: Set<string> = new Set();
 
   public constructor(private socket: Socket, private token: string,
       private serializer: Serializer, private deserializer: Deserializer) {
@@ -26,6 +27,11 @@ export default class AuthClientSocket implements Socket {
   public addRequestListener(callback: (e: RequestEvent) => void): void {
     this.socket.addRequestListener((e: RequestEvent) => {
       const uid = e.key;
+      // If same uid already exists don't repeat event
+      if (this.seen.has(uid)) {
+        return;
+      }
+      this.seen.add(uid);
       const [success, key, message] = this.deserializer(e.message);
       if (success) {
         callback(new AuthClientRequestEvent(e.respond.bind(e), key, message));
