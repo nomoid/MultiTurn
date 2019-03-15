@@ -1,6 +1,8 @@
 import CancelablePromise from '../../helper/cancelablepromise';
 import { compareNumber } from '../../helper/uid';
 import { Socket, RequestEvent } from '../../network/network';
+import { RefreshEvent } from '../../network/refresh';
+import AbstractRefreshEvent from '../../network/refreshevent';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
 import { verbose } from './layer';
 import OutgoingRequest from './outgoingrequest';
@@ -8,18 +10,22 @@ import AuthRequestEvent from './requestevent';
 
 export default class AuthUser {
 
-  private listeners: Array<(e: RequestEvent) => void>;
-  private outgoingRequests: Map<string, OutgoingRequest>;
+  private listeners: Array<(e: RequestEvent) => void> = [];
+  private refreshListeners: Array<(e: RefreshEvent) => void> = [];
+
+  private outgoingRequests: Map<string, OutgoingRequest> = new Map();
   private requestCounter = 0;
 
   public constructor(readonly id: string, public socket: Socket,
     private serializer: Serializer, private deserializer: Deserializer) {
-    this.listeners = [];
-    this.outgoingRequests = new Map();
   }
 
   public addRequestListener(callback: (e: RequestEvent) => void) {
     this.listeners.push(callback);
+  }
+
+  public addRefreshListener(callback: (e: RefreshEvent) => void): void {
+    this.refreshListeners.push(callback);
   }
 
   public request(key: string, message: string): CancelablePromise<string> {
@@ -37,7 +43,8 @@ export default class AuthUser {
   }
 
   public fireRequest(request: OutgoingRequest) {
-    this.socket.request(request.key, request.message)
+    const msg = this.serializer(request.key, request.message);
+    this.socket.request(request.uid, msg)
     .then((response: string) => {
       if (verbose) {
         console.log(`[Auth] Response for request ${request.uid}: ${response}`);
@@ -54,6 +61,9 @@ export default class AuthUser {
 
   // Resend all outstanding requests, in order of request creation
   public refresh() {
+    for (const listener of this.refreshListeners) {
+      listener(new AbstractRefreshEvent(this.request.bind(this)));
+    }
     const reqs = Array.from(this.outgoingRequests.values());
     reqs.sort((a: OutgoingRequest, b: OutgoingRequest) => {
       return compareNumber(a.orderId, b.orderId);

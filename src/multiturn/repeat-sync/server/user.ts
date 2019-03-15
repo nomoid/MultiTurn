@@ -56,9 +56,9 @@ export default class RepeatSyncUser implements SyncUser {
   }
 
   // TODO retry on failure, consistency ensuring
-  public update(): CancelablePromise<void> {
+  public update(force?: boolean): CancelablePromise<void> {
     const state = this.layer.state.getState(this.id);
-    if (this.lastUpdateState && this.lastUpdateState === state) {
+    if (!force && this.lastUpdateState && this.lastUpdateState === state) {
       // State hasn't changed, avoid sending
       return cancelableResolve();
     }

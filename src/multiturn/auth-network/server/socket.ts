@@ -1,8 +1,9 @@
 import CancelablePromise from '../../helper/cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
+import RefreshSocket, { RefreshEvent } from '../../network/refresh';
 import AuthUser from './user';
 
-export default class AuthSocket implements Socket {
+export default class AuthSocket implements RefreshSocket {
 
   private accepted: boolean = false;
 
@@ -31,6 +32,10 @@ export default class AuthSocket implements Socket {
 
   public close(): void {
     this.user.close();
+  }
+
+  public addRefreshListener(callback: (e: RefreshEvent) => void): void {
+    this.user.addRefreshListener(callback);
   }
 
 }

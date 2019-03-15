@@ -1,7 +1,15 @@
-import { ConnectionEvent } from '../../network/network';
+import { ConnectionEvent, Socket } from '../../network/network';
+import RefreshSocket, { RefreshEvent } from '../../network/refresh';
 import { SyncUserEvent, SyncUser } from '../../sync/server';
 import RepeatServerSyncLayer from './layer';
 import RepeatSyncUser from './user';
+
+function isRefreshSocket(socket: Socket): socket is RefreshSocket {
+  if ((socket as RefreshSocket).addRefreshListener) {
+    return true;
+  }
+  return false;
+}
 
 export default class RepeatSyncUserEvent implements SyncUserEvent {
 
@@ -12,7 +20,13 @@ export default class RepeatSyncUserEvent implements SyncUserEvent {
 
   public accept(): SyncUser {
     const sock = this.event.accept();
-    return new RepeatSyncUser(this.layer, sock);
+    const user = new RepeatSyncUser(this.layer, sock);
+    if (isRefreshSocket(sock)) {
+      sock.addRefreshListener((e: RefreshEvent) => {
+        user.update(true);
+      });
+    }
+    return user;
   }
 
   public reject(): void {

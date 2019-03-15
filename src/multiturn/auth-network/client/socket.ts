@@ -1,6 +1,7 @@
 import CancelablePromise from '../../helper/cancelablepromise';
 import { Socket, RequestEvent } from '../../network/network';
 import { Deserializer, Serializer } from '../../sio-network/serializer';
+import AuthClientRequestEvent from './requetevent';
 
 export default class AuthClientSocket implements Socket {
 
@@ -23,7 +24,14 @@ export default class AuthClientSocket implements Socket {
   }
 
   public addRequestListener(callback: (e: RequestEvent) => void): void {
-    this.socket.addRequestListener(callback);
+    this.socket.addRequestListener((e: RequestEvent) => {
+      const uid = e.key;
+      const [success, key, message] = this.deserializer(e.message);
+      if (success) {
+        callback(new AuthClientRequestEvent(e.respond.bind(e), key, message));
+      }
+      // Do nothing on failed deserializing
+    });
   }
 
   public request(key: string, message: string): CancelablePromise<string> {
