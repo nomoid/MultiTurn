@@ -1,8 +1,10 @@
 import * as express from 'express';
 import * as http from 'http';
+import * as log from 'loglevel';
 import * as socketio from 'socket.io';
 import { fillDefault } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
+import '../multiturn/helper/loglevel-prefix-name';
 import Board from './board';
 import getRunner from './game';
 import Remote from './remote';
@@ -24,13 +26,13 @@ function main() {
   const gameServer = new Server<Remote, Board>(
     getRunner(state), Remote, state, options);
   gameServer.start().then(() => {
-    console.log('Closing server.');
+    log.info('Closing server.');
     server.close();
   });
 
   const port = process.env.PORT || 8080;
   server.listen(port, () => {
-    console.log('Server started on ' + port);
+    log.info('Server started on ' + port);
   });
 }
 

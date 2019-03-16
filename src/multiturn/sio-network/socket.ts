@@ -1,15 +1,18 @@
+import * as logger from 'loglevel';
 import CancelablePromise, { cancelablePromise } from '../helper/cancelablepromise';
+import prefixName from '../helper/loglevel-prefix-name';
 import { Socket, RequestEvent } from '../network/network';
 import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
 import { SIOSocket } from './sio-external';
 
+const log = logger.getLogger('Net');
+prefixName(log);
+log.setLevel(log.levels.DEBUG);
 const requestId = '_request';
 const responseId = '_response';
 const connRefusedId = '_refused';
 const closeId = '_close';
-
-const verbose = true;
 
 export default class SIONetworkSocket implements Socket {
 
@@ -34,56 +37,44 @@ export default class SIONetworkSocket implements Socket {
       const [success, key, message] = this.deserialize(value);
       if (success) {
         for (const listener of this.listeners) {
-          if (verbose) {
-            console.log(`[Net] Incoming Request: ${key},${message}`);
-          }
+          log.debug(`Incoming Request: ${key},${message}`);
           const event = new SIORequestEvent(this, key, message);
           listener(event);
         }
         if (this.listeners.length === 0) {
-          if (verbose) {
-            console.log(`[Net] Warning: No listeners listened for the incoming
-              request!`);
-          }
+          log.warn(`No listeners listened for the incoming
+            request!`);
         }
       }
-      // Do nothing on failed deserializing
       else {
-        if (verbose) {
-          console.log('[Net] Failed deserializing');
-        }
+        log.warn('Failed deserializing!');
       }
     });
     this.socket.on(responseId, (value: string) => {
       const [success, key, message] = this.deserialize(value);
       if (success) {
         if (this.promises.has(key)) {
-          if (verbose) {
-            console.log(`[Net] Incoming Response: ${key},${message}`);
-          }
+          log.debug(`Incoming Response: ${key},${message}`);
           const resolve = this.promises.get(key) as (s: string) => void;
           resolve(message);
         }
         else {
-          if (verbose) {
-            console.log(`[Net][Warn] Incoming Response Rejected: ${key},${message}`);
-          }
+          log.warn(`Incoming Response Rejected: ${key},${message}`);
         }
       }
-      // Do nothing on failed deserializing
       else {
-        if (verbose) {
-          console.log('[Net] Failed deserializing');
-        }
+        log.warn('Failed deserializing!');
       }
     });
     this.socket.on(connRefusedId, () => {
       // Connection refused
+      log.info('Connection refused!');
       this.closed = true;
       this.socket.disconnect();
     });
     this.socket.on(closeId, () => {
       // Connection closed
+      log.debug('Connection closed.');
       this.closed = true;
       this.socket.disconnect();
     });
@@ -109,9 +100,7 @@ export default class SIONetworkSocket implements Socket {
   public request(key: string, message: string): CancelablePromise<string> {
     this.socketReadyCheck();
     return cancelablePromise((resolve, reject) => {
-      if (verbose) {
-        console.log(`[Net] Outgoing Request: ${key},${message}`);
-      }
+      log.debug(`Outgoing Request: ${key},${message}`);
       this.promises.set(key, resolve);
       this.socket.emit(requestId, this.serialize(key, message));
     });
@@ -119,9 +108,7 @@ export default class SIONetworkSocket implements Socket {
 
   public respond(key: string, message: string) {
     this.socketReadyCheck();
-    if (verbose) {
-      console.log(`[Net] Outgoing Response: ${key},${message}`);
-    }
+    log.debug(`Outgoing Response: ${key},${message}`);
     this.socket.emit(responseId, this.serialize(key, message));
   }
 

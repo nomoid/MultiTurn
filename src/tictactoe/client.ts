@@ -1,7 +1,10 @@
+import './helper/logging.js';
+
+import * as log from 'loglevel';
 import * as sio from 'socket.io-client';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
+import '../multiturn/helper/loglevel-prefix-name';
 import { defaultSerializer } from '../multiturn/sio-network/serializer';
-import './helper/logging.js';
 import Remote from './remote';
 
 const io = sio();
