@@ -6,9 +6,8 @@
     "emitDecoratorMetadata": true,
     "strict": true
   },
-  "include": [
-    "src/**/*.ts",
-    "typings/**/*.d.ts"
+  "files": [
+    "src/tictactoe/client.ts"
   ],
   "exclude": [
     ".git",
