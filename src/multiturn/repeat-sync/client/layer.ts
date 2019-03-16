@@ -1,5 +1,8 @@
+import * as logger from 'loglevel';
 import { NetworkLayer, ConnectionEvent, RequestEvent } from '../../network/network';
 import { ClientSyncLayer, ClientSyncResponder, ClientSyncCombinedEvent } from '../../sync/client';
+
+const log = logger.getLogger('Sync');
 
 const requestId = '_syncRequest';
 const updateId = '_syncUpdate';
@@ -39,11 +42,13 @@ export default class RepeatClientSyncLayer implements ClientSyncLayer {
               .then((s: string) => e2.respond(s));
           }
           else {
-            console.log('[Sync][Warn] Invalid request!');
+            log.warn('Invalid request!');
           }
         } else if (e2.key === updateId) {
           this.responder.onUpdateState({state: e2.message})
             .then(() => e2.respond(emptyResponse));
+        } else {
+          log.warn(`Invalid key: ${e2.key}`);
         }
       });
     });

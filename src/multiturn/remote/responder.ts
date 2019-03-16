@@ -1,3 +1,7 @@
+import * as logger from 'loglevel';
+
+const log = logger.getLogger('Valid');
+
 export class RemoteResponder {
 
   private responders: Map<string, any> = new Map();
@@ -10,7 +14,7 @@ export class RemoteResponder {
 
   public addResponder(responder: any) {
     const typeName = responder.constructor.name;
-    console.log(`Adding responder for type ${typeName}`);
+    log.info(`Adding responder for type ${typeName}`);
     this.responders.set(typeName, responder);
   }
 
@@ -45,7 +49,7 @@ export class RemoteResponder {
     }
     catch (e) {
       // Invalid request
-      console.log(`Invalid request '${msg}' with error '${e}'`);
+      log.warn(`Invalid request '${msg}' with error '${e}'`);
       return Promise.reject();
     }
   }

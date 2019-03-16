@@ -9,7 +9,12 @@ export default function prefixName(log: logger.Logger) {
     const raw = factory(methodName, level, loggerName);
 
     const func = (...message: any[]) => {
-      raw(`[${loggerName}]`, ...message);
+      if (loggerName) {
+        raw(`[${loggerName}]`, ...message);
+      }
+      else {
+        raw(...message);
+      }
     };
     return func;
   };
@@ -17,4 +22,4 @@ export default function prefixName(log: logger.Logger) {
   log.setLevel(log.getLevel());
 }
 
-// prefixName(logger);
+prefixName(logger);

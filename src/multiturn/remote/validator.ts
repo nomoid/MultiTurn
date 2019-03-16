@@ -1,14 +1,15 @@
 import * as AJV from 'ajv';
+import * as logger from 'loglevel';
 import * as path from 'path';
 import 'reflect-metadata';
 import * as ts from 'typescript';
 import * as TJS from 'typescript-json-schema';
 import { REMOTE_NAME_KEY, REMOTE_RETURN_TYPE_KEY } from './remote';
 
-const verbose = true;
-
 // Validators are cached globally, beware of name conflicts
 const validators: Map<string, AJV.ValidateFunction> = new Map();
+
+const log = logger.getLogger('Valid');
 
 export default class RemoteValidator {
 
@@ -20,9 +21,7 @@ export default class RemoteValidator {
   }
 
   public addTypeValidator(type: {name: string}, typePath?: string) {
-    if (verbose) {
-      console.log(`[Valid] Adding type validator for type ${type.name}`);
-    }
+    log.info(`Adding type validator for type ${type.name}...`);
     if (typePath) {
       this.typePath = typePath;
     }
@@ -38,9 +37,7 @@ export default class RemoteValidator {
       required: true,
       noExtraProps: true
     };
-    if (verbose) {
-      console.log('[Valid] Compiling program');
-    }
+    log.debug('Compiling program');
     const program = ts.createProgram([path.resolve(this.typePath)],
       compilerOptions);
     const generator = TJS.buildGenerator(program, settings);
@@ -52,18 +49,12 @@ export default class RemoteValidator {
     if (i < 0) {
       throw Error(`Type '${typeName}' not found in file '${this.typePath}'`);
     }
-    if (verbose) {
-      console.log('[Valid] Creating JSON schema');
-    }
+    log.debug('Creating JSON schema');
     const schema = generator.getSchemaForSymbol(symbols[i]);
-    if (verbose) {
-      console.log('[Valid] Compiling JSON schema');
-    }
+    log.debug('Compiling JSON schema');
     const validate = this.ajv.compile(schema);
     validators.set(typeName, validate);
-    if (verbose) {
-      console.log(`[Valid] Type validator added for type ${type.name}`);
-    }
+    log.info(`Type validator added for type ${type.name}`);
     return validate;
   }
 
@@ -84,21 +75,15 @@ export default class RemoteValidator {
     if (!remoteType) {
       throw Error('Cannot wrap function with no @remote decorator!');
     }
-    if (verbose) {
-      console.log(`[Valid] Adding call for ${remoteName} with type ${remoteType}`);
-    }
+    log.debug(`Adding call for ${remoteName} with type ${remoteType}`);
     let validate: AJV.ValidateFunction;
     const existingValidate = validators.get(remoteType);
     if (!existingValidate) {
-      if (verbose) {
-        console.log(`[Valid] No existing validator found for type ${remoteType}`);
-      }
+      log.debug(`No existing validator found for type ${remoteType}`);
       validate = this.addTypeValidator({name: remoteType});
     }
     else {
-      if (verbose) {
-        console.log(`[Valid] Existing validator found for type ${remoteType}`);
-      }
+      log.debug(`Existing validator found for type ${remoteType}`);
       validate = existingValidate;
     }
     return async () => {
@@ -108,9 +93,7 @@ export default class RemoteValidator {
         try {
           const obj = JSON.parse(s);
           if (!validate(obj)) {
-            if (verbose) {
-              console.log('[Valid] Incoming object failed validation');
-            }
+            log.debug('Incoming object failed validation');
             // Retry rather than throwing an exception here
           }
           else {
@@ -118,9 +101,7 @@ export default class RemoteValidator {
           }
         }
         catch (e) {
-          if (verbose) {
-            console.log('[Valid] Incoming object threw an error on validation');
-          }
+          log.debug('Incoming object threw an error on validation');
           // Retry rather than throwing an exception here
         }
       }

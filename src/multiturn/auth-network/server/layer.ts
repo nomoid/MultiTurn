@@ -1,3 +1,4 @@
+import * as logger from 'loglevel';
 import { generateUID } from '../../helper/uid';
 import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, RequestEvent,
@@ -6,6 +7,8 @@ import { Serializer, Deserializer,
   defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
 import AuthSocket from './socket';
 import AuthUser from './user';
+
+const log = logger.getLogger('Auth');
 
 const registerId = '_register';
 const loginId = '_login';
@@ -63,16 +66,12 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
   private handleRequest(socket: Socket) {
     return (e: RequestEvent) => {
       if (e.key === registerId) {
-        if (verbose) {
-          console.log('[Auth] New registration request');
-        }
+        log.info('New registration request');
         // Check if socket is already registered, if so, give them their ID
         for (const id of this.users.keys()) {
           const existingUser = this.users.get(id)!;
           if (existingUser.socket === socket) {
-            if (verbose) {
-              console.log(`[Auth] Socket is already registered with id ${id}`);
-            }
+            log.debug(`Socket is already registered with id ${id}`);
             e.respond(id);
             return;
           }
@@ -87,50 +86,36 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
           const authSock = new AuthSocket(user);
           listener(new AbstractConnectionEvent(authSock));
         }
-        if (verbose) {
-          console.log(`[Auth] Socket registered with id ${newId}`);
-        }
+        log.info(`Socket registered with id ${newId}`);
       }
       else if (e.key === loginId) {
         // If id exists, replace sock with the given id
         const id = e.message;
-        if (verbose) {
-          console.log(`[Auth] New login request with id ${id}`);
-        }
+        log.info(`New login request with id ${id}`);
         if (this.users.has(id)) {
           const user = this.users.get(id)!;
-          if (verbose) {
-            console.log(`[Auth] User found with id ${id}`);
-          }
+          log.debug(`User found with id ${id}`);
           user.socket = socket;
           e.respond(loginSuccessId);
         }
         else {
-          if (verbose) {
-            console.log(`[Auth]User not found with id ${id}`);
-          }
+          log.debug(`User not found with id ${id}`);
           e.respond(loginFailId);
           // TODO deal with repeated failure to login?
         }
       }
       else if (e.key === refreshId) {
         const id = e.message;
-        if (verbose) {
-          console.log(`[Auth] New refresh request with id ${id}`);
-        }
+        log.info(`New refresh request with id ${id}`);
         if (this.users.has(id)) {
           const user = this.users.get(id)!;
-          if (verbose) {
-            console.log(`[Auth] User found with id ${id}`);
-          }
+          log.debug(`User found with id ${id}`);
           // Resend all outstanding requests
           user.refresh();
           e.respond(refreshSuccessId);
         }
         else {
-          if (verbose) {
-            console.log(`[Auth]User not found with id ${id}`);
-          }
+          log.debug(`User not found with id ${id}`);
           e.respond(refreshFailId);
         }
       }

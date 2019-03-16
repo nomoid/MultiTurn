@@ -1,8 +1,11 @@
+import * as logger from 'loglevel';
 import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
 import AuthClientSocket from './socket';
 import TokenHandler from './token';
+
+const log = logger.getLogger('Auth');
 
 const registerId = '_register';
 const loginId = '_login';
@@ -69,32 +72,39 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   public async refresh(socket: Socket, token: string) {
     let failures = 0;
     while (true) {
+      log.debug('Initiating refresh');
       const response = await socket.request(refreshId, token);
       if (response === refreshSuccessId) {
         failures = 0;
         if (this.repeatDelay && this.repeatDelay > 0) {
+          log.debug('Refresh success, waiting');
           await new Promise((resolve, reject) => {
             setTimeout(resolve, this.repeatDelay);
           });
         }
         else {
+          log.debug('Refresh success!');
           break;
         }
       }
       else if (response === refreshFailId) {
         failures += 1;
         if (failures > 3) {
+          log.debug('Refresh failed!');
           break;
         }
+        log.debug('Refresh failed, trying again');
         continue;
       }
       else {
+        log.warn(`Invalid server response: ${response}`);
         break;
       }
     }
   }
 
   private tryLogin(socket: Socket, token: string) {
+    log.info(`Trying to login with token ${token}`);
     socket.request(loginId, token).then((response: string) => {
       if (response === loginSuccessId) {
         this.authSuccess(socket, token);
@@ -103,12 +113,13 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
         this.tryRegister(socket);
       }
       else {
-        // TODO Invalid server response
+        log.warn(`Invalid server response: ${response}`);
       }
      });
   }
 
   private tryRegister(socket: Socket) {
+    log.info('Trying to register');
     socket.request(registerId, '').then((response: string) => {
       this.token = response;
       const handler = this.tokenHandler;
@@ -120,6 +131,7 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   }
 
   private authSuccess(socket: Socket, token: string) {
+    log.info(`Authentication success with token ${token}`);
     for (const listener of this.listeners) {
       const authSock = new AuthClientSocket(socket, token,
         this.serializer, this.deserializer);

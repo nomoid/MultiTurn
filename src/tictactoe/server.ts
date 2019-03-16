@@ -1,10 +1,15 @@
+import '../multiturn/helper/loglevel-prefix-name';
+
+import * as log from 'loglevel';
+
+// Set the proper level before all of the other imports
+log.setLevel(log.levels.DEBUG);
+
 import * as express from 'express';
 import * as http from 'http';
-import * as log from 'loglevel';
 import * as socketio from 'socket.io';
 import { fillDefault } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
-import '../multiturn/helper/loglevel-prefix-name';
 import Board from './board';
 import getRunner from './game';
 import Remote from './remote';

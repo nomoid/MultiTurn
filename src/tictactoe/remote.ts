@@ -20,11 +20,6 @@ export default class Remote implements Client<Remote> {
   }
 
   // Client methods
-  public assignNumber(num: number) {
-    this.playerNum = num;
-    console.log(`You are player ${num}!`);
-  }
-
   public updateState(e: ClientSyncStateEvent) {
     this.state = JSON.parse(e.state) as Board;
   }

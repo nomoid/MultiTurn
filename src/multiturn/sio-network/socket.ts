@@ -1,14 +1,12 @@
 import * as logger from 'loglevel';
 import CancelablePromise, { cancelablePromise } from '../helper/cancelablepromise';
-import prefixName from '../helper/loglevel-prefix-name';
 import { Socket, RequestEvent } from '../network/network';
 import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
 import { SIOSocket } from './sio-external';
 
 const log = logger.getLogger('Net');
-prefixName(log);
-log.setLevel(log.levels.DEBUG);
+
 const requestId = '_request';
 const responseId = '_response';
 const connRefusedId = '_refused';

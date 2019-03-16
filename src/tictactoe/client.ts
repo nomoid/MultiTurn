@@ -1,9 +1,14 @@
 import './helper/logging.js';
 
+import '../multiturn/helper/loglevel-prefix-name';
+
 import * as log from 'loglevel';
+
+// Set the proper level before all of the other imports
+log.setLevel(log.levels.DEBUG);
+
 import * as sio from 'socket.io-client';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
-import '../multiturn/helper/loglevel-prefix-name';
 import { defaultSerializer } from '../multiturn/sio-network/serializer';
 import Remote from './remote';
 

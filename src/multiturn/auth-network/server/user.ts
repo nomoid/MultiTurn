@@ -1,3 +1,4 @@
+import * as logger from 'loglevel';
 import CancelablePromise from '../../helper/cancelablepromise';
 import { compareNumber } from '../../helper/uid';
 import { Socket, RequestEvent } from '../../network/network';
@@ -7,6 +8,8 @@ import { Serializer, Deserializer } from '../../sio-network/serializer';
 import { verbose } from './layer';
 import OutgoingRequest from './outgoingrequest';
 import AuthRequestEvent from './requestevent';
+
+const log = logger.getLogger('Auth');
 
 export default class AuthUser {
 
@@ -35,9 +38,7 @@ export default class AuthUser {
     });
     this.outgoingRequests.set(req.uid, req);
     this.requestCounter += 1;
-    if (verbose) {
-      console.log(`[Auth] Firing request ${req.uid}: ${key},${message}`);
-    }
+    log.debug(`Firing request ${req.uid}: ${key},${message}`);
     this.fireRequest(req);
     return req.promiseHolder.promise;
   }
@@ -46,13 +47,14 @@ export default class AuthUser {
     const msg = this.serializer(request.key, request.message);
     this.socket.request(request.uid, msg)
     .then((response: string) => {
-      if (verbose) {
-        console.log(`[Auth] Response for request ${request.uid}: ${response}`);
-      }
+      log.debug(`Response for request ${request.uid}: ${response}`);
       const req = this.outgoingRequests.get(request.uid);
       if (req) {
         this.outgoingRequests.delete(request.uid);
         req.promiseHolder.resolve(response);
+      }
+      else {
+        log.debug('Response already previously resolved or cancelled');
       }
       // Ignore when promise already previously resolved or when cancelled
       return response;
@@ -69,9 +71,7 @@ export default class AuthUser {
       return compareNumber(a.orderId, b.orderId);
     });
     for (const req of reqs) {
-      if (verbose) {
-        console.log(`[Auth] Firing refresh request ${req.uid}: ${req.key},${req.message}`);
-      }
+      log.debug(`Firing refresh request ${req.uid}: ${req.key},${req.message}`);
       this.fireRequest(req);
     }
   }
@@ -85,7 +85,9 @@ export default class AuthUser {
         listener(new AuthRequestEvent(key, message, e.respond.bind(e)));
       }
     }
-    // Do nothing on failed deserializing
+    else {
+      log.warn('Failed deserializing!');
+    }
   }
 
   public close() {
