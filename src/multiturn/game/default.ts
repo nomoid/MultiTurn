@@ -1,5 +1,6 @@
 import AuthServerNetworkLayer from '../auth-network/server/layer';
 import RepeatServerSyncLayer from '../repeat-sync/server/layer';
+import { defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
 import SIOServerNetworkLayer from '../sio-network/server/layer';
 import { SIOServer } from '../sio-network/sio-external';
 import UniversalStateManager from '../state/universal';
@@ -33,7 +34,9 @@ export function defaultOptions<R, T>(io?: SIOServer): ServerOptions<R, T> {
     maxPlayers: 2,
     stateMask: defaultStateMask(),
     typePath: './src/typepath.ts',
-    standardTurns: true
+    standardTurns: true,
+    serializer: defaultSerializer('~'),
+    deserializer: defaultDeserializer('~')
   };
   return def;
 }

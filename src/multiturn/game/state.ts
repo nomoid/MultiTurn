@@ -1,5 +1,6 @@
 import PromiseHolder from '../helper/promiseholder';
 import RemoteValidator, { setupRemote } from '../remote/validator';
+import { Serializer, Deserializer } from '../sio-network/serializer';
 import { StateManager, SyncUserEvent, SyncUser, ServerSyncLayer } from '../sync/server';
 import Player from './player';
 import Server from './server';
@@ -17,7 +18,8 @@ export default class ServerStateManager<R, T> implements StateManager {
     private syncLayer: ServerSyncLayer,
     private state: T, private stateMask: (state: T,
     player: Player<R>) => string, private remoteGenerator: new () => R,
-    private typePath: string) {
+    private typePath: string,
+    private serializer: Serializer, private deserializer: Deserializer) {
       this.setupDummyRemote();
   }
 
@@ -26,12 +28,15 @@ export default class ServerStateManager<R, T> implements StateManager {
     this.addUser(user);
   }
 
+  // TODO try to fit in player meta information with state
   public getState(id: string): string {
     const player = this.playerMap.get(id);
     if (!player) {
       throw Error(`Player with id ${id} not found!`);
     }
-    return this.stateMask(this.state, player);
+    const playerInfo = JSON.stringify(player.getInfo());
+    return this.serializer(playerInfo,
+      this.stateMask(this.state, player));
   }
 
   public getPlayers(): Array<Player<R>> {
@@ -64,7 +69,6 @@ export default class ServerStateManager<R, T> implements StateManager {
     const playerNum = this.users.length;
     const player = new Player(remote, playerNum);
     this.playerMap.set(user.id, player);
-    user.request(assignNumId, playerNum.toString());
     if (this.users.length >= this.server.maxPlayers) {
       for (const holder of this.playerPromises) {
         holder.resolve();

@@ -5,8 +5,10 @@ import { NetworkLayer } from '../network/network';
 import { RemoteResponder } from '../remote/responder';
 import RepeatClientSyncLayer from '../repeat-sync/client/layer';
 import SIOClientNetworkLayer from '../sio-network/client/layer';
+import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
 import { SIOSocket } from '../sio-network/sio-external';
 import { ClientSyncResponder, ClientSyncStateEvent, ClientSyncRequestEvent } from '../sync/client';
+import PlayerInfo from './playerinfo';
 
 const assignNumId = '_assignNum';
 const remoteCallId = '_remoteCall';
@@ -59,24 +61,37 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
 
   private remote: T;
   private responder: RemoteResponder;
+  private serializer: Serializer;
+  private deserializer: Deserializer;
 
-  public constructor(private client: Client<T>) {
+  public constructor(private client: Client<T>,
+      serializer?: Serializer, deserializer?: Deserializer) {
+    if (serializer) {
+      this.serializer = serializer;
+    }
+    else {
+      this.serializer = defaultSerializer('~');
+    }
+    if (deserializer) {
+      this.deserializer = deserializer;
+    }
+    else {
+      this.deserializer = defaultDeserializer('~');
+    }
     this.remote = client.getRemote();
     this.responder = new RemoteResponder();
     this.responder.addResponder(this.remote);
   }
 
   public onUpdateState(e: ClientSyncStateEvent): Promise<void> {
-    this.client.updateState(e);
+    const [success, info, state] = this.deserializer(e.state);
+    const playerInfo = JSON.parse(info) as PlayerInfo;
+    this.client.updateState({state}, playerInfo);
     return Promise.resolve();
   }
 
   public onRequest(e: ClientSyncRequestEvent): Promise<string> {
-    if (e.key === assignNumId) {
-      this.client.assignNumber(parseInt(e.message, 10));
-      return Promise.resolve(successId);
-    }
-    else if (e.key === gameOverId) {
+    if (e.key === gameOverId) {
       this.client.gameOver(e.message);
       return Promise.resolve(successId);
     }
@@ -92,11 +107,9 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
 
 export interface Client<T> {
 
-  assignNumber(num: number): void;
-
   gameOver(message: string): void;
 
-  updateState(e: ClientSyncStateEvent): void;
+  updateState(e: ClientSyncStateEvent, info: PlayerInfo): void;
 
   getRemote(): T;
 }

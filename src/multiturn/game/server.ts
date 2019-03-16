@@ -1,3 +1,4 @@
+import { Serializer, Deserializer } from '../sio-network/serializer';
 import { ServerSyncLayer, StateManager } from '../sync/server';
 import Player from './player';
 import ServerStateManager from './state';
@@ -33,7 +34,8 @@ export default class Server<R, T> {
     this.started = false;
     this.syncLayer = options.syncLayer;
     this.state = new ServerStateManager(this, options.syncLayer, state,
-      options.stateMask, remoteGenerator, options.typePath);
+      options.stateMask, remoteGenerator, options.typePath,
+      options.serializer, options.deserializer);
     this.syncLayer.state = this.state;
   }
 
@@ -125,4 +127,6 @@ export interface ServerOptions<R, T> {
   maxPlayers: number;
   typePath: string;
   standardTurns: boolean;
+  serializer: Serializer;
+  deserializer: Deserializer;
 }
