@@ -1,10 +1,12 @@
+import * as logger from 'loglevel';
 import { Serializer, Deserializer } from '../sio-network/serializer';
 import { ServerSyncLayer, StateManager } from '../sync/server';
 import Player from './player';
 import ServerStateManager from './state';
 
+const log = logger.getLogger('Game');
+
 const gameOverId = '_gameOver';
-const verbose = true;
 
 // Type of player: R
 // Type of state: T
@@ -45,29 +47,21 @@ export default class Server<R, T> {
     }
     this.started = true;
 
-    if (verbose) {
-      console.log('Server listening.');
-    }
+    log.info('Server listening.');
 
     this.syncLayer.listen();
 
-    if (verbose) {
-      console.log('Waiting for players...');
-    }
+    log.info('Waiting for players...');
 
     // Wait until enough players have joined
     await this.state.waitForPlayers();
 
-    if (verbose) {
-      console.log('Starting main loop.');
-    }
+    log.info('Starting main loop.');
 
     // Run main loop forever
     while (!this.gameIsOver) {
       try {
-        if (verbose) {
-          console.log(`Starting turn ${this.turn}`);
-        }
+        log.info(`Starting turn ${this.turn}`);
         await this.mainLoop.call(this.mainLoop, this);
         if (this.standardTurns) {
           if (this.turnIncrementDisabled) {
@@ -78,8 +72,8 @@ export default class Server<R, T> {
         }
       }
       catch (err) {
-        console.log('Error occurred while running main loop!');
-        console.error(err);
+        log.error('Error occurred while running main loop!');
+        log.error(err);
       }
     }
   }

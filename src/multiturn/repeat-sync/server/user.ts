@@ -1,3 +1,4 @@
+import * as logger from 'loglevel';
 import CancelablePromise, { cancelableThen } from '../../helper/cancelablepromise';
 import { cancelableResolve } from '../../helper/cancelablepromise';
 import { generateUID } from '../../helper/uid';
@@ -6,6 +7,8 @@ import { ClientSyncCombinedEvent } from '../../sync/client';
 import { SyncUser, SyncResponse } from '../../sync/server';
 import RepeatServerSyncLayer from './layer';
 import RepeatSyncResponse from './response';
+
+const log = logger.getLogger('Sync');
 
 const requestId = '_syncRequest';
 const updateId = '_syncUpdate';
@@ -32,6 +35,7 @@ export default class RepeatSyncUser implements SyncUser {
     else {
       state = this.layer.state.getState(this.id);
     }
+    log.debug(`Sending out single request: ${key},${message},${state}`);
     const requestObject: ClientSyncCombinedEvent = {
       key, message, state
     };
@@ -42,6 +46,7 @@ export default class RepeatSyncUser implements SyncUser {
 
   // TODO retry on failure, consistency ensuring
   public request(key: string, message: string, timeout?: number): SyncResponse {
+    log.debug('Sending out mass request');
     // Send out an update to everyone else
     const response = this.layer.update(this.id);
     // Send a combined update & request to the recipient
@@ -59,10 +64,12 @@ export default class RepeatSyncUser implements SyncUser {
   public update(force?: boolean): CancelablePromise<void> {
     const state = this.layer.state.getState(this.id);
     if (!force && this.lastUpdateState && this.lastUpdateState === state) {
+      log.debug('Avoided sending duplicate state');
       // State hasn't changed, avoid sending
       return cancelableResolve();
     }
     else {
+      log.debug(`Update state: ${state}`);
       this.lastUpdateState = state;
       return cancelableThen(this.sock.request(updateId, state),
         (res) => {

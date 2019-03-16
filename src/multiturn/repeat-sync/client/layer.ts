@@ -37,6 +37,8 @@ export default class RepeatClientSyncLayer implements ClientSyncLayer {
         if (e2.key === requestId) {
           const requestEvent = JSON.parse(e2.message);
           if (validateRequest(requestEvent)) {
+            log.debug(`Update state: ${requestEvent.state}`);
+            log.debug(`Valid request: ${requestEvent.key},${requestEvent.message}`);
             this.responder.onUpdateState(requestEvent)
               .then(() => this.responder.onRequest(requestEvent))
               .then((s: string) => e2.respond(s));
@@ -45,6 +47,7 @@ export default class RepeatClientSyncLayer implements ClientSyncLayer {
             log.warn('Invalid request!');
           }
         } else if (e2.key === updateId) {
+          log.debug(`Update state: ${e2.message}`);
           this.responder.onUpdateState({state: e2.message})
             .then(() => e2.respond(emptyResponse));
         } else {

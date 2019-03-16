@@ -1,5 +1,5 @@
 import * as Cookie from 'js-cookie';
-import AuthClientCookieTokenHandler from '../auth-network/client/cookie';
+import AuthClientCookieTokenHandler, { defaultGetLocalToken } from '../auth-network/client/cookie';
 import AuthClientNetworkLayer from '../auth-network/client/layer';
 import { NetworkLayer } from '../network/network';
 import { RemoteResponder } from '../remote/responder';
@@ -22,15 +22,7 @@ const defaultRefreshRepeatDelay = 0;
 
 export function defaultClientSyncLayer(io: SIOSocket,
     responder: ClientSyncResponder) {
-  const localToken = Cookie.get(authTokenId);
-  if (verbose) {
-    if (localToken) {
-      console.log(`Local token found ${localToken}`);
-    }
-    else {
-      console.log('No local token found, requesting new token');
-    }
-  }
+  const localToken = defaultGetLocalToken();
   const netLayer = new SIOClientNetworkLayer(io);
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
     defaultRefreshRepeatDelay);
@@ -41,15 +33,7 @@ export function defaultClientSyncLayer(io: SIOSocket,
 
 export function defaultClientSyncLayerFromNetLayer(netLayer: NetworkLayer,
   responder: ClientSyncResponder) {
-  const localToken = Cookie.get(authTokenId);
-  if (verbose) {
-    if (localToken) {
-      console.log(`Local token found ${localToken}`);
-    }
-    else {
-      console.log('No local token found, requesting new token');
-    }
-  }
+  const localToken = defaultGetLocalToken();
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
     defaultRefreshRepeatDelay);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
