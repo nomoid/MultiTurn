@@ -6,16 +6,17 @@ import * as log from 'loglevel';
 log.setLevel(log.levels.DEBUG);
 
 import * as sio from 'socket.io-client';
+import '../../public/styles.css';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
-import Remote from './remote';
 import Board from './board';
+import Remote from './remote';
 
 const io = sio();
 const remote = new Remote();
 
 function convert(i: number): string {
   if (i < 0) {
-    return '_';
+    return '';
   }
   else if (i === 1) {
     return 'X';

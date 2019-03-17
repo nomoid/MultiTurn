@@ -5,7 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
   entry: [
     './src/tictactoe/client.ts',
-    './index.html'
+    './public/index.html'
   ],
   module: {
     rules: [
@@ -20,7 +20,11 @@ module.exports = {
       {
         test: /\.html/,
         loader: 'file-loader?name=[name].[ext]',
-      }
+      },
+      {
+        test: /\.css$/,
+        loader: 'file-loader?name=[name].[ext]',
+      },
     ]
   },
   resolve: {
