@@ -35,6 +35,7 @@ export function defaultOptions<R, T>(io?: SIOServer): ServerOptions<R, T> {
     stateMask: defaultStateMask(),
     typePath: './src/typepath.ts',
     standardTurns: true,
+    cacheTypes: false,
     serializer: defaultSerializer('~'),
     deserializer: defaultDeserializer('~')
   };

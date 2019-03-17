@@ -19,6 +19,7 @@ export default class ServerStateManager<R, T> implements StateManager {
     private state: T, private stateMask: (state: T,
     player: Player<R>) => string, private remoteGenerator: new () => R,
     private typePath: string,
+    private cacheTypes: boolean,
     private serializer: Serializer, private deserializer: Deserializer) {
       this.setupDummyRemote();
   }
@@ -65,7 +66,7 @@ export default class ServerStateManager<R, T> implements StateManager {
     const func = (req: string) => {
       return user.request(remoteCallId, req).result!;
     };
-    setupRemote(remote, new RemoteValidator(func, this.typePath));
+    setupRemote(remote, new RemoteValidator(func, this.typePath, this.cacheTypes));
     const playerNum = this.users.length;
     const player = new Player(remote, playerNum);
     this.playerMap.set(user.id, player);
@@ -83,6 +84,6 @@ export default class ServerStateManager<R, T> implements StateManager {
     const func = (req: string) => {
       return Promise.resolve(req);
     };
-    setupRemote(remote, new RemoteValidator(func, this.typePath));
+    setupRemote(remote, new RemoteValidator(func, this.typePath, this.cacheTypes));
   }
 }

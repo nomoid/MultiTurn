@@ -25,7 +25,8 @@ function main() {
   const io = socketio(server);
 
   const options = fillDefault({
-    typePath: './src/tictactoe/game.ts'
+    typePath: './src/tictactoe/game.ts',
+    cacheTypes: true
   }, io);
   const state = new Board();
   const gameServer = new Server<Remote, Board>(

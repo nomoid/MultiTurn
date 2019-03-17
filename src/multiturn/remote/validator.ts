@@ -1,4 +1,5 @@
 import * as AJV from 'ajv';
+import * as fs from 'fs';
 import * as logger from 'loglevel';
 import * as path from 'path';
 import 'reflect-metadata';
@@ -11,12 +12,14 @@ const validators: Map<string, AJV.ValidateFunction> = new Map();
 
 const log = logger.getLogger('Valid');
 
+const typeCacheRoot = 'type_cache';
+
 export default class RemoteValidator {
 
   private ajv: AJV.Ajv;
 
   public constructor(private getter: (key: string) => Promise<string>,
-      private typePath: string) {
+      private typePath: string, private localCache: boolean) {
     this.ajv = new AJV();
   }
 
@@ -26,6 +29,22 @@ export default class RemoteValidator {
       this.typePath = typePath;
     }
     const typeName = type.name;
+    if (this.localCache) {
+      log.debug('Searching local cache for existing schema');
+      try {
+        const fileName = path.join(typeCacheRoot, `${typeName}.json`);
+        const file = fs.readFileSync(fileName, 'utf8');
+        const fileSchema = JSON.parse(file);
+        log.debug('Compiling JSON schema from local cache');
+        const fileValidate = this.ajv.compile(fileSchema);
+        validators.set(typeName, fileValidate);
+        log.info(`Type validator added for type ${type.name} from local cache`);
+        return fileValidate;
+      }
+      catch (e) {
+        log.debug('Exception occurred while reading local cache');
+      }
+    }
     const compilerOptions: TJS.CompilerOptions = {
       target: ts.ScriptTarget.Latest,
       module: ts.ModuleKind.CommonJS,
@@ -55,6 +74,19 @@ export default class RemoteValidator {
     const validate = this.ajv.compile(schema);
     validators.set(typeName, validate);
     log.info(`Type validator added for type ${type.name}`);
+    if (this.localCache) {
+      log.debug('Saving schema to local cache');
+      try {
+        fs.mkdirSync(typeCacheRoot);
+        const fileName = path.join(typeCacheRoot, `${typeName}.json`);
+        const schemaData = JSON.stringify(schema);
+        fs.writeFileSync(fileName, schemaData, 'utf8');
+        log.info('Schema saved to local cache');
+      }
+      catch (e) {
+        log.debug('Exception occurred while saving schema to local cache');
+      }
+    }
     return validate;
   }
 

@@ -1,3 +1,6 @@
+# Precompiled type schemas
+type_cache/
+
 # Logs
 logs
 *.log
