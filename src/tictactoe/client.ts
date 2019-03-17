@@ -16,7 +16,7 @@ const remote = new Remote();
 
 function convert(i: number): string {
   if (i < 0) {
-    return '';
+    return '&nbsp;';
   }
   else if (i === 1) {
     return 'X';
