@@ -8,7 +8,7 @@ import SIOClientNetworkLayer from '../sio-network/client/layer';
 import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
 import { SIOSocket } from '../sio-network/sio-external';
 import { ClientSyncResponder, ClientSyncStateEvent, ClientSyncRequestEvent } from '../sync/client';
-import PlayerInfo from './playerinfo';
+import { PlayerInfo, CombinedInfo } from './info';
 
 const assignNumId = '_assignNum';
 const remoteCallId = '_remoteCall';
@@ -69,17 +69,13 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
 
   public onUpdateState(e: ClientSyncStateEvent): Promise<void> {
     const [success, info, state] = this.deserializer(e.state);
-    const playerInfo = JSON.parse(info) as PlayerInfo;
+    const playerInfo = JSON.parse(info) as CombinedInfo;
     this.client.updateState({state}, playerInfo);
     return Promise.resolve();
   }
 
   public onRequest(e: ClientSyncRequestEvent): Promise<string> {
-    if (e.key === gameOverId) {
-      this.client.gameOver(e.message);
-      return Promise.resolve(successId);
-    }
-    else if (e.key === remoteCallId) {
+    if (e.key === remoteCallId) {
       return this.responder.onValidationRequest(e.message);
     }
     else {
@@ -91,9 +87,7 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
 
 export interface Client<T> {
 
-  gameOver(message: string): void;
-
-  updateState(e: ClientSyncStateEvent, info: PlayerInfo): void;
+  updateState(e: ClientSyncStateEvent, info: CombinedInfo): void;
 
   getRemote(): T;
 }

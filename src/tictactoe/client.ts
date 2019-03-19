@@ -10,24 +10,10 @@ import '../../public/styles.css';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import Board from './board';
 import Remote from './remote';
+import { convertToSymbol } from './remote';
 
 const io = sio();
 const remote = new Remote();
-
-function convert(i: number): string {
-  if (i < 0) {
-    return '&nbsp;';
-  }
-  else if (i === 1) {
-    return 'X';
-  }
-  else if (i === 2) {
-    return 'O';
-  }
-  else {
-    return 'I';
-  }
-}
 
 function attachHandler() {
   const buttonArray: HTMLButtonElement[][] = [[], [], []];
@@ -45,10 +31,16 @@ function attachHandler() {
   remote.addStateListener((state: Board) => {
     for (let x = 0; x < 3; x++) {
       for (let y = 0; y < 3; y++) {
-        buttonArray[x][y].innerHTML = convert(state.spaces[x][y]);
+        buttonArray[x][y].innerHTML = convertToSymbol(state.spaces[x][y]);
       }
     }
   });
+  const label = document.getElementById('header-output');
+  if (label) {
+    remote.addMessageListener((message: string) => {
+      label.innerHTML = message;
+    });
+  }
 }
 
 function main() {

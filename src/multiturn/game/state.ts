@@ -2,6 +2,7 @@ import PromiseHolder from '../helper/promiseholder';
 import RemoteValidator, { setupRemote } from '../remote/validator';
 import { Serializer, Deserializer } from '../sio-network/serializer';
 import { StateManager, SyncUserEvent, SyncUser, ServerSyncLayer } from '../sync/server';
+import { ServerInfo, CombinedInfo } from './info';
 import Player from './player';
 import Server from './server';
 
@@ -13,6 +14,8 @@ export default class ServerStateManager<R, T> implements StateManager {
   private playerMap: Map<string, Player<R>> = new Map();
   private users: string[] = [];
   private playerPromises: Array<PromiseHolder<void>> = [];
+  private gameIsOver: boolean;
+  private gameOverMessage?: string;
 
   public constructor(private server: Server<R, T>,
     private syncLayer: ServerSyncLayer,
@@ -21,6 +24,7 @@ export default class ServerStateManager<R, T> implements StateManager {
     private typePath: string,
     private cacheTypes: boolean,
     private serializer: Serializer, private deserializer: Deserializer) {
+      this.gameIsOver = false;
       this.setupDummyRemote();
   }
 
@@ -29,14 +33,16 @@ export default class ServerStateManager<R, T> implements StateManager {
     this.addUser(user);
   }
 
-  // TODO try to fit in player meta information with state
   public getState(id: string): string {
     const player = this.playerMap.get(id);
     if (!player) {
       throw Error(`Player with id ${id} not found!`);
     }
-    const playerInfo = JSON.stringify(player.getInfo());
-    return this.serializer(playerInfo,
+    const playerInfo = player.getInfo();
+    const serverInfo = this.getServerInfo();
+    const info: CombinedInfo = {...serverInfo, ...playerInfo};
+    const infoString = JSON.stringify(info);
+    return this.serializer(infoString,
       this.stateMask(this.state, player));
   }
 
@@ -57,6 +63,25 @@ export default class ServerStateManager<R, T> implements StateManager {
     const holder = new PromiseHolder<void>();
     this.playerPromises.push(holder);
     return holder.promise;
+  }
+
+  public getServerInfo(): ServerInfo {
+    const info: ServerInfo = {
+      // Nothing by default
+    };
+    if (this.gameIsOver) {
+      info.gameOver = this.gameOverMessage;
+    }
+    return info;
+  }
+
+  public gameOver(): boolean{
+    return this.gameIsOver;
+  }
+
+  public endGame(message: string) {
+    this.gameIsOver = true;
+    this.gameOverMessage = message;
   }
 
   private addUser(user: SyncUser) {

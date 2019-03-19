@@ -19,7 +19,6 @@ export default class Server<R, T> {
   private turn: number;
   private standardTurns: boolean;
   private turnIncrementDisabled: boolean;
-  private gameIsOver: boolean;
   private started: boolean;
 
   public constructor(
@@ -32,7 +31,6 @@ export default class Server<R, T> {
     this.turn = 0;
     this.standardTurns = options.standardTurns;
     this.turnIncrementDisabled = false;
-    this.gameIsOver = false;
     this.started = false;
     this.syncLayer = options.syncLayer;
     this.state = new ServerStateManager(this, options.syncLayer, state,
@@ -59,7 +57,7 @@ export default class Server<R, T> {
     log.info('Starting main loop.');
 
     // Run main loop forever
-    while (!this.gameIsOver) {
+    while (!this.state.gameOver()) {
       try {
         log.info(`Starting turn ${this.turn}`);
         await this.mainLoop.call(this.mainLoop, this);
@@ -105,11 +103,11 @@ export default class Server<R, T> {
   }
 
   public gameOver(message: string) {
-    if (this.gameIsOver) {
+    if (this.state.gameOver()) {
       throw new Error('Cannot call game over more than once!');
     }
-    this.gameIsOver = true;
-    this.syncLayer.requestAll(gameOverId, message);
+    this.state.endGame(message);
+    this.syncLayer.update();
   }
 }
 

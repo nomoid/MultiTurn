@@ -1,4 +1,4 @@
-import PlayerInfo from './playerinfo';
+import { PlayerInfo } from './info';
 
 export default class Player<R> {
 
