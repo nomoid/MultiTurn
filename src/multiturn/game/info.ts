@@ -3,6 +3,7 @@ export interface PlayerInfo {
 }
 
 export interface ServerInfo {
+  turn: number;
   responseMessage?: string;
   gameOver?: string;
 }

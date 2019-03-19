@@ -93,7 +93,7 @@ export default class ServerStateManager<R, T> implements StateManager {
 
   public getServerInfo(): ServerInfo {
     const info: ServerInfo = {
-      // Nothing by default
+      turn: this.getTurn()
     };
     if (this.gameIsOver) {
       info.gameOver = this.gameOverMessage;

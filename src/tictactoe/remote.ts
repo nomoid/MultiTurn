@@ -46,8 +46,18 @@ export default class Remote implements Client<Remote> {
       message += `You are playing as ${convertToSymbol(this.playerNum)}.`;
     }
     if (info.gameOver) {
-      console.log(`ABC: ${info.gameOver}`);
       message += ` ${this.convertGameOverMessage(info.gameOver)}`;
+    }
+    else {
+      if (info.turn === 0) {
+        message += ' Waiting for more players...';
+      }
+      else if (info.turn === this.playerNum) {
+        message += ' It is currently your turn.';
+      }
+      else {
+        message += ' Waiting for another player\'s move.';
+      }
     }
     this.state = JSON.parse(e.state) as Board;
     for (const listener of this.stateListeners) {
