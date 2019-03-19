@@ -10,7 +10,7 @@ log.setLevel(log.levels.DEBUG);
 import * as sio from 'socket.io-client';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import { defaultSerializer, defaultDeserializer } from '../multiturn/sio-network/serializer';
-import Remote from './remote';
+import Remote from './remote-dev';
 
 const io = sio();
 
