@@ -16,10 +16,8 @@ export default class Server<R, T> {
 
   private syncLayer: ServerSyncLayer;
   private state: ServerStateManager<R, T>;
-  private turn: number;
-  private standardTurns: boolean;
-  private turnIncrementDisabled: boolean;
   private started: boolean;
+  private standardTurns: boolean;
 
   public constructor(
     private mainLoop: (server: Server<R, T>) => Promise<void>,
@@ -28,13 +26,12 @@ export default class Server<R, T> {
     options: ServerOptions<R, T>
   ) {
     this.maxPlayers = options.maxPlayers;
-    this.turn = 0;
     this.standardTurns = options.standardTurns;
-    this.turnIncrementDisabled = false;
     this.started = false;
     this.syncLayer = options.syncLayer;
     this.state = new ServerStateManager(this, options.syncLayer, state,
-      options.stateMask, remoteGenerator, options.typePath, options.cacheTypes,
+      options.stateMask, remoteGenerator, options.maxPlayers,
+      options.typePath, options.cacheTypes,
       options.serializer, options.deserializer);
     this.syncLayer.state = this.state;
   }
@@ -56,17 +53,18 @@ export default class Server<R, T> {
 
     log.info('Starting main loop.');
 
+    this.state.turn = 0;
     // Run main loop forever
     while (!this.state.gameOver()) {
       try {
-        log.info(`Starting turn ${this.turn}`);
+        log.info(`Starting turn ${this.state.turn}`);
         await this.mainLoop.call(this.mainLoop, this);
         if (this.standardTurns) {
-          if (this.turnIncrementDisabled) {
-            this.turnIncrementDisabled = false;
+          if (this.state.turnIncrementDisabled) {
+            this.state.turnIncrementDisabled = false;
           }
-          this.turn += 1;
-          this.turn %= this.maxPlayers;
+          this.state.turn += 1;
+          this.state.turn %= this.maxPlayers;
         }
       }
       catch (err) {
@@ -76,30 +74,22 @@ export default class Server<R, T> {
     }
   }
 
+  // Array index will be off by turn number by 1
   public getPlayers(): Array<Player<R>> {
     return this.state.getPlayers();
   }
 
+  // Get the current player
   public getCurrentPlayer(): Player<R> {
-    return this.state.getPlayers()[this.getTurn()];
+    return this.state.getCurrentPlayer();
   }
 
-  public getTurn(): number {
-    return this.turn;
+  public getTurn() {
+    return this.state.getTurn();
   }
 
   public getMaxPlayers(): number {
     return this.maxPlayers;
-  }
-
-  // Warning: standard turns already increases turn count,
-  // setTurn disables next turn increment
-  public setTurn(turn: number) {
-    if (turn < 0 || turn >= this.maxPlayers || !Number.isInteger(turn)) {
-      throw new Error(`Invalid turn count ${turn}`);
-    }
-    this.turn = turn;
-    this.turnIncrementDisabled = true;
   }
 
   public gameOver(message: string) {

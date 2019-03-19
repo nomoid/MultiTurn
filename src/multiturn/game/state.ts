@@ -10,21 +10,27 @@ const assignNumId = '_assignNum';
 const remoteCallId = '_remoteCall';
 
 export default class ServerStateManager<R, T> implements StateManager {
+  public turn: number;
+  public gameIsOver: boolean;
+  public gameOverMessage?: string;
+  public turnIncrementDisabled: boolean;
+
   private idMap: Map<string, SyncUser> = new Map();
   private playerMap: Map<string, Player<R>> = new Map();
   private users: string[] = [];
   private playerPromises: Array<PromiseHolder<void>> = [];
-  private gameIsOver: boolean;
-  private gameOverMessage?: string;
 
   public constructor(private server: Server<R, T>,
     private syncLayer: ServerSyncLayer,
     private state: T, private stateMask: (state: T,
     player: Player<R>) => string, private remoteGenerator: new () => R,
+    private maxPlayers: number,
     private typePath: string,
     private cacheTypes: boolean,
     private serializer: Serializer, private deserializer: Deserializer) {
+      this.turnIncrementDisabled = false;
       this.gameIsOver = false;
+      this.turn = -1;
       this.setupDummyRemote();
   }
 
@@ -54,6 +60,26 @@ export default class ServerStateManager<R, T> implements StateManager {
       }
       return player;
     });
+  }
+
+  public getCurrentPlayer(): Player<R> {
+    return this.getPlayers()[this.getTurn() - 1];
+  }
+
+  // Gets the player number of the current player
+  // Player number is one-indexed
+  public getTurn(): number {
+    return this.turn + 1;
+  }
+
+  // Warning: standard turns already increases turn count,
+  // setTurn disables next turn increment
+  public setTurn(turn: number) {
+    if (turn < 0 || turn >= this.maxPlayers || !Number.isInteger(turn)) {
+      throw new Error(`Invalid turn count ${turn}`);
+    }
+    this.turn = turn;
+    this.turnIncrementDisabled = true;
   }
 
   public waitForPlayers(): Promise<void> {
