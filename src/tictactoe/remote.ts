@@ -9,7 +9,7 @@ type StateListener = (s: Board) => void;
 type MessageListener = (s: string) => void;
 
 export function convertToSymbol(i: number): string {
-  if (i < 0) {
+  if (i === 0) {
     return '&nbsp;';
   }
   else if (i === 1) {
@@ -80,7 +80,7 @@ export default class Remote implements Client<Remote> {
   private convertGameOverMessage(org: string): string {
     let message = 'Game over. ';
     const winner = parseInt(org, 10);
-    if (winner === -1) {
+    if (winner === 0) {
       message += 'Tie game.';
     }
     else if (winner === this.playerNum) {

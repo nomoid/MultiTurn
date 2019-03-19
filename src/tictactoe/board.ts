@@ -8,7 +8,7 @@ export default class Board {
    * The spaces of the board, represented in a two-dimensional array
    * The first coordinate is the x coordinate
    * The second coordinate is the y coordinate
-   * A value of -1 indicates unoccupied
+   * A value of 0 indicates unoccupied
    * A nonnegative value indiciates occupied by the specified player
    * Strict validation is not needed because the client never passes an
    * instance to the server
@@ -22,13 +22,13 @@ export default class Board {
       const col: number[] = [];
       spaces.push(col);
       for (let j = 0; j < rows; j++) {
-        col.push(-1);
+        col.push(0);
       }
     }
   }
 
   public occupied(move: Move): boolean {
-    return this.spaces[move.x][move.y] !== -1;
+    return this.spaces[move.x][move.y] !== 0;
   }
 
   public occupy(move: Move, n: number) {
@@ -38,7 +38,7 @@ export default class Board {
   public checkFull(): boolean {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        if (this.spaces[i][j] === -1) {
+        if (this.spaces[i][j] === 0) {
           return false;
         }
       }
@@ -91,10 +91,10 @@ export default class Board {
                 break;
             }
         }
-        if (match && v >= 0) {
+        if (match && v > 0) {
             return v;
         }
     }
-    return -1;
+    return 0;
   }
 }

@@ -15,13 +15,13 @@ export default function getRunner(state: Board) {
     console.log(`Valid move: {${move.x}, ${move.y}}`);
     board.occupy(move, player.num);
     const win = board.checkVictory();
-    if (win >= 0) {
+    if (win > 0) {
       game.gameOver(player.num.toString());
       return;
     }
     const full = board.checkFull();
     if (full) {
-      game.gameOver((-1).toString());
+      game.gameOver((0).toString());
     }
   };
 }
