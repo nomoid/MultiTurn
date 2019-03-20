@@ -77,7 +77,9 @@ export default class RemoteValidator {
     if (this.localCache) {
       log.debug('Saving schema to local cache');
       try {
-        fs.mkdirSync(typeCacheRoot);
+        if (!fs.existsSync(typeCacheRoot)) {
+          fs.mkdirSync(typeCacheRoot);
+        }
         const fileName = path.join(typeCacheRoot, `${typeName}.json`);
         const schemaData = JSON.stringify(schema);
         fs.writeFileSync(fileName, schemaData, 'utf8');

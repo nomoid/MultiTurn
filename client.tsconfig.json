@@ -7,7 +7,7 @@
     "strict": true
   },
   "files": [
-    "src/tictactoe/client.ts"
+    "src/chess/client.ts"
   ],
   "exclude": [
     ".git",

@@ -8,7 +8,7 @@
     "clean": "rimraf build dist",
     "build-client": "webpack",
     "build-server": "tsc --p server.tsconfig.json",
-    "server": "node build/tictactoe/server.js"
+    "server": "node build/chess/server.js"
   },
   "author": "Markus Feng",
   "license": "MIT",

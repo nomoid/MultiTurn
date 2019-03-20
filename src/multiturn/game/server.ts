@@ -57,7 +57,7 @@ export default class Server<R, T> {
     // Run main loop forever
     while (!this.state.gameOver()) {
       try {
-        log.info(`Starting turn ${this.state.turn}`);
+        log.debug(`Starting turn ${this.state.turn}`);
         await this.mainLoop.call(this.mainLoop, this);
         if (this.standardTurns) {
           if (this.state.turnIncrementDisabled) {

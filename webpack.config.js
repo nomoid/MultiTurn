@@ -4,7 +4,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   entry: [
-    './src/tictactoe/client.ts',
+    './src/chess/client.ts',
     './public/index.html'
   ],
   module: {

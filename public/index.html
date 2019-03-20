@@ -5,28 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data: blob:; style-src 'self';">
-  <link rel="stylesheet" href="styles.css">
+
   <title>Typescript Demo</title>
 </head>
 <body>
   <div>
-    <div id="header-output"></div>
-    <br />
-    <div>
-      <button name="0,0" class="ttt-button">&nbsp;</button>
-      <button name="0,1" class="ttt-button">&nbsp;</button>
-      <button name="0,2" class="ttt-button">&nbsp;</button>
-    </div>
-    <div>
-      <button name="1,0" class="ttt-button">&nbsp;</button>
-      <button name="1,1" class="ttt-button">&nbsp;</button>
-      <button name="1,2" class="ttt-button">&nbsp;</button>
-    </div>
-    <div>
-      <button name="2,0" class="ttt-button">&nbsp;</button>
-      <button name="2,1" class="ttt-button">&nbsp;</button>
-      <button name="2,2" class="ttt-button">&nbsp;</button>
-    </div>
+    <input id="sio-key-input">
+    <input id="sio-message-input">
+    <button id="sio-request">Request</button>
+    <button id="sio-response">Response</button>
+    <button id="sio-latest-response">Latest Response</button>
+  </div>
+  <div id="log-container">
+    <pre id="log"></pre>
   </div>
   <script src="./bundle.js"></script>
 </body>
