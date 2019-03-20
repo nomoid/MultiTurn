@@ -73,7 +73,11 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     let failures = 0;
     while (true) {
       log.debug('Initiating refresh');
+      const pingStart = window.performance.now();
       const response = await socket.request(refreshId, token);
+      const pingEnd = window.performance.now();
+      const ping = Math.floor(pingEnd - pingStart);
+      log.info(`Ping is ${ping} ms`);
       if (response === refreshSuccessId) {
         failures = 0;
         if (this.repeatDelay && this.repeatDelay > 0) {
