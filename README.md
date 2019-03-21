@@ -39,10 +39,54 @@ yarn server
 
 The server can now be accessed on http://localhost:8080.
 
-## Sample game: Tic-Tac-Toe
+## Sample game: Chess
 
 The turn-based multiplayer networking logic for the game is abstracted away by
 library functions, with the help of `Promises`, `async`, and `await`.
+```typescript
+async function runner(game: Server<Remote, Board>): Promise<void> {
+  const player = game.getCurrentPlayer();
+  const color = numToColor(player.num);
+  if (board.getAllValidMoves(color).length === 0) {
+    if (board.isInCheck(color)) {
+      game.gameOver(opponentNum(player.num).toString());
+    }
+    else {
+      game.gameOver((0).toString());
+    }
+  }
+  const validator = (possibleMove: Move) =>
+    board.tryMove(numToColor(player.num),
+      start(possibleMove),
+      end(possibleMove));
+  let move: Move;
+  do {
+    move = await player.remote.getMove();
+  } while (!validator(move));
+}
+```
+
+### Implementation
+
+- The above is a slightly modifed version of the server-side multiplayer
+  networking logic in the [game](src/chess/game.ts) class. The logic to set
+  up the networking interface is present in the [server](src/chess/server.ts)
+  class.
+- The client-side multiplayer networking logic resides in the
+  [remote](src/chess/remote.ts) class.
+- Most of the logic for the Chess game itself is in the
+  [board](src/chess/board.ts) class and the [rules](src/chess/rules.ts) class.
+- The client user interface is spread among the HTML/CSS files in the
+  [public](public) directory and the [client](src/chess/client.ts) class.
+- The serialized move object is found in the [move] class.
+- The remainder of the library is found in the [multiturn](src/multiturn)
+  directory.
+
+For the complete Chess sample, see [here](src/chess).
+
+## Sample game: Tic-Tac-Toe
+
+Tic-tac-toe involves similar multiplayer logic to the chess example above.
 ```typescript
 async function runner(game: Server<Remote, Board>): Promise<void> {
   const player = game.getCurrentPlayer();
@@ -52,7 +96,6 @@ async function runner(game: Server<Remote, Board>): Promise<void> {
   do {
     move = await player.remote.getMove();
   } while (!validator(move));
-  console.log(`Valid move: {${move.x}, ${move.y}}`);
   board.occupy(move, player.num);
   const win = board.checkVictory();
   if (win > 0) {
