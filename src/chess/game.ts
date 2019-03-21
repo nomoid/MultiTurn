@@ -1,7 +1,7 @@
 import Server from '../multiturn/game/server';
 import Board from './board';
 import Move from './move';
-import Remote from './remote-dev';
+import Remote from './remote';
 import { Color, Coordinate, coordToString, numToColor, opponent } from './rules';
 
 import * as log from 'loglevel';

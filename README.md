@@ -78,7 +78,7 @@ async function runner(game: Server<Remote, Board>): Promise<void> {
   [board](src/chess/board.ts) class and the [rules](src/chess/rules.ts) class.
 - The client user interface is spread among the HTML/CSS files in the
   [public](public) directory and the [client](src/chess/client.ts) class.
-- The serialized move object is found in the [move] class.
+- The serialized move object is found in the [move](src/chess/move.ts) class.
 - The remainder of the library is found in the [multiturn](src/multiturn)
   directory.
 

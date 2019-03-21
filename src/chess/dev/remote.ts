@@ -1,10 +1,10 @@
-import { Client } from '../multiturn/game/client';
-import { CombinedInfo } from '../multiturn/game/info';
-import { remote } from '../multiturn/remote/remote';
-import { ClientSyncStateEvent } from '../multiturn/sync/client';
-import Board from './board';
-import Move from './move';
-import { Color, numToColor } from './rules';
+import { Client } from '../../multiturn/game/client';
+import { CombinedInfo } from '../../multiturn/game/info';
+import { remote } from '../../multiturn/remote/remote';
+import { ClientSyncStateEvent } from '../../multiturn/sync/client';
+import Board from '../board';
+import Move from '../move';
+import { Color, numToColor } from '../rules';
 
 export default class Remote implements Client<Remote> {
 
