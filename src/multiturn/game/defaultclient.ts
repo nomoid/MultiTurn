@@ -58,7 +58,7 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
     }
   }
 
-  public getState(): S | undefined {
+  public getState(): S {
     return this.state;
   }
 
@@ -67,7 +67,11 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
   }
 
   public getPlayerNum(): number {
-    return this.getLatestInfo().num;
+    const info = this.getLatestInfo();
+    if (!info) {
+      return 0;
+    }
+    return info.num;
   }
 
   public isCurrentTurn(): boolean {
