@@ -36,11 +36,7 @@ export default class Board {
         + ' different player!');
       return false;
     }
-    let inCheck: Color | undefined;
-    if (this.isInCheck(player)) {
-      inCheck = player;
-    }
-    const moves = this.getValidMoves(start, inCheck);
+    const moves = this.getValidMoves(start);
     let found = false;
     for (const move of moves) {
       if (coordEq(move, end)) {
@@ -81,10 +77,6 @@ export default class Board {
   public getAllValidMoves(player: Color,
       ignoreChecking?: boolean): Array<[Coordinate, Coordinate]> {
     const allMoves: Array<[Coordinate, Coordinate]> = [];
-    let inCheck: Color | undefined;
-    if (!ignoreChecking && this.isInCheck(player)) {
-      inCheck = player;
-    }
     for (let file = 0; file < 8; file++) {
       for (let rank = 0; rank < 8; rank++) {
         const occupant = this.spaces[file][rank];
@@ -96,7 +88,7 @@ export default class Board {
           continue;
         }
         const coord: Coordinate = [file, rank];
-        const moves = this.getValidMoves(coord, inCheck);
+        const moves = this.getValidMoves(coord, ignoreChecking);
         const coordMoves: Array<[Coordinate, Coordinate]>
           = moves.map((move) => [coord, move] as [Coordinate, Coordinate]);
         allMoves.push(...coordMoves);
@@ -105,7 +97,8 @@ export default class Board {
     return allMoves;
   }
 
-  public getValidMoves(coord: Coordinate, inCheckAs?: Color): Coordinate[] {
+  public getValidMoves(coord: Coordinate,
+      ignoreChecking?: boolean): Coordinate[] {
     const [file, rank] = coord;
     const occupant = this.space(coord);
     if (!occupant) {
@@ -171,10 +164,10 @@ export default class Board {
       }
     }
     // TODO Check for castling condition
-    // If in check, make sure move gets out of check
-    if (inCheckAs) {
+    // Make sure move does not lead to check
+    if (!ignoreChecking) {
       indivMoves = indivMoves.filter((move: Coordinate) => {
-        return !this.hypotheticalIsInCheck(inCheckAs, coord, move);
+        return !this.hypotheticalIsInCheck(color, coord, move);
       });
     }
     return indivMoves;

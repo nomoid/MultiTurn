@@ -7,20 +7,18 @@ type MessageListener = (s: string) => void;
 
 export default abstract class DefaultClient<T, S, R> implements Client<T> {
 
-  protected playerNum!: number;
-  protected state!: S;
   protected latestMoveResolver?: (m: R) => void;
-  protected stateListeners: Array<StateListener<S>> = [];
-  protected messageListeners: MessageListener[] = [];
+  private stateListeners: Array<StateListener<S>> = [];
+  private messageListeners: MessageListener[] = [];
+  private state!: S;
   private lastestInfo?: CombinedInfo;
 
   // Client methods
   public updateState(e: ClientSyncStateEvent, info: CombinedInfo) {
     this.lastestInfo = info;
-    this.playerNum = info.num;
     let message = '';
-    if (this.playerNum) {
-      message += `You are playing as ${this.numToString(this.playerNum)}.`;
+    if (this.getPlayerNum()) {
+      message += `You are playing as ${this.numToString(this.getPlayerNum())}.`;
     }
     if (info.gameOver) {
       message += ` ${this.convertGameOverMessage(info.gameOver)}`;
@@ -29,7 +27,7 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
       if (info.turn === 0) {
         message += ' Waiting for more players...';
       }
-      else if (info.turn === this.playerNum) {
+      else if (info.turn === this.getPlayerNum()) {
         message += ' It is currently your turn.';
       }
       else {
@@ -60,11 +58,24 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
     }
   }
 
+  public getState(): S | undefined {
+    return this.state;
+  }
+
+  public getLatestInfo(): CombinedInfo | undefined {
+    return this.lastestInfo;
+  }
+
+  public getPlayerNum(): number {
+    return this.getLatestInfo().num;
+  }
+
   public isCurrentTurn(): boolean {
-    if (!this.lastestInfo) {
+    const info = this.getLatestInfo();
+    if (!info) {
       return false;
     }
-    return this.lastestInfo.turn === this.playerNum;
+    return info.turn === info.num;
   }
 
   public abstract getRemote(): T;
@@ -79,7 +90,7 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
     if (winner === 0) {
       message += 'Tie game.';
     }
-    else if (winner === this.playerNum) {
+    else if (winner === this.getPlayerNum()) {
       message += 'You win!';
     } else {
       message += 'You lose!';

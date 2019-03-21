@@ -19,11 +19,11 @@ export default class Remote extends DefaultClient<Remote, Board, Move> {
   }
 
   public getValidMoves(coord: Coordinate): Coordinate[] {
-    return this.state.getValidMoves(coord);
+    return this.getState().getValidMoves(coord);
   }
 
   public isValidMove(start: Coordinate, end: Coordinate): boolean {
-    const validMoves = this.state.getValidMoves(start);
+    const validMoves = this.getState().getValidMoves(start);
     for (const move of validMoves) {
       if (coordEq(move, end)) {
         return true;
@@ -42,7 +42,7 @@ export default class Remote extends DefaultClient<Remote, Board, Move> {
   }
 
   public getColor(): Color {
-    return numToColor(this.playerNum);
+    return numToColor(this.getPlayerNum());
   }
 
   protected bindPrototype(s: Board): void {
