@@ -12,7 +12,7 @@ import { fillDefault } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
 import Board from './board';
 import getRunner from './game';
-import Remote from './remote-dev';
+import Remote from './remote';
 
 function main() {
   const app = express();
