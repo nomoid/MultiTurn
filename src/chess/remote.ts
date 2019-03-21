@@ -1,43 +1,55 @@
-import { Client } from '../multiturn/game/client';
-import { CombinedInfo } from '../multiturn/game/info';
+import DefaultClient from '../multiturn/game/defaultclient';
 import { remote } from '../multiturn/remote/remote';
-import { ClientSyncStateEvent } from '../multiturn/sync/client';
 import Board from './board';
 import Move from './move';
-import { Color, numToColor } from './rules';
+import { numToColor, Coordinate, coordEq, Color } from './rules';
 
-export default class Remote implements Client<Remote> {
-
-  private board!: Board;
-  private color!: Color;
+export default class Remote extends DefaultClient<Remote, Board, Move> {
 
   @remote(Move)
   public getMove(): Promise<Move> {
-    return new Promise((resolve, response) => {
-      setTimeout(() => resolve(this.randomMove()), 1000);
+    return new Promise((resolve, reject) => {
+      // Wait for a button to be pressed
+      this.latestMoveResolver = resolve;
     });
-  }
-
-  public updateState(e: ClientSyncStateEvent, info: CombinedInfo): void {
-    console.log(`Updating state ${e.state}, ${JSON.stringify(info)}`);
-    this.board = JSON.parse(e.state) as Board;
-    Object.setPrototypeOf(this.board, Board.prototype);
-    this.color = numToColor(info.num);
   }
 
   public getRemote(): Remote {
     return this;
   }
 
-  private randomMove(): Move {
-    const moves = this.board.getAllValidMoves(this.color);
-    if (moves.length === 0) {
-      throw new Error('No valid moves remain!');
-    }
-    const randomIndex = Math.floor(Math.random() * moves.length);
-    const randomMove = moves[randomIndex];
-    return new Move(randomMove[0][0], randomMove[0][1],
-      randomMove[1][0], randomMove[1][1]);
+  public getValidMoves(coord: Coordinate): Coordinate[] {
+    return this.state.getValidMoves(coord);
   }
 
+  public isValidMove(start: Coordinate, end: Coordinate): boolean {
+    const validMoves = this.state.getValidMoves(start);
+    for (const move of validMoves) {
+      if (coordEq(move, end)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public hasOwnPiece(coord: Coordinate): boolean {
+    const occupant = this.state.space(coord);
+    if (!occupant) {
+      return false;
+    }
+    const [color, piece] = occupant;
+    return color === this.getColor();
+  }
+
+  public getColor(): Color {
+    return numToColor(this.playerNum);
+  }
+
+  protected bindPrototype(s: Board): void {
+    Object.setPrototypeOf(s, Board.prototype);
+  }
+
+  protected numToString(num: number): string {
+    return numToColor(num);
+  }
 }

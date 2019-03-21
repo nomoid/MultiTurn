@@ -1,5 +1,3 @@
-import './helper/logging.js';
-
 import '../multiturn/helper/loglevel-prefix-name';
 
 import * as log from 'loglevel';
@@ -8,57 +6,123 @@ import * as log from 'loglevel';
 log.setLevel(log.levels.DEBUG);
 
 import * as sio from 'socket.io-client';
+import '../../public/styles.css';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
-import { defaultSerializer, defaultDeserializer } from '../multiturn/sio-network/serializer';
+import Board from './board';
 import Remote from './remote';
+import { Space, Coordinate } from './rules';
+import Move from './move';
 
 const io = sio();
+const remote = new Remote();
 
-const serializer = defaultSerializer('$');
-const deserializer = defaultDeserializer('$');
+function convertToSymbol(space: Space) {
+  if (!space) {
+    return '&nbsp;';
+  }
+  else {
+    const [color, piece] = space;
+    let text = '';
+    if (color === 'white') {
+      text += 'w';
+    }
+    else {
+      text += 'b';
+    }
+    switch (piece) {
+      case 'pawn':
+        text += 'P';
+        break;
+      case 'rook':
+        text += 'R';
+        break;
+      case 'knight':
+        text += 'K';
+        break;
+      case 'bishop':
+        text += 'B';
+        break;
+      case 'queen':
+        text += 'Q';
+        break;
+      case 'king':
+        text += 'K';
+        break;
+    }
+    return text;
+  }
+}
+
+let highlighted: Coordinate | undefined;
+
+function clearHighlighting(buttonArray: HTMLButtonElement[][]) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      buttonArray[i][j].style.backgroundColor = '';
+    }
+  }
+}
 
 function attachHandler() {
-  const requestId = '_request';
-  const responseId = '_response';
-  const requestButton = document.getElementById('sio-request');
-  const responseButton = document.getElementById('sio-response');
-  const latestResponseButton = document.getElementById('sio-latest-response');
-  const keyInput = document.
-    getElementById('sio-key-input') as HTMLInputElement;
-  const messageInput = document.
-    getElementById('sio-message-input') as HTMLInputElement;
-  if (requestButton && responseButton && latestResponseButton) {
-    let lastKey: string;
-    // Extract the key to be used with the latest response button
-    io.on(requestId, (value: string) => {
-      const [success, key, message] = deserializer(value);
-      if (success) {
-        lastKey = key;
+  const buttonArray: HTMLButtonElement[][] = [];
+  const buttons = document.getElementsByClassName('chess-button');
+  for (let i = 0; i < 8; i++) {
+    buttonArray.push([]);
+    for (let j = 0; j < 8; j++) {
+      buttonArray[i].push(buttons.item(0) as HTMLButtonElement);
+    }
+  }
+  for (let i = 0; i < buttons.length; i++) {
+    const button = buttons.item(i) as HTMLButtonElement;
+    if (button) {
+      const value = button.name;
+      const file = value.charCodeAt(0) - 97;
+      const rank = value.charCodeAt(1) - 49;
+      buttonArray[file][rank] = button;
+      button.onclick = (e) => {
+        if (!remote.isCurrentTurn()) {
+          return;
+        }
+        const coord: Coordinate = [file, rank];
+        if (highlighted && remote.isValidMove(highlighted, coord)) {
+          clearHighlighting(buttonArray);
+          const [startFile, startRank] = highlighted;
+          remote.resolveMove(new Move(startFile, startRank, file, rank));
+          highlighted = undefined;
+        }
+        else if (remote.hasOwnPiece(coord)) {
+          clearHighlighting(buttonArray);
+          highlighted = coord;
+          button.style.backgroundColor = 'lightblue';
+          // Look for potential moves
+          const moves = remote.getValidMoves(coord);
+          for (const move of moves) {
+            const [moveFile, moveRank] = move;
+            const targetButton = buttonArray[moveFile][moveRank];
+            targetButton.style.backgroundColor = 'lightgreen';
+          }
+        }
       }
+    }
+  }
+  remote.addStateListener((state: Board) => {
+    for (let x = 0; x < 8; x++) {
+      for (let y = 0; y < 8; y++) {
+        buttonArray[x][y].innerHTML = convertToSymbol(state.spaces[x][y]);
+      }
+    }
+  });
+  const label = document.getElementById('header-output');
+  if (label) {
+    remote.addMessageListener((message: string) => {
+      label.innerHTML = message;
     });
-    requestButton.onclick = (e) => {
-      const key = keyInput.value;
-      const message = messageInput.value;
-      io.emit(requestId, serializer(key, message));
-    };
-    responseButton.onclick = (e) => {
-      const key = keyInput.value;
-      const message = messageInput.value;
-      io.emit(responseId, serializer(key, message));
-    };
-    latestResponseButton.onclick = (e) => {
-      if (lastKey) {
-        const key = lastKey;
-        const message = messageInput.value;
-        io.emit(responseId, serializer(key, message));
-      }
-    };
   }
 }
 
 function main() {
   attachHandler();
-  const layer = defaultClientSyncLayer(io, new ClientGameResponder(new Remote()));
+  const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote));
   layer.listen();
 }
 

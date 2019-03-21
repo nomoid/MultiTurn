@@ -7,7 +7,9 @@
     "superclean": "rimraf node_modules build dist",
     "clean": "rimraf build dist",
     "build-client": "webpack",
+    "watch-client": "webpack --watch",
     "build-server": "tsc --p server.tsconfig.json",
+    "watch-server": "tsc --watch --p server.tsconfig.json",
     "server": "node build/chess/server.js"
   },
   "author": "Markus Feng",

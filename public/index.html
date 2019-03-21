@@ -5,19 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data: blob:; style-src 'self';">
-
-  <title>Typescript Demo</title>
+  <link rel="stylesheet" href="styles.css">
+  <title>Chess - MultiTurn</title>
 </head>
 <body>
   <div>
-    <input id="sio-key-input">
-    <input id="sio-message-input">
-    <button id="sio-request">Request</button>
-    <button id="sio-response">Response</button>
-    <button id="sio-latest-response">Latest Response</button>
-  </div>
-  <div id="log-container">
-    <pre id="log"></pre>
+    <div id="header-output"></div>
+    <br />
+    <div>
+      <button name="a8" class="chess-button">&nbsp;</button>
+      <button name="b8" class="chess-button">&nbsp;</button>
+      <button name="c8" class="chess-button">&nbsp;</button>
+      <button name="d8" class="chess-button">&nbsp;</button>
+      <button name="e8" class="chess-button">&nbsp;</button>
+      <button name="f8" class="chess-button">&nbsp;</button>
+      <button name="g8" class="chess-button">&nbsp;</button>
+      <button name="h8" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a7" class="chess-button">&nbsp;</button>
+      <button name="b7" class="chess-button">&nbsp;</button>
+      <button name="c7" class="chess-button">&nbsp;</button>
+      <button name="d7" class="chess-button">&nbsp;</button>
+      <button name="e7" class="chess-button">&nbsp;</button>
+      <button name="f7" class="chess-button">&nbsp;</button>
+      <button name="g7" class="chess-button">&nbsp;</button>
+      <button name="h7" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a6" class="chess-button">&nbsp;</button>
+      <button name="b6" class="chess-button">&nbsp;</button>
+      <button name="c6" class="chess-button">&nbsp;</button>
+      <button name="d6" class="chess-button">&nbsp;</button>
+      <button name="e6" class="chess-button">&nbsp;</button>
+      <button name="f6" class="chess-button">&nbsp;</button>
+      <button name="g6" class="chess-button">&nbsp;</button>
+      <button name="h6" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a5" class="chess-button">&nbsp;</button>
+      <button name="b5" class="chess-button">&nbsp;</button>
+      <button name="c5" class="chess-button">&nbsp;</button>
+      <button name="d5" class="chess-button">&nbsp;</button>
+      <button name="e5" class="chess-button">&nbsp;</button>
+      <button name="f5" class="chess-button">&nbsp;</button>
+      <button name="g5" class="chess-button">&nbsp;</button>
+      <button name="h5" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a4" class="chess-button">&nbsp;</button>
+      <button name="b4" class="chess-button">&nbsp;</button>
+      <button name="c4" class="chess-button">&nbsp;</button>
+      <button name="d4" class="chess-button">&nbsp;</button>
+      <button name="e4" class="chess-button">&nbsp;</button>
+      <button name="f4" class="chess-button">&nbsp;</button>
+      <button name="g4" class="chess-button">&nbsp;</button>
+      <button name="h4" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a3" class="chess-button">&nbsp;</button>
+      <button name="b3" class="chess-button">&nbsp;</button>
+      <button name="c3" class="chess-button">&nbsp;</button>
+      <button name="d3" class="chess-button">&nbsp;</button>
+      <button name="e3" class="chess-button">&nbsp;</button>
+      <button name="f3" class="chess-button">&nbsp;</button>
+      <button name="g3" class="chess-button">&nbsp;</button>
+      <button name="h3" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a2" class="chess-button">&nbsp;</button>
+      <button name="b2" class="chess-button">&nbsp;</button>
+      <button name="c2" class="chess-button">&nbsp;</button>
+      <button name="d2" class="chess-button">&nbsp;</button>
+      <button name="e2" class="chess-button">&nbsp;</button>
+      <button name="f2" class="chess-button">&nbsp;</button>
+      <button name="g2" class="chess-button">&nbsp;</button>
+      <button name="h2" class="chess-button">&nbsp;</button>
+    </div>
+    <div>
+      <button name="a1" class="chess-button">&nbsp;</button>
+      <button name="b1" class="chess-button">&nbsp;</button>
+      <button name="c1" class="chess-button">&nbsp;</button>
+      <button name="d1" class="chess-button">&nbsp;</button>
+      <button name="e1" class="chess-button">&nbsp;</button>
+      <button name="f1" class="chess-button">&nbsp;</button>
+      <button name="g1" class="chess-button">&nbsp;</button>
+      <button name="h1" class="chess-button">&nbsp;</button>
+    </div>
   </div>
   <script src="./bundle.js"></script>
 </body>
