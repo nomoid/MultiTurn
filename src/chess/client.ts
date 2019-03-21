@@ -9,9 +9,9 @@ import * as sio from 'socket.io-client';
 import '../../public/styles.css';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import Board from './board';
+import Move from './move';
 import Remote from './remote';
 import { Space, Coordinate } from './rules';
-import Move from './move';
 
 const io = sio();
 const remote = new Remote();
@@ -102,7 +102,7 @@ function attachHandler() {
             targetButton.style.backgroundColor = 'lightgreen';
           }
         }
-      }
+      };
     }
   }
   remote.addStateListener((state: Board) => {
