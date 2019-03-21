@@ -6,30 +6,13 @@ import { Color, Coordinate, coordToString, numToColor, opponent } from './rules'
 
 import * as log from 'loglevel';
 
-function start(move: Move): Coordinate {
-  return [move.startFile, move.startRank];
-}
-
-function end(move: Move): Coordinate {
-  return [move.endFile, move.endRank];
-}
-
-function colorToNum(color: Color): number {
-  if (color === 'white') {
-    return 1;
-  }
-  else {
-    return 2;
-  }
-}
-
 export default function getRunner(board: Board) {
   return async (game: Server<Remote, Board>) => {
     const player = game.getCurrentPlayer();
     const color = numToColor(player.num);
     if (board.getAllValidMoves(color).length === 0) {
       if (board.isInCheck(color)) {
-        game.gameOver(colorToNum(opponent(numToColor(player.num))).toString());
+        game.gameOver(opponentNum(player.num).toString());
       }
       else {
         game.gameOver((0).toString());
@@ -47,4 +30,21 @@ export default function getRunner(board: Board) {
     + ` ${coordToString(start(move))}`
     + ` to ${coordToString(end(move))}`);
   };
+}
+
+function start(move: Move): Coordinate {
+  return [move.startFile, move.startRank];
+}
+
+function end(move: Move): Coordinate {
+  return [move.endFile, move.endRank];
+}
+
+function opponentNum(num: number): number {
+  if (num === 1) {
+    return 2;
+  }
+  else {
+    return 1;
+  }
 }
