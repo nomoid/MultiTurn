@@ -1,6 +1,7 @@
 const path = require('path');
 require('file-loader');
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: [
@@ -18,11 +19,7 @@ module.exports = {
         }
       },
       {
-        test: /\.html/,
-        loader: 'file-loader?name=[name].[ext]',
-      },
-      {
-        test: /\.css$/,
+        test: /\.(html|css)$/,
         loader: 'file-loader?name=[name].[ext]',
       },
     ]
@@ -46,5 +43,13 @@ module.exports = {
       }),
     ],
   },
+  plugins: [
+    new CopyPlugin([
+      {
+        from: 'public/assets',
+        to: 'assets'
+      }
+    ])
+  ],
   mode: 'production'
 };

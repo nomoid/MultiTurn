@@ -16,51 +16,12 @@ import { Space, Coordinate } from './rules';
 const io = sio();
 const remote = new Remote();
 
-function convertToSymbol(space: Space) {
-  if (!space) {
-    return '&nbsp;';
-  }
-  else {
-    const [color, piece] = space;
-    let text = '';
-    if (color === 'white') {
-      text += 'w';
-    }
-    else {
-      text += 'b';
-    }
-    switch (piece) {
-      case 'pawn':
-        text += 'P';
-        break;
-      case 'rook':
-        text += 'R';
-        break;
-      case 'knight':
-        text += 'N';
-        break;
-      case 'bishop':
-        text += 'B';
-        break;
-      case 'queen':
-        text += 'Q';
-        break;
-      case 'king':
-        text += 'K';
-        break;
-    }
-    return text;
-  }
-}
-
 let highlighted: Coordinate | undefined;
 
-function clearHighlighting(buttonArray: HTMLButtonElement[][]) {
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      buttonArray[i][j].style.backgroundColor = '';
-    }
-  }
+function main() {
+  attachHandler();
+  const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote));
+  layer.listen();
 }
 
 function attachHandler() {
@@ -108,7 +69,7 @@ function attachHandler() {
   remote.addStateListener((state: Board) => {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        buttonArray[x][y].innerHTML = convertToSymbol(state.spaces[x][y]);
+        buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
       }
     }
   });
@@ -120,10 +81,59 @@ function attachHandler() {
   }
 }
 
-function main() {
-  attachHandler();
-  const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote));
-  layer.listen();
+function clearHighlighting(buttonArray: HTMLButtonElement[][]) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      buttonArray[i][j].style.backgroundColor = '';
+    }
+  }
+}
+
+function icon(space: Space) {
+  if (!space) {
+    return '';
+  }
+  else {
+    const [color, piece] = space;
+    return `url('assets/chess/${color}_${piece}.png')`;
+  }
+}
+
+function convertToSymbol(space: Space) {
+  if (!space) {
+    return '&nbsp;';
+  }
+  else {
+    const [color, piece] = space;
+    let text = '';
+    if (color === 'white') {
+      text += 'w';
+    }
+    else {
+      text += 'b';
+    }
+    switch (piece) {
+      case 'pawn':
+        text += 'P';
+        break;
+      case 'rook':
+        text += 'R';
+        break;
+      case 'knight':
+        text += 'N';
+        break;
+      case 'bishop':
+        text += 'B';
+        break;
+      case 'queen':
+        text += 'Q';
+        break;
+      case 'king':
+        text += 'K';
+        break;
+    }
+    return text;
+  }
 }
 
 main();
