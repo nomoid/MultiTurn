@@ -57,7 +57,7 @@ export default class Board {
     }
     // Make the move
     this.move(start, end);
-    // TODO deal with promotion
+    // promotion choice
     log.debug('Move succeeded');
     return true;
   }
@@ -104,7 +104,16 @@ export default class Board {
         }
       }
     }
-    // TODO promotion
+    // TODO non-queen promotion
+    // Check for promotion
+    if (occupant) {
+      const [color, piece] = occupant;
+      if (piece === 'pawn' && (endRank === 0 || endRank === 7)) {
+        this.spaces[startFile][startRank] = '';
+        this.spaces[endFile][endRank] = [color, 'queen'];
+        special = ['promotion', 'queen'];
+      }
+    }
     if (!special) {
       this.spaces[startFile][startRank] = '';
       this.spaces[endFile][endRank] = occupant;
@@ -150,7 +159,15 @@ export default class Board {
             const [color, piece] = occupant;
             this.spaces[prevFile][prevRank] = [opponent(color), 'pawn'];
           }
-        // TODO promotion
+          break;
+        case 'promotion':
+          const target = specialMove[1];
+          if (occupant) {
+            const [color, piece] = occupant;
+            this.spaces[startFile][startRank] = [color, 'pawn'];
+            this.spaces[endFile][endRank] = endOccupant;
+          }
+          break;
       }
     }
     else {
