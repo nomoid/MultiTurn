@@ -18,7 +18,7 @@ export default function getRunner(board: Board) {
   return async (game: Server<Remote, Board>) => {
     const player = game.getCurrentPlayer();
     const validator = (possibleMove: Move) =>
-      board.makeMove(numToColor(player.num),
+      board.tryMove(numToColor(player.num),
         start(possibleMove),
         end(possibleMove));
     let move: Move;

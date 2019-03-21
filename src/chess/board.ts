@@ -1,6 +1,8 @@
 import * as logger from 'loglevel';
 import { Coordinate, setupDefault, Space, potentialMoves, Color, frontSpace,
-  isValidSpace, diagonalSpaces, coordEq, coordToString } from './rules';
+  isValidSpace, diagonalSpaces, coordEq, coordToString, opponent,
+  Piece,
+  SpecialMove} from './rules';
 
 const log = logger.getLogger('Chess');
 log.setLevel(logger.levels.INFO);
@@ -19,12 +21,10 @@ export default class Board {
   }
 
   // Returns: whether the move has been made or not
-  public makeMove(player: Color, start: Coordinate, end: Coordinate): boolean {
+  public tryMove(player: Color, start: Coordinate, end: Coordinate): boolean {
     log.debug(`${player} is attempting to make move`
       + ` ${coordToString(start)}`
       + ` to ${coordToString(end)}`);
-    const [startFile, startRank] = start;
-    const [endFile, endRank] = end;
     const occupant = this.space(start);
     if (!occupant) {
       log.debug('Move failed because the starting space was not occupied!');
@@ -36,7 +36,11 @@ export default class Board {
         + ' different player!');
       return false;
     }
-    const moves = this.getValidMoves(start);
+    let inCheck: Color | undefined;
+    if (this.isInCheck(player)) {
+      inCheck = player;
+    }
+    const moves = this.getValidMoves(start, inCheck);
     let found = false;
     for (const move of moves) {
       if (coordEq(move, end)) {
@@ -50,15 +54,37 @@ export default class Board {
       return false;
     }
     // Make the move
-    this.spaces[startFile][startRank] = '';
-    this.spaces[endFile][endRank] = occupant;
+    this.move(start, end);
     // TODO deal with en passant and promotion
     log.debug('Move succeeded');
     return true;
   }
 
-  public getAllValidMoves(player: Color): Array<[Coordinate, Coordinate]> {
+  public move([startFile, startRank]: Coordinate,
+      [endFile, endRank]: Coordinate): MoveInfo {
+    const endOccupant = this.spaces[endFile][endRank];
+    const occupant = this.spaces[startFile][startRank];
+    this.spaces[startFile][startRank] = '';
+    this.spaces[endFile][endRank] = occupant;
+    return [endOccupant, [[startFile, startRank], [endFile, endRank]]];
+  }
+
+  public undoMove(info: MoveInfo) {
+    const [endOccupant,
+      [[startFile, startRank], [endFile, endRank]],
+      specialMove] = info;
+    const occupant = this.spaces[endFile][endRank];
+    this.spaces[startFile][startRank] = occupant;
+    this.spaces[endFile][endRank] = endOccupant;
+  }
+
+  public getAllValidMoves(player: Color,
+      ignoreChecking?: boolean): Array<[Coordinate, Coordinate]> {
     const allMoves: Array<[Coordinate, Coordinate]> = [];
+    let inCheck: Color | undefined;
+    if (!ignoreChecking && this.isInCheck(player)) {
+      inCheck = player;
+    }
     for (let file = 0; file < 8; file++) {
       for (let rank = 0; rank < 8; rank++) {
         const occupant = this.spaces[file][rank];
@@ -70,7 +96,7 @@ export default class Board {
           continue;
         }
         const coord: Coordinate = [file, rank];
-        const moves = this.getValidMoves(coord);
+        const moves = this.getValidMoves(coord, inCheck);
         const coordMoves: Array<[Coordinate, Coordinate]>
           = moves.map((move) => [coord, move] as [Coordinate, Coordinate]);
         allMoves.push(...coordMoves);
@@ -79,8 +105,7 @@ export default class Board {
     return allMoves;
   }
 
-  public getValidMoves(coord: Coordinate): Coordinate[] {
-    // TODO consider checking
+  public getValidMoves(coord: Coordinate, inCheckAs?: Color): Coordinate[] {
     const [file, rank] = coord;
     const occupant = this.space(coord);
     if (!occupant) {
@@ -114,7 +139,7 @@ export default class Board {
         }
       }
     }
-    const indivMoves: Coordinate[] = [];
+    let indivMoves: Coordinate[] = [];
     // Check for blocking
     for (const subarray of moves) {
       for (const move of subarray) {
@@ -139,6 +164,56 @@ export default class Board {
       }
     }
     // TODO Check for castling condition
+    // If in check, make sure move gets out of check
+    if (inCheckAs) {
+      indivMoves = indivMoves.filter((move: Coordinate) => {
+        return !this.hypotheticalIsInCheck(inCheckAs, coord, move);
+      });
+    }
     return indivMoves;
   }
+
+  public isInCheck(defendingPlayer: Color): boolean {
+    // Assuming only one king is in play
+    const kingLocations = this.findPieces(defendingPlayer, 'king');
+    // Check if any of the opponent's moves results in a checkmate
+    const opp = opponent(defendingPlayer);
+    const oppMoves = this.getAllValidMoves(opp, true);
+    for (const move of oppMoves) {
+      const dest = move[1];
+      for (const kingLocation of kingLocations) {
+        if (coordEq(dest, kingLocation)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public findPieces(color: Color, piece: Piece): Coordinate[] {
+    const coords: Coordinate[] = [];
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        const occupant = this.spaces[i][j];
+        if (!occupant) {
+          continue;
+        }
+        const [occupantColor, occupantPiece] = occupant;
+        if (color === occupantColor && piece === occupantPiece) {
+          coords.push([i, j]);
+        }
+      }
+    }
+    return coords;
+  }
+
+  private hypotheticalIsInCheck(defendingPlayer: Color, start: Coordinate,
+      end: Coordinate) {
+    const info = this.move(start, end);
+    const inCheck = this.isInCheck(defendingPlayer);
+    this.undoMove(info);
+    return inCheck;
+  }
 }
+
+type MoveInfo = [Space, [Coordinate, Coordinate], SpecialMove?];

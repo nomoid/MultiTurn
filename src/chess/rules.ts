@@ -1,7 +1,8 @@
 export type Piece = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 export type Color = 'black' | 'white';
-export type Space = [Color, Piece ] | '';
+export type Space = [Color, Piece] | '';
 export type Coordinate = [number, number];
+export type SpecialMove = 'castling' | 'enpassant' | 'promotion';
 
 // Returns a 2D array to deal with blocking
 // Essentially, if any move in a subarray is unreachable, all further moves in
@@ -122,6 +123,15 @@ export function numToColor(num: number): Color {
     return 'black';
   }
   throw new Error(`Invalid player number: ${num}`);
+}
+
+export function opponent(color: Color): Color {
+  if (color === 'white') {
+    return 'white';
+  }
+  else {
+    return 'black';
+  }
 }
 
 export function frontSpace([file, rank]: Coordinate,
