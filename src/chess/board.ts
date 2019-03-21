@@ -151,6 +151,13 @@ export default class Board {
           indivMoves.push(move);
           continue;
         }
+        // Pawn has enemy blocking on non-diagonal
+        if (piece === 'pawn') {
+          const [moveFile, moveRank] = move;
+          if (file === moveFile) {
+            break;
+          }
+        }
         const [moveColor, movePiece] = moveOccupant;
         // Ally piece
         if (moveColor === color) {

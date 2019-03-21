@@ -48,8 +48,8 @@ export function potentialMoves(
       // All moves that are one off in one coordinate and two off in the other
       for (const oneParity of parity) {
         for (const twoParity of parity) {
-          moves.push([[oneParity, twoParity * 2]]);
-          moves.push([[twoParity * 2, oneParity]]);
+          moves.push([[file + oneParity, rank + twoParity * 2]]);
+          moves.push([[file + twoParity * 2, rank + oneParity]]);
         }
       }
       break;
@@ -57,25 +57,25 @@ export function potentialMoves(
       // All places that are diagonal from current position
       subarray = [];
       for (let i = file - 1; i >= 0; i--) {
-        subarray.push([i, i - file + rank]);
+        subarray.push([i, rank + i - file]);
       }
       moves.push(subarray);
 
       subarray = [];
       for (let i = file + 1; i < 8; i++) {
-        subarray.push([i, i - file + rank]);
+        subarray.push([i, rank + i - file]);
       }
       moves.push(subarray);
 
       subarray = [];
-      for (let i = rank - 1; i >= 0; i--) {
-        subarray.push([i - rank + file, i]);
+      for (let i = file - 1; i >= 0; i--) {
+        subarray.push([i, rank + file - i]);
       }
       moves.push(subarray);
 
       subarray = [];
-      for (let i = rank + 1; i < 8; i++) {
-        subarray.push([i - rank + file, i]);
+      for (let i = file + 1; i < 8; i++) {
+        subarray.push([i, rank + file - i]);
       }
       moves.push(subarray);
       break;
