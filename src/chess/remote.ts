@@ -33,7 +33,7 @@ export default class Remote extends DefaultClient<Remote, Board, Move> {
   }
 
   public hasOwnPiece(coord: Coordinate): boolean {
-    const occupant = this.state.space(coord);
+    const occupant = this.getState().space(coord);
     if (!occupant) {
       return false;
     }
