@@ -11,6 +11,12 @@ export default class Board {
 
   // e.g. d1 corresponds to spaces[3][0]
   public spaces: Space[][] = [];
+  public mostRecentMove?: MoveInfo;
+  // Check if black/white rook/king has been moved
+  // First array corresponds to black, second array corresponds to white
+  // If rook moved, corresponding array index set to 0 (a rook 0, h rook 1)
+  // If king moved, both array indices set to 0
+  public canCastle: [[number, number], [number, number]] = [[1, 1], [1, 1]];
 
   public constructor() {
     setupDefault(this.spaces);
@@ -51,27 +57,106 @@ export default class Board {
     }
     // Make the move
     this.move(start, end);
-    // TODO deal with en passant and promotion
+    // TODO deal with promotion
     log.debug('Move succeeded');
     return true;
   }
 
   public move([startFile, startRank]: Coordinate,
-      [endFile, endRank]: Coordinate): MoveInfo {
-    const endOccupant = this.spaces[endFile][endRank];
+      [endFile, endRank]: Coordinate, untrack?: boolean): MoveInfo {
     const occupant = this.spaces[startFile][startRank];
-    this.spaces[startFile][startRank] = '';
-    this.spaces[endFile][endRank] = occupant;
-    return [endOccupant, [[startFile, startRank], [endFile, endRank]]];
+    const endOccupant = this.spaces[endFile][endRank];
+    let special: SpecialMove | undefined;
+    // Check for castling
+    if (occupant && endOccupant) {
+      const [color, piece] = occupant;
+      const [endColor, endPiece] = endOccupant;
+      if (color === endColor && piece === 'king' && endPiece === 'rook') {
+        const kingFile = Math.sign(endFile - startFile) * 2 + startFile;
+        const rookFile = Math.sign(endFile - startFile) + startFile;
+        this.spaces[startFile][startRank] = '';
+        this.spaces[endFile][endRank] = '';
+        this.spaces[kingFile][startRank] = [color, 'king'];
+        this.spaces[rookFile][startRank] = [color, 'rook'];
+        special = ['castling'];
+      }
+    }
+    // Check for en passant
+    if (occupant) {
+      const [color, piece] = occupant;
+      if (piece === 'pawn' && endRank !== startRank) {
+        if (this.mostRecentMove) {
+          const [_, [[recentStartFile, recentStartRank],
+            [recentEndFile, recentEndRank]]] = this.mostRecentMove;
+          const recentOccupant = this.spaces[recentEndFile][recentEndRank];
+          if (recentOccupant) {
+            const [recentColor, recentPiece] = recentOccupant;
+            if (recentPiece === 'pawn' &&
+                Math.abs(recentEndRank - recentStartRank) === 2 &&
+                coordEq([endFile, endRank],
+                  [recentEndFile, (recentEndRank + recentStartRank) / 2])) {
+              this.spaces[startFile][startRank] = '';
+              this.spaces[endFile][endRank] = occupant;
+              this.spaces[recentEndFile][recentEndRank] = '';
+              special = ['enpassant'];
+            }
+          }
+        }
+      }
+    }
+    // TODO promotion
+    if (!special) {
+      this.spaces[startFile][startRank] = '';
+      this.spaces[endFile][endRank] = occupant;
+    }
+    const info: MoveInfo =
+      [endOccupant, [[startFile, startRank], [endFile, endRank]], special];
+    if (!untrack) {
+      this.checkCastle([startFile, startRank]);
+      this.checkCastle([endFile, endRank]);
+      this.mostRecentMove = info;
+    }
+    return info;
   }
 
-  public undoMove(info: MoveInfo) {
+  public undoMove(currentInfo: MoveInfo) {
     const [endOccupant,
       [[startFile, startRank], [endFile, endRank]],
-      specialMove] = info;
+      specialMove] = currentInfo;
     const occupant = this.spaces[endFile][endRank];
-    this.spaces[startFile][startRank] = occupant;
-    this.spaces[endFile][endRank] = endOccupant;
+    if (specialMove) {
+      const special = specialMove[0];
+      switch (special) {
+        case 'castling':
+          const kingFile = Math.sign(endFile - startFile) * 2 + startFile;
+          const rookFile = Math.sign(endFile - startFile) + startFile;
+          const kingOccupant = this.spaces[kingFile][startRank];
+          if (!kingOccupant) {
+            throw new Error('King is not at expected spot after castling!');
+          }
+          const [kingColor, kingPiece] = kingOccupant;
+          this.spaces[startFile][startRank] = [kingColor, 'king'];
+          this.spaces[endFile][endRank] = [kingColor, 'rook'];
+          this.spaces[kingFile][startRank] = '';
+          this.spaces[rookFile][startRank] = '';
+          break;
+        case 'enpassant':
+          // occupant is pawn
+          this.spaces[startFile][startRank] = occupant;
+          this.spaces[endFile][endRank] = endOccupant;
+          const prevInfo = this.mostRecentMove!;
+          const [prevFile, prevRank] = prevInfo[1][1];
+          if (occupant) {
+            const [color, piece] = occupant;
+            this.spaces[prevFile][prevRank] = [opponent(color), 'pawn'];
+          }
+        // TODO promotion
+      }
+    }
+    else {
+      this.spaces[startFile][startRank] = occupant;
+      this.spaces[endFile][endRank] = endOccupant;
+    }
   }
 
   public getAllValidMoves(player: Color,
@@ -129,6 +214,24 @@ export default class Board {
               moves.push([diagonal]);
             }
           }
+          // Check en passant
+          else {
+            if (this.mostRecentMove) {
+              const [_, [[recentStartFile, recentStartRank],
+                [recentEndFile, recentEndRank]]] = this.mostRecentMove;
+              const recentOccupant = this.spaces[recentEndFile][recentEndRank];
+              if (recentOccupant) {
+                const [recentColor, recentPiece] = recentOccupant;
+                const [endFile, endRank] = diagonal;
+                if (recentPiece === 'pawn' &&
+                    Math.abs(recentEndRank - recentStartRank) === 2 &&
+                    coordEq([endFile, endRank],
+                      [recentEndFile, (recentEndRank + recentStartRank) / 2])) {
+                  moves.push([diagonal]);
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -163,9 +266,61 @@ export default class Board {
         }
       }
     }
-    // TODO Check for castling condition
-    // Make sure move does not lead to check
+    // When ignoring checking, don't need to worry about castle, because it can
+    // never capture anything
     if (!ignoreChecking) {
+      // Check for castling
+      if (piece === 'king') {
+        // Make sure neither king nor rook have moved
+        let untrackIndex: number;
+        if (color === 'white') {
+          untrackIndex = 0;
+        }
+        else {
+          untrackIndex = 1;
+        }
+        // Check file a rook
+        if (this.canCastle[untrackIndex][0]) {
+          let found = false;
+          // Check intermediate empty space
+          for (let i = 1; i <= 3; i++) {
+            const tempOccupant = this.spaces[i][rank];
+            if (tempOccupant) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            // Check not in check
+            if (!this.isInCheck(color) &&
+                !this.hypotheticalIsInCheck(color, coord, [3, rank]) &&
+                !this.hypotheticalIsInCheck(color, coord, [2, rank])) {
+              indivMoves.push([0, rank]);
+            }
+          }
+        }
+        // Check file h rook
+        if (this.canCastle[untrackIndex][1]) {
+          let found = false;
+          // Check intermediate empty space
+          for (let i = 5; i <= 6; i++) {
+            const tempOccupant = this.spaces[i][rank];
+            if (tempOccupant) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            // Check not in check
+            if (!this.isInCheck(color) &&
+                !this.hypotheticalIsInCheck(color, coord, [5, rank]) &&
+                !this.hypotheticalIsInCheck(color, coord, [6, rank])) {
+              indivMoves.push([7, rank]);
+            }
+          }
+        }
+      }
+      // When not ignoring checking, make sure move does not lead to check
       indivMoves = indivMoves.filter((move: Coordinate) => {
         return !this.hypotheticalIsInCheck(color, coord, move);
       });
@@ -209,10 +364,42 @@ export default class Board {
 
   private hypotheticalIsInCheck(defendingPlayer: Color, start: Coordinate,
       end: Coordinate) {
-    const info = this.move(start, end);
+    const info = this.move(start, end, true);
     const inCheck = this.isInCheck(defendingPlayer);
     this.undoMove(info);
     return inCheck;
+  }
+
+  private checkCastle([file, rank]: Coordinate) {
+    // Check if moving piece is rook or king to prevent future castling
+    const occupant = this.spaces[file][rank];
+    if (occupant) {
+      const [color, piece] = occupant;
+      let untrackIndex: number;
+      let rookRank: number;
+      if (color === 'white') {
+        untrackIndex = 0;
+        rookRank = 0;
+      }
+      else {
+        untrackIndex = 1;
+        rookRank = 7;
+      }
+      // King moved, can't castle anymore
+      if (piece === 'king') {
+        this.canCastle[untrackIndex][0] = 0;
+        this.canCastle[untrackIndex][1] = 0;
+      }
+      else if (piece === 'rook') {
+        // Find out which rook
+        if (coordEq([file, rank], [0, rookRank])) {
+          this.canCastle[untrackIndex][0] = 0;
+        }
+        else if (coordEq([file, rank], [7, rookRank])) {
+          this.canCastle[untrackIndex][1] = 0;
+        }
+      }
+    }
   }
 }
 

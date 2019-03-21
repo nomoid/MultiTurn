@@ -2,7 +2,7 @@ export type Piece = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 export type Color = 'black' | 'white';
 export type Space = [Color, Piece] | '';
 export type Coordinate = [number, number];
-export type SpecialMove = 'castling' | 'enpassant' | 'promotion';
+export type SpecialMove = ['castling'] | ['enpassant'] | ['promotion', Piece];
 
 // Returns a 2D array to deal with blocking
 // Essentially, if any move in a subarray is unreachable, all further moves in
