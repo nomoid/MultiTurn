@@ -127,10 +127,10 @@ export function numToColor(num: number): Color {
 
 export function opponent(color: Color): Color {
   if (color === 'white') {
-    return 'white';
+    return 'black';
   }
   else {
-    return 'black';
+    return 'white';
   }
 }
 

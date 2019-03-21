@@ -37,7 +37,7 @@ function convertToSymbol(space: Space) {
         text += 'R';
         break;
       case 'knight':
-        text += 'K';
+        text += 'N';
         break;
       case 'bishop':
         text += 'B';
