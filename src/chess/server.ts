@@ -28,9 +28,8 @@ function main() {
     typePath: './src/chess/game.ts',
     cacheTypes: true
   }, io);
-  const state = new Board();
   const gameServer = new Server<Remote, Board>(
-    getRunner(state), Remote, state, options);
+    getRunner(), Remote, Board, options);
   gameServer.start().then(() => {
     log.info('Closing server.');
     server.close();

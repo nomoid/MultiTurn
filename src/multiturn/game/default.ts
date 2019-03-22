@@ -37,7 +37,8 @@ export function defaultOptions<R, T>(io?: SIOServer): ServerOptions<R, T> {
     standardTurns: true,
     cacheTypes: false,
     serializer: defaultSerializer('~'),
-    deserializer: defaultDeserializer('~')
+    deserializer: defaultDeserializer('~'),
+    fullCallback: () => Promise.resolve()
   };
   return def;
 }

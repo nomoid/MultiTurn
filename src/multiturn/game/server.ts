@@ -13,27 +13,29 @@ const gameOverId = '_gameOver';
 export default class Server<R, T> {
 
   public readonly maxPlayers: number;
+  public readonly state: T;
 
   private syncLayer: ServerSyncLayer;
-  private state: ServerStateManager<R, T>;
+  private stateManager: ServerStateManager<R, T>;
   private started: boolean;
   private standardTurns: boolean;
 
   public constructor(
     private mainLoop: (server: Server<R, T>) => Promise<void>,
-    remoteGenerator: new () => R,
-    state: T,
-    options: ServerOptions<R, T>
+    private remoteGenerator: new () => R,
+    private stateGenerator: new () => T,
+    private options: ServerOptions<R, T>
   ) {
+    this.state = new stateGenerator();
     this.maxPlayers = options.maxPlayers;
     this.standardTurns = options.standardTurns;
     this.started = false;
     this.syncLayer = options.syncLayer;
-    this.state = new ServerStateManager(this, options.syncLayer, state,
-      options.stateMask, remoteGenerator, options.maxPlayers,
+    this.stateManager = new ServerStateManager(this, options.syncLayer,
+      this.state, options.stateMask, remoteGenerator, options.maxPlayers,
       options.typePath, options.cacheTypes,
       options.serializer, options.deserializer);
-    this.syncLayer.state = this.state;
+    this.syncLayer.state = this.stateManager;
   }
 
   public async start() {
@@ -49,22 +51,28 @@ export default class Server<R, T> {
     log.info('Waiting for players...');
 
     // Wait until enough players have joined
-    await this.state.waitForPlayers();
+    await this.stateManager.waitForPlayers();
 
+    // Make a new server when this one is full
+    let fullPromise: Promise<void> | undefined;
+    const full = this.options.fullCallback;
+    if (full) {
+      fullPromise = full();
+    }
     log.info('Starting main loop.');
 
-    this.state.turn = 0;
+    this.stateManager.turn = 0;
     // Run main loop forever
-    while (!this.state.gameOver()) {
+    while (!this.stateManager.gameOver()) {
       try {
-        log.debug(`Starting turn ${this.state.turn}`);
+        log.debug(`Starting turn ${this.stateManager.turn}`);
         await this.mainLoop.call(this.mainLoop, this);
         if (this.standardTurns) {
-          if (this.state.turnIncrementDisabled) {
-            this.state.turnIncrementDisabled = false;
+          if (this.stateManager.turnIncrementDisabled) {
+            this.stateManager.turnIncrementDisabled = false;
           }
-          this.state.turn += 1;
-          this.state.turn %= this.maxPlayers;
+          this.stateManager.turn += 1;
+          this.stateManager.turn %= this.maxPlayers;
         }
       }
       catch (err) {
@@ -72,20 +80,24 @@ export default class Server<R, T> {
         log.error(err);
       }
     }
+
+    if (fullPromise) {
+      await fullPromise;
+    }
   }
 
   // Array index will be off by turn number by 1
   public getPlayers(): Array<Player<R>> {
-    return this.state.getPlayers();
+    return this.stateManager.getPlayers();
   }
 
   // Get the current player
   public getCurrentPlayer(): Player<R> {
-    return this.state.getCurrentPlayer();
+    return this.stateManager.getCurrentPlayer();
   }
 
   public getTurn() {
-    return this.state.getTurn();
+    return this.stateManager.getTurn();
   }
 
   public getMaxPlayers(): number {
@@ -93,10 +105,10 @@ export default class Server<R, T> {
   }
 
   public gameOver(message: string) {
-    if (this.state.gameOver()) {
+    if (this.stateManager.gameOver()) {
       throw new Error('Cannot call game over more than once!');
     }
-    this.state.endGame(message);
+    this.stateManager.endGame(message);
     this.syncLayer.update();
   }
 }
@@ -112,4 +124,5 @@ export interface ServerOptions<R, T> {
   serializer: Serializer;
   deserializer: Deserializer;
   cacheTypes: boolean;
+  fullCallback: () => Promise<void>;
 }

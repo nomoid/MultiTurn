@@ -6,8 +6,9 @@ import { Color, Coordinate, coordToString, numToColor, opponent } from './rules'
 
 import * as log from 'loglevel';
 
-export default function getRunner(board: Board) {
+export default function getRunner() {
   return async (game: Server<Remote, Board>) => {
+    const board = game.state;
     const player = game.getCurrentPlayer();
     const color = numToColor(player.num);
     if (board.getAllValidMoves(color).length === 0) {

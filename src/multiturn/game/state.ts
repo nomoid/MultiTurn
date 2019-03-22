@@ -35,6 +35,10 @@ export default class ServerStateManager<R, T> implements StateManager {
   }
 
   public onNewUser(e: SyncUserEvent): void {
+    if (this.users.length >= this.server.maxPlayers) {
+      e.reject();
+      return;
+    }
     const user = e.accept();
     this.addUser(user);
   }
