@@ -67,7 +67,7 @@ function attachHandler() {
     }
   }
   remote.addStateListener((state: Board) => {
-    boardCache.clearCache();
+    state.getCache().clearCache();
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
         buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);

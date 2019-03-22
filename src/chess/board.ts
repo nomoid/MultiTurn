@@ -1,14 +1,14 @@
 import * as logger from 'loglevel';
+import { generateUID } from '../multiturn/helper/uid';
 import BoardCache from './cache';
 import { Coordinate, setupDefault, Space, potentialMoves, Color, frontSpace,
   isValidSpace, diagonalSpaces, coordEq, coordToString, opponent,
-  Piece,
-  SpecialMove} from './rules';
+  Piece, SpecialMove} from './rules';
 
 const log = logger.getLogger('Chess');
 log.setLevel(logger.levels.INFO);
 
-export const boardCache: BoardCache = new BoardCache();
+export const boardCache: Map<string, BoardCache> = new Map();
 
 export default class Board {
 
@@ -20,8 +20,10 @@ export default class Board {
   // If rook moved, corresponding array index set to 0 (a rook 0, h rook 1)
   // If king moved, both array indices set to 0
   public canCastle: [[number, number], [number, number]] = [[1, 1], [1, 1]];
+  public boardId: string;
 
   public constructor() {
+    this.boardId = generateUID();
     setupDefault(this.spaces);
   }
 
@@ -400,6 +402,13 @@ export default class Board {
     return coords;
   }
 
+  public getCache(): BoardCache {
+    if (!boardCache.has(this.boardId)) {
+      boardCache.set(this.boardId, new BoardCache());
+    }
+    return boardCache.get(this.boardId)!;
+  }
+
   private hypotheticalIsInCheck(defendingPlayer: Color, start: Coordinate,
       end: Coordinate) {
     this.getCache().enabled = false;
@@ -440,10 +449,6 @@ export default class Board {
         }
       }
     }
-  }
-
-  private getCache(): BoardCache {
-    return boardCache;
   }
 }
 
