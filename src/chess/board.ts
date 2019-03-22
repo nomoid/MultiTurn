@@ -1,4 +1,5 @@
 import * as logger from 'loglevel';
+import BoardCache from './cache';
 import { Coordinate, setupDefault, Space, potentialMoves, Color, frontSpace,
   isValidSpace, diagonalSpaces, coordEq, coordToString, opponent,
   Piece,
@@ -6,6 +7,8 @@ import { Coordinate, setupDefault, Space, potentialMoves, Color, frontSpace,
 
 const log = logger.getLogger('Chess');
 log.setLevel(logger.levels.INFO);
+
+export const boardCache: BoardCache = new BoardCache();
 
 export default class Board {
 
@@ -57,6 +60,9 @@ export default class Board {
     }
     // Make the move
     this.move(start, end);
+    if (this.getCache().enabled) {
+      this.getCache().clearCache();
+    }
     // promotion choice
     log.debug('Move succeeded');
     return true;
@@ -207,6 +213,17 @@ export default class Board {
       log.debug('No valid moves because the space was not occupied');
       return [];
     }
+    // Check in cache to see if it can be found
+    const cache = this.getCache();
+    if (cache.enabled) {
+      const coordString = coordToString(coord);
+      const cached = cache.validMoveCache.get(coordString);
+      if (cached) {
+        log.debug('Found valid moves in cache');
+        return cached;
+      }
+    }
+
     const [color, piece] = occupant;
     const moves: Coordinate[][] = [];
     // Get the set of potential moves based on piece
@@ -342,6 +359,10 @@ export default class Board {
         return !this.hypotheticalIsInCheck(color, coord, move);
       });
     }
+    if (cache.enabled) {
+      const coordString = coordToString(coord);
+      cache.validMoveCache.set(coordString, indivMoves);
+    }
     return indivMoves;
   }
 
@@ -381,9 +402,11 @@ export default class Board {
 
   private hypotheticalIsInCheck(defendingPlayer: Color, start: Coordinate,
       end: Coordinate) {
+    this.getCache().enabled = false;
     const info = this.move(start, end, true);
     const inCheck = this.isInCheck(defendingPlayer);
     this.undoMove(info);
+    this.getCache().enabled = true;
     return inCheck;
   }
 
@@ -417,6 +440,10 @@ export default class Board {
         }
       }
     }
+  }
+
+  private getCache(): BoardCache {
+    return boardCache;
   }
 }
 

@@ -8,7 +8,7 @@ log.setLevel(log.levels.DEBUG);
 import * as sio from 'socket.io-client';
 import '../../public/styles.css';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
-import Board from './board';
+import Board, { boardCache } from './board';
 import Move from './move';
 import Remote from './remote';
 import { Space, Coordinate } from './rules';
@@ -67,6 +67,7 @@ function attachHandler() {
     }
   }
   remote.addStateListener((state: Board) => {
+    boardCache.clearCache();
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
         buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
