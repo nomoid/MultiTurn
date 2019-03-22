@@ -10,8 +10,10 @@
     "watch-client": "webpack --watch",
     "build-server": "tsc --p server.tsconfig.json",
     "watch-server": "tsc --watch --p server.tsconfig.json",
-    "server": "node build/chess/server.js"
+    "server": "node build/chess/server.js",
+    "start": "node build/chess/server.js"
   },
+  "main": "build/chess/server.js",
   "author": "Markus Feng",
   "license": "MIT",
   "devDependencies": {
@@ -33,7 +35,6 @@
     "ts-jest": "^23.10.5",
     "ts-loader": "^5.3.3",
     "tslint": "^5.12.0",
-    "typescript": "^3.2.2",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1"
   },
@@ -43,6 +44,7 @@
     "loglevel": "^1.6.1",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^2.2.0",
+    "typescript": "^3.2.2",
     "typescript-json-schema": "^0.34.0"
   },
   "test": "jest"
