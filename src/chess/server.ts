@@ -26,7 +26,7 @@ function main() {
 
   const options = fillDefault({
     typePath: './src/chess/game.ts',
-    cacheTypes: true
+    cacheTypes: true,
   }, io);
   const gameServer = new Server<Remote, Board>(
     getRunner(), Remote, Board, options);

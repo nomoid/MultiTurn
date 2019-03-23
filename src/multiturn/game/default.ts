@@ -1,3 +1,4 @@
+import AuthOverflowMultiplexer from '../auth-mux/overflow';
 import AuthServerNetworkLayer from '../auth-network/server/layer';
 import RepeatServerSyncLayer from '../repeat-sync/server/layer';
 import { defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
@@ -8,7 +9,7 @@ import { ServerSyncLayer } from '../sync/server';
 import Player from './player';
 import { ServerOptions } from './server';
 
-export function defaultSyncLayer(io: SIOServer): ServerSyncLayer {
+export function defaultSyncLayer(io: SIOServer): RepeatServerSyncLayer {
   const netLayer = new SIOServerNetworkLayer(io);
   const authLayer = new AuthServerNetworkLayer(netLayer);
   const stateManager = new UniversalStateManager('');
@@ -52,4 +53,20 @@ export function fillDefault<R, T>(options: Partial<ServerOptions<R, T>>,
       'is not being supplied!');
   }
   return filled;
+}
+
+export function makeDefaultWithRefresh<R, T>(options: Partial<ServerOptions<R, T>>,
+    io: SIOServer, optionCallback: (options: ServerOptions<R, T>) => void):
+    AuthOverflowMultiplexer {
+  const netLayer = new SIOServerNetworkLayer(io);
+  const authMux = new AuthOverflowMultiplexer(netLayer, 2,
+      (authLayer: AuthServerNetworkLayer) => {
+    const stateManager = new UniversalStateManager('');
+    const syncLayer = new RepeatServerSyncLayer(authLayer, stateManager);
+    const def = defaultOptions();
+    def.syncLayer = syncLayer;
+    const filled = {...def, ...options};
+    optionCallback(filled);
+  });
+  return authMux;
 }
