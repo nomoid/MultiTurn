@@ -9,7 +9,11 @@
   <title>Chess - MultiTurn</title>
 </head>
 <body>
-  <div>
+  <div id="loading">
+    <div>Loading...</div>
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+  <div id="main-content" hidden>
     <div id="room-output"></div>
     <div id="header-output"></div>
     <br />
@@ -93,12 +97,12 @@
       <button name="g1" class="chess-button">&nbsp;</button>
       <button name="h1" class="chess-button">&nbsp;</button>
     </div>
-  </div>
-  <br />
-  <div>
-    <input type="checkbox" id="invert-board" checked>Invert Board on Black</input>
-    <input type="checkbox" id="highlight-moves" checked>Highlight Moves</input>
-    <button id="leave-button" hidden>Leave Game</button>
+    <br />
+    <div>
+      <input type="checkbox" id="invert-board" checked>Invert Board on Black</input>
+      <input type="checkbox" id="highlight-moves" checked>Highlight Moves</input>
+      <button id="leave-button" hidden>Leave Game</button>
+    </div>
   </div>
   <script src="./bundle.js"></script>
 </body>

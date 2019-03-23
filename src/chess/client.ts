@@ -57,7 +57,11 @@ function attachHandler() {
     updateHighlighting(highlightMoves.checked);
   };
   const roomOutput = document.getElementById('room-output')!;
+  const loading = document.getElementById('loading')!;
+  const content = document.getElementById('main-content')!;
   const updateState = (state: Board) => {
+    loading.hidden = true;
+    content.hidden = false;
     const roomCode = parseInt(remote.getState().boardId, 16).toString();
     const roomCodeDisplay = roomCode.substring(
       0, Math.min(4, roomCode.length));
