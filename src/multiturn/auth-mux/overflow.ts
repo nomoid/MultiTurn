@@ -11,6 +11,7 @@ const log = logger.getLogger('AuthMux');
 const registerId = '_register';
 const loginId = '_login';
 const refreshId = '_refresh';
+const loginFailId = '_login_fail';
 const refreshFailId = '_refresh_fail';
 
 export default class AuthOverflowMultiplexer {
@@ -79,7 +80,7 @@ export default class AuthOverflowMultiplexer {
       layer.login(socket, e);
     }
     else {
-      this.register(socket, e);
+      e.respond(loginFailId);
     }
   }
 

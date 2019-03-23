@@ -3,13 +3,13 @@ import { ConnectionEvent, Socket } from './network';
 
 export default class AbstractConnectionEvent implements ConnectionEvent {
 
-  public constructor(private socket: Socket) {
+  public constructor(private socket: Socket, private ignoreOuter?: boolean) {
 
   }
 
   public accept(): Socket {
     const socket = this.socket as ARSocket;
-    if (socket.accept) {
+    if (!this.ignoreOuter && socket.accept) {
       socket.accept();
     }
     return this.socket;
@@ -17,7 +17,7 @@ export default class AbstractConnectionEvent implements ConnectionEvent {
 
   public reject(): void {
     const socket = this.socket as ARSocket;
-    if (socket.reject) {
+    if (!this.ignoreOuter && socket.reject) {
       socket.reject();
     }
     else {

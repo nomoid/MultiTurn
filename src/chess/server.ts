@@ -3,12 +3,12 @@ import '../multiturn/helper/loglevel-prefix-name';
 import * as log from 'loglevel';
 
 // Set the proper level before all of the other imports
-log.setLevel(log.levels.WARN);
+log.setLevel(log.levels.DEBUG);
 
 import * as express from 'express';
 import * as http from 'http';
 import * as socketio from 'socket.io';
-import { fillDefault } from '../multiturn/game/default';
+import { fillDefault, makeDefaultWithRefresh } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
 import Board from './board';
 import getRunner from './game';
@@ -24,16 +24,18 @@ function main() {
 
   const io = socketio(server);
 
-  const options = fillDefault({
+  const mux = makeDefaultWithRefresh({
     typePath: './src/chess/game.ts',
     cacheTypes: true,
-  }, io);
-  const gameServer = new Server<Remote, Board>(
-    getRunner(), Remote, Board, options);
-  gameServer.start().then(() => {
-    log.info('Closing server.');
-    server.close();
+  }, io, (options) => {
+    const gameServer = new Server<Remote, Board>(
+      getRunner(), Remote, Board, options);
+    gameServer.start().then(() => {
+      log.info('Closing server.');
+      server.close();
+    });
   });
+  mux.listen();
 
   const port = process.env.PORT || 8080;
   server.listen(port, () => {

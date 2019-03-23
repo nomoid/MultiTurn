@@ -25,7 +25,7 @@ export default class OverflowNetworkLayer implements NetworkLayer{
   public fireEvent(socket: Socket) {
     if (this.listening) {
       for (const listener of this.listeners) {
-        listener(new AbstractConnectionEvent(socket));
+        listener(new AbstractConnectionEvent(socket, true));
       }
     }
   }
