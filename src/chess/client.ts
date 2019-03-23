@@ -22,6 +22,7 @@ let highlighted: Coordinate | undefined;
 let inverted = false;
 
 function main() {
+  preloadImages();
   attachHandler();
   const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote));
   layer.listen();
@@ -156,14 +157,31 @@ function updateHighlighting(toHighlight: boolean) {
   }
 }
 
+function preloadImages() {
+  const colors = ['white', 'black'];
+  const pieces = ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king'];
+  for (const color of colors) {
+    for (const piece of pieces) {
+      const loc = imageLoc(color, piece);
+      const image = new Image();
+      image.src = loc;
+      // Do nothing with the image, but ensure it's already loaded
+    }
+  }
+}
+
 function icon(space: Space) {
   if (!space) {
     return '';
   }
   else {
     const [color, piece] = space;
-    return `url('assets/chess/${color}_${piece}.png')`;
+    return `url('${imageLoc(color, piece)}')`;
   }
+}
+
+function imageLoc(color: string, piece: string) {
+  return `assets/chess/${color}_${piece}.png`;
 }
 
 function convertToSymbol(space: Space) {
