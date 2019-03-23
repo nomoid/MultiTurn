@@ -17,7 +17,9 @@ import { Space, Coordinate } from './rules';
 const io = sio();
 const remote = new Remote();
 
+const buttonArray: HTMLButtonElement[][] = [];
 let highlighted: Coordinate | undefined;
+let inverted = false;
 
 function main() {
   attachHandler();
@@ -25,18 +27,17 @@ function main() {
   layer.listen();
 }
 
+function adj(num: number) {
+  if (inverted) {
+    return 7 - num;
+  }
+  else {
+    return num;
+  }
+}
+
 function attachHandler() {
-  let inverted = false;
-  const adjustForInverted = (num: number) => {
-    if (inverted) {
-      return 7 - num;
-    }
-    else {
-      return num;
-    }
-  };
   const leave = document.getElementById('leave-button') as HTMLButtonElement;
-  const buttonArray: HTMLButtonElement[][] = [];
   const buttons = document.getElementsByClassName('chess-button');
   for (let i = 0; i < 8; i++) {
     buttonArray.push([]);
@@ -44,13 +45,24 @@ function attachHandler() {
       buttonArray[i].push(buttons.item(0) as HTMLButtonElement);
     }
   }
+  const invertBoard = document.getElementById(
+    'invert-board') as HTMLInputElement;
+  invertBoard.onclick = (e) => {
+    updateState(remote.getState());
+    updateHighlighting(highlightMoves.checked);
+  };
+  const highlightMoves = document.getElementById(
+    'highlight-moves') as HTMLInputElement;
+  highlightMoves.onclick = (e) => {
+    updateHighlighting(highlightMoves.checked);
+  };
   const updateState = (state: Board) => {
-    inverted = remote.getColor() === 'black';
+    inverted = invertBoard.checked && remote.getColor() === 'black';
     state.getCache().clearCache();
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        const adjustedX = adjustForInverted(x);
-        const adjustedY = adjustForInverted(y);
+        const adjustedX = adj(x);
+        const adjustedY = adj(y);
         buttonArray[adjustedX][adjustedY].style.backgroundImage =
           icon(state.spaces[x][y]);
       }
@@ -71,14 +83,13 @@ function attachHandler() {
       const constRank = value.charCodeAt(1) - 49;
       buttonArray[constFile][constRank] = button;
       button.onclick = (e) => {
-        const file = adjustForInverted(constFile);
-        const rank = adjustForInverted(constRank);
+        const file = adj(constFile);
+        const rank = adj(constRank);
         if (!remote.isCurrentTurn()) {
           return;
         }
         const coord: Coordinate = [file, rank];
         if (highlighted && remote.isValidMove(highlighted, coord)) {
-          clearHighlighting(buttonArray);
           const [startFile, startRank] = highlighted;
           // Simulate move locally
           const board = remote.getState();
@@ -88,20 +99,11 @@ function attachHandler() {
           // Sends move to remote
           remote.resolveMove(new Move(startFile, startRank, file, rank));
           highlighted = undefined;
+          updateHighlighting(highlightMoves.checked);
         }
         else if (remote.hasOwnPiece(coord)) {
-          clearHighlighting(buttonArray);
           highlighted = coord;
-          button.style.backgroundColor = 'lightblue';
-          // Look for potential moves
-          const moves = remote.getValidMoves(coord);
-          for (const move of moves) {
-            const [moveFile, moveRank] = move;
-            const adjustedFile = adjustForInverted(moveFile);
-            const adjustedRank = adjustForInverted(moveRank);
-            const targetButton = buttonArray[adjustedFile][adjustedRank];
-            targetButton.style.backgroundColor = 'lightgreen';
-          }
+          updateHighlighting(highlightMoves.checked);
         }
       };
     }
@@ -119,10 +121,28 @@ function attachHandler() {
   };
 }
 
-function clearHighlighting(buttonArray: HTMLButtonElement[][]) {
+function clearHighlighting() {
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       buttonArray[i][j].style.backgroundColor = '';
+    }
+  }
+}
+
+function updateHighlighting(toHighlight: boolean) {
+  clearHighlighting();
+  if (highlighted) {
+    const [file, rank] = highlighted;
+    const button = buttonArray[adj(file)][adj(rank)];
+    button.style.backgroundColor = 'lightblue';
+    if (toHighlight) {
+      // Look for potential moves
+      const moves = remote.getValidMoves(highlighted);
+      for (const move of moves) {
+        const [moveFile, moveRank] = move;
+        const targetButton = buttonArray[adj(moveFile)][adj(moveRank)];
+        targetButton.style.backgroundColor = 'lightgreen';
+      }
     }
   }
 }
