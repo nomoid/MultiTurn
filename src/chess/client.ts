@@ -34,6 +34,18 @@ function attachHandler() {
       buttonArray[i].push(buttons.item(0) as HTMLButtonElement);
     }
   }
+  const updateState = (state: Board) => {
+    state.getCache().clearCache();
+    for (let x = 0; x < 8; x++) {
+      for (let y = 0; y < 8; y++) {
+        buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
+      }
+    }
+    const info = remote.getLatestInfo()!;
+    if (info.gameOver) {
+      clearLocalToken();
+    }
+  };
   for (let i = 0; i < buttons.length; i++) {
     const button = buttons.item(i) as HTMLButtonElement;
     if (button) {
@@ -49,6 +61,12 @@ function attachHandler() {
         if (highlighted && remote.isValidMove(highlighted, coord)) {
           clearHighlighting(buttonArray);
           const [startFile, startRank] = highlighted;
+          // Simulate move locally
+          const board = remote.getState();
+          board.tryMove(remote.getColor(),
+            [startFile, startRank], [file, rank]);
+          updateState(board);
+          // Sends move to remote
           remote.resolveMove(new Move(startFile, startRank, file, rank));
           highlighted = undefined;
         }
@@ -67,18 +85,7 @@ function attachHandler() {
       };
     }
   }
-  remote.addStateListener((state: Board) => {
-    state.getCache().clearCache();
-    for (let x = 0; x < 8; x++) {
-      for (let y = 0; y < 8; y++) {
-        buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
-      }
-    }
-    const info = remote.getLatestInfo()!;
-    if (info.gameOver) {
-      clearLocalToken();
-    }
-  });
+  remote.addStateListener(updateState);
   const label = document.getElementById('header-output');
   if (label) {
     remote.addMessageListener((message: string) => {
