@@ -122,7 +122,6 @@ export default class AuthOverflowMultiplexer {
     this.userCache.clear();
     for (const [layer, net] of this.layers) {
       const users = layer.getUsers();
-      log.warn(JSON.stringify(users.size));
       for (const userId of users.keys()) {
         this.userCache.set(userId, [layer, net]);
       }
