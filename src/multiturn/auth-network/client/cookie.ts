@@ -22,6 +22,11 @@ export function defaultSetLocalToken(token: string): void{
   log.info(`Setting local token ${token}`);
 }
 
+export function clearLocalToken() {
+  Cookie.set(authTokenId, '');
+  log.info('Clearing local token');
+}
+
 export default class AuthClientCookieTokenHandler implements TokenHandler {
 
   public getLocalToken(): string | undefined {

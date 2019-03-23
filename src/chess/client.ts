@@ -7,6 +7,7 @@ log.setLevel(log.levels.DEBUG);
 
 import * as sio from 'socket.io-client';
 import '../../public/styles.css';
+import { clearLocalToken } from '../multiturn/auth-network/client/cookie';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import Board, { boardCache } from './board';
 import Move from './move';
@@ -72,6 +73,10 @@ function attachHandler() {
       for (let y = 0; y < 8; y++) {
         buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
       }
+    }
+    const info = remote.getLatestInfo()!;
+    if (info.gameOver) {
+      clearLocalToken();
     }
   });
   const label = document.getElementById('header-output');

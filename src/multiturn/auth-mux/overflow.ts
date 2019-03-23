@@ -64,7 +64,8 @@ export default class AuthOverflowMultiplexer {
     if (overflow) {
       // Make a new auth layer
       const net = new OverflowNetworkLayer(this);
-      layer = new AuthServerNetworkLayer(net);
+      layer = new AuthServerNetworkLayer(net,
+        this.serializer, this.deserializer);
       this.layerRunner(layer);
       this.layers.push([layer, net]);
       net.fireEvent(socket);
@@ -74,7 +75,7 @@ export default class AuthOverflowMultiplexer {
   }
 
   private login(socket: Socket, e: RequestEvent) {
-    const info = this.userCache.get(e.key);
+    const info = this.userCache.get(e.message);
     if (info) {
       const [layer, net] = info;
       layer.login(socket, e);
@@ -85,7 +86,7 @@ export default class AuthOverflowMultiplexer {
   }
 
   private refresh(socket: Socket, e: RequestEvent) {
-    const info = this.userCache.get(e.key);
+    const info = this.userCache.get(e.message);
     if (info) {
       const [layer, net] = info;
       layer.refresh(socket, e);
@@ -120,7 +121,9 @@ export default class AuthOverflowMultiplexer {
   private refreshCache() {
     this.userCache.clear();
     for (const [layer, net] of this.layers) {
-      for (const userId of layer.getUsers().keys()) {
+      const users = layer.getUsers();
+      log.warn(JSON.stringify(users.size));
+      for (const userId of users.keys()) {
         this.userCache.set(userId, [layer, net]);
       }
     }
