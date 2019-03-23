@@ -11,6 +11,9 @@ developing the game, not the endge. It is intended to be used with some other
 game engine that deals with the other aspects of creating a game, such as game
 logic and graphics.
 
+Check out the [Online Chess Demo](https://chess.nomoid.com/) (requires more
+than one browser/computer to play)!
+
 See the [specification](docs/specs.pdf) document for more details.
 
 ## Installation
@@ -83,6 +86,8 @@ async function runner(game: Server<Remote, Board>): Promise<void> {
   directory.
 
 For the complete Chess sample, see [here](src/chess).
+
+For the online Chess demo, see [here](https://chess.nomoid.com/).
 
 ## Sample game: Tic-Tac-Toe
 
