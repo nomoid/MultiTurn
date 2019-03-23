@@ -56,7 +56,12 @@ function attachHandler() {
   highlightMoves.onclick = (e) => {
     updateHighlighting(highlightMoves.checked);
   };
+  const roomOutput = document.getElementById('room-output')!;
   const updateState = (state: Board) => {
+    const roomCode = parseInt(remote.getState().boardId, 16).toString();
+    const roomCodeDisplay = roomCode.substring(
+      0, Math.min(4, roomCode.length));
+    roomOutput.innerHTML = `Room ${roomCodeDisplay}`;
     inverted = invertBoard.checked && remote.getColor() === 'black';
     state.getCache().clearCache();
     for (let x = 0; x < 8; x++) {
