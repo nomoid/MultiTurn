@@ -26,6 +26,15 @@ function main() {
 }
 
 function attachHandler() {
+  let inverted = false;
+  const adjustForInverted = (num: number) => {
+    if (inverted) {
+      return 7 - num;
+    }
+    else {
+      return num;
+    }
+  };
   const leave = document.getElementById('leave-button') as HTMLButtonElement;
   const buttonArray: HTMLButtonElement[][] = [];
   const buttons = document.getElementsByClassName('chess-button');
@@ -36,10 +45,14 @@ function attachHandler() {
     }
   }
   const updateState = (state: Board) => {
+    inverted = remote.getColor() === 'black';
     state.getCache().clearCache();
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        buttonArray[x][y].style.backgroundImage = icon(state.spaces[x][y]);
+        const adjustedX = adjustForInverted(x);
+        const adjustedY = adjustForInverted(y);
+        buttonArray[adjustedX][adjustedY].style.backgroundImage =
+          icon(state.spaces[x][y]);
       }
     }
     const info = remote.getLatestInfo()!;
@@ -54,10 +67,12 @@ function attachHandler() {
     const button = buttons.item(i) as HTMLButtonElement;
     if (button) {
       const value = button.name;
-      const file = value.charCodeAt(0) - 97;
-      const rank = value.charCodeAt(1) - 49;
-      buttonArray[file][rank] = button;
+      const constFile = value.charCodeAt(0) - 97;
+      const constRank = value.charCodeAt(1) - 49;
+      buttonArray[constFile][constRank] = button;
       button.onclick = (e) => {
+        const file = adjustForInverted(constFile);
+        const rank = adjustForInverted(constRank);
         if (!remote.isCurrentTurn()) {
           return;
         }
@@ -82,7 +97,9 @@ function attachHandler() {
           const moves = remote.getValidMoves(coord);
           for (const move of moves) {
             const [moveFile, moveRank] = move;
-            const targetButton = buttonArray[moveFile][moveRank];
+            const adjustedFile = adjustForInverted(moveFile);
+            const adjustedRank = adjustForInverted(moveRank);
+            const targetButton = buttonArray[adjustedFile][adjustedRank];
             targetButton.style.backgroundColor = 'lightgreen';
           }
         }
