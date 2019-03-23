@@ -26,6 +26,7 @@ function main() {
 }
 
 function attachHandler() {
+  const leave = document.getElementById('leave-button') as HTMLButtonElement;
   const buttonArray: HTMLButtonElement[][] = [];
   const buttons = document.getElementsByClassName('chess-button');
   for (let i = 0; i < 8; i++) {
@@ -44,6 +45,9 @@ function attachHandler() {
     const info = remote.getLatestInfo()!;
     if (info.gameOver) {
       clearLocalToken();
+    }
+    if (info.turn > 0) {
+      leave.hidden = false;
     }
   };
   for (let i = 0; i < buttons.length; i++) {
@@ -92,6 +96,10 @@ function attachHandler() {
       label.innerHTML = message;
     });
   }
+  leave.onclick = () => {
+    clearLocalToken();
+    location.reload();
+  };
 }
 
 function clearHighlighting(buttonArray: HTMLButtonElement[][]) {
