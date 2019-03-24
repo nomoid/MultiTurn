@@ -129,12 +129,34 @@ function attachHandler() {
     clearLocalToken();
     location.reload();
   };
+  clearHighlighting();
+}
+
+function selectColorForSpace(i: number, j: number) {
+  return 'gray';
+}
+
+function highlightColorForSpace(i: number, j: number) {
+  return colorForSpace('lightskyblue', '#659abb', i, j);
+}
+
+function backgroundColorForSpace(i: number, j: number) {
+  return colorForSpace('#ffce9e', '#d18b47', i, j);
+}
+
+function colorForSpace(light: string, dark: string, i: number, j: number) {
+  if ((i + j) % 2 === 0) {
+    return dark;
+  }
+  else {
+    return light;
+  }
 }
 
 function clearHighlighting() {
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      buttonArray[i][j].style.backgroundColor = '';
+      buttonArray[i][j].style.backgroundColor = backgroundColorForSpace(i, j);
     }
   }
 }
@@ -144,14 +166,15 @@ function updateHighlighting(toHighlight: boolean) {
   if (highlighted) {
     const [file, rank] = highlighted;
     const button = buttonArray[adj(file)][adj(rank)];
-    button.style.backgroundColor = 'lightblue';
+    button.style.backgroundColor = selectColorForSpace(file, rank);
     if (toHighlight) {
       // Look for potential moves
       const moves = remote.getValidMoves(highlighted);
       for (const move of moves) {
         const [moveFile, moveRank] = move;
         const targetButton = buttonArray[adj(moveFile)][adj(moveRank)];
-        targetButton.style.backgroundColor = 'lightgreen';
+        targetButton.style.backgroundColor =
+          highlightColorForSpace(moveFile, moveRank);
       }
     }
   }
