@@ -45,9 +45,12 @@ The server can now be accessed on http://localhost:8080.
 ## Sample game: Chess
 
 The turn-based multiplayer networking logic for the game is abstracted away by
-library functions, with the help of `Promises`, `async`, and `await`.
+library functions, with the help of `Promises`, `async`, and `await`. The
+following excerpt demonstrates usage of the MultiTurn framework to eliminate
+networking code:
 ```typescript
-async function runner(game: Server<Remote, Board>): Promise<void> {
+async function runner(game: Server<Remote, Board>) {
+  const board = game.getState();
   const player = game.getCurrentPlayer();
   const color = numToColor(player.num);
   if (board.getAllValidMoves(color).length === 0) {
@@ -79,11 +82,12 @@ async function runner(game: Server<Remote, Board>): Promise<void> {
   [remote](src/chess/remote.ts) class.
 - Most of the logic for the Chess game itself is in the
   [board](src/chess/board.ts) class and the [rules](src/chess/rules.ts) class.
+- The cache for storing previously computed moves is found in the
+  [cache](src/chess/cache.ts) class.
 - The client user interface is spread among the HTML/CSS files in the
   [public](public) directory and the [client](src/chess/client.ts) class.
 - The serialized move object is found in the [move](src/chess/move.ts) class.
-- The remainder of the library is found in the [multiturn](src/multiturn)
-  directory.
+- The MultiTurn framework is found in the [multiturn](src/multiturn) directory.
 
 For the complete Chess sample, see [here](src/chess).
 
@@ -91,7 +95,9 @@ For the online Chess demo, see [here](https://chess.nomoid.com/).
 
 ## Sample game: Tic-Tac-Toe
 
-Tic-tac-toe involves similar multiplayer logic to the chess example above.
+Tic-tac-toe involves similar multiplayer logic to the chess example above. The
+following excerpt demonstrates usage of the MultiTurn framework to eliminate
+networking code:
 ```typescript
 async function runner(game: Server<Remote, Board>): Promise<void> {
   const player = game.getCurrentPlayer();

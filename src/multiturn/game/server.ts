@@ -13,8 +13,8 @@ const gameOverId = '_gameOver';
 export default class Server<R, T> {
 
   public readonly maxPlayers: number;
-  public readonly state: T;
 
+  private state: T;
   private syncLayer: ServerSyncLayer;
   private stateManager: ServerStateManager<R, T>;
   private started: boolean;
@@ -102,6 +102,10 @@ export default class Server<R, T> {
 
   public getMaxPlayers(): number {
     return this.maxPlayers;
+  }
+
+  public getState() {
+    return this.state;
   }
 
   public gameOver(message: string) {

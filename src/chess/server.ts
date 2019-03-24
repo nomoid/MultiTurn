@@ -11,7 +11,7 @@ import * as socketio from 'socket.io';
 import { fillDefault, makeDefaultWithRefresh } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
 import Board from './board';
-import getRunner from './game';
+import runner from './game';
 import Remote from './remote';
 
 function main() {
@@ -29,7 +29,7 @@ function main() {
     cacheTypes: true,
   }, io, (options) => {
     const gameServer = new Server<Remote, Board>(
-      getRunner(), Remote, Board, options);
+      runner, Remote, Board, options);
     gameServer.start().then(() => {
       log.info('Closing server.');
       server.close();
