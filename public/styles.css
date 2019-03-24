@@ -1,12 +1,29 @@
 body {
-  font-family: Sans-Serif
+  font-family: Sans-Serif;
+}
+
+.chess {
+  margin: 0px;
+  vertical-align: top;
+  line-height: 0px;
 }
 
 .chess-button {
-  height: 50px;
-  width: 50px;
-  font-size: 20pt;
+  height: 60px;
+  width: 60px;
+  font-size: 0pt;
+  -webkit-appearance: none;
+  border-radius: 0;
+  background-size: 100%;
 }
+
+@media handheld, only screen and (max-width: 640px) {
+  .chess-button {
+    height: 40px;
+    width: 40px;
+  }
+}
+
 
 .lds-ring {
   display: inline-block;
