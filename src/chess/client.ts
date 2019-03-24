@@ -50,12 +50,17 @@ function attachHandler() {
     'invert-board') as HTMLInputElement;
   invertBoard.onclick = (e) => {
     updateState(remote.getState());
-    updateHighlighting(highlightMoves.checked);
+    updateHighlighting(highlightMoves.checked, chessboardColors.checked);
   };
   const highlightMoves = document.getElementById(
     'highlight-moves') as HTMLInputElement;
   highlightMoves.onclick = (e) => {
-    updateHighlighting(highlightMoves.checked);
+    updateHighlighting(highlightMoves.checked, chessboardColors.checked);
+  };
+  const chessboardColors = document.getElementById(
+    'chessboard-colors') as HTMLInputElement;
+  chessboardColors.onclick = (e) => {
+    updateHighlighting(highlightMoves.checked, chessboardColors.checked);
   };
   const roomOutput = document.getElementById('room-output')!;
   const loading = document.getElementById('loading')!;
@@ -109,11 +114,11 @@ function attachHandler() {
           // Sends move to remote
           remote.resolveMove(new Move(startFile, startRank, file, rank));
           highlighted = undefined;
-          updateHighlighting(highlightMoves.checked);
+          updateHighlighting(highlightMoves.checked, chessboardColors.checked);
         }
         else if (remote.hasOwnPiece(coord)) {
           highlighted = coord;
-          updateHighlighting(highlightMoves.checked);
+          updateHighlighting(highlightMoves.checked, chessboardColors.checked);
         }
       };
     }
@@ -129,18 +134,24 @@ function attachHandler() {
     clearLocalToken();
     location.reload();
   };
-  clearHighlighting();
+  clearHighlighting(chessboardColors.checked);
 }
 
-function selectColorForSpace(i: number, j: number) {
+function selectColorForSpace(i: number, j: number, fancyColors: boolean) {
   return 'gray';
 }
 
-function highlightColorForSpace(i: number, j: number) {
-  return colorForSpace('lightskyblue', '#659abb', i, j);
+function highlightColorForSpace(i: number, j: number, fancyColors: boolean) {
+  if (!fancyColors) {
+    return 'skyblue';
+  }
+  return colorForSpace('#87cefa', '#659abb', i, j);
 }
 
-function backgroundColorForSpace(i: number, j: number) {
+function backgroundColorForSpace(i: number, j: number, fancyColors: boolean) {
+  if (!fancyColors) {
+    return 'white';
+  }
   return colorForSpace('#ffce9e', '#d18b47', i, j);
 }
 
@@ -153,20 +164,21 @@ function colorForSpace(light: string, dark: string, i: number, j: number) {
   }
 }
 
-function clearHighlighting() {
+function clearHighlighting(fancyColors: boolean) {
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      buttonArray[i][j].style.backgroundColor = backgroundColorForSpace(i, j);
+      buttonArray[i][j].style.backgroundColor =
+        backgroundColorForSpace(i, j, fancyColors);
     }
   }
 }
 
-function updateHighlighting(toHighlight: boolean) {
-  clearHighlighting();
+function updateHighlighting(toHighlight: boolean, fancyColors: boolean) {
+  clearHighlighting(fancyColors);
   if (highlighted) {
     const [file, rank] = highlighted;
     const button = buttonArray[adj(file)][adj(rank)];
-    button.style.backgroundColor = selectColorForSpace(file, rank);
+    button.style.backgroundColor = selectColorForSpace(file, rank, fancyColors);
     if (toHighlight) {
       // Look for potential moves
       const moves = remote.getValidMoves(highlighted);
@@ -174,7 +186,7 @@ function updateHighlighting(toHighlight: boolean) {
         const [moveFile, moveRank] = move;
         const targetButton = buttonArray[adj(moveFile)][adj(moveRank)];
         targetButton.style.backgroundColor =
-          highlightColorForSpace(moveFile, moveRank);
+          highlightColorForSpace(moveFile, moveRank, fancyColors);
       }
     }
   }
