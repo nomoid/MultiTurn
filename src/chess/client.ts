@@ -6,7 +6,7 @@ import * as log from 'loglevel';
 log.setLevel(log.levels.DEBUG);
 
 import * as sio from 'socket.io-client';
-import '../../public/styles.css';
+import '../../public/chess/styles.css';
 import { clearLocalToken } from '../multiturn/auth-network/client/cookie';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import Board, { boardCache } from './board';

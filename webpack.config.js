@@ -6,7 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: [
     './src/chess/client.ts',
-    './public/index.html'
+    './public/chess/index.html'
   ],
   module: {
     rules: [
@@ -46,7 +46,7 @@ module.exports = {
   plugins: [
     new CopyPlugin([
       {
-        from: 'public/assets',
+        from: 'public/chess/assets',
         to: 'assets'
       }
     ])
