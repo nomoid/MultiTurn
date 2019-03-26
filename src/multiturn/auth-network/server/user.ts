@@ -1,7 +1,7 @@
 import * as logger from 'loglevel';
 import CancelablePromise from '../../helper/cancelablepromise';
 import { compareNumber } from '../../helper/uid';
-import { Socket, RequestEvent } from '../../network/network';
+import { Socket, RequestEvent, SocketCloseEvent } from '../../network/network';
 import { RefreshEvent } from '../../network/refresh';
 import AbstractRefreshEvent from '../../network/refreshevent';
 import { Serializer, Deserializer } from '../../sio-network/serializer';
@@ -25,6 +25,10 @@ export default class AuthUser {
 
   public addRequestListener(callback: (e: RequestEvent) => void) {
     this.listeners.push(callback);
+  }
+
+  public addCloseListener(callback: (e: SocketCloseEvent) => void) {
+    this.socket.addCloseListener(callback);
   }
 
   public addRefreshListener(callback: (e: RefreshEvent) => void): void {

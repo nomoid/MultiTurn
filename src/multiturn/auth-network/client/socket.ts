@@ -1,7 +1,10 @@
+import * as logger from 'loglevel';
 import CancelablePromise from '../../helper/cancelablepromise';
-import { Socket, RequestEvent } from '../../network/network';
+import { Socket, RequestEvent, SocketCloseEvent } from '../../network/network';
 import { Deserializer, Serializer } from '../../sio-network/serializer';
 import AuthClientRequestEvent from './requetevent';
+
+const log = logger.getLogger('Auth');
 
 export default class AuthClientSocket implements Socket {
 
@@ -36,8 +39,14 @@ export default class AuthClientSocket implements Socket {
       if (success) {
         callback(new AuthClientRequestEvent(e.respond.bind(e), key, message));
       }
-      // Do nothing on failed deserializing
+      else {
+        log.warn('Failed deserializing!');
+      }
     });
+  }
+
+  public addCloseListener(callback: (e: SocketCloseEvent) => void): void {
+    this.socket.addCloseListener(callback);
   }
 
   public request(key: string, message: string): CancelablePromise<string> {

@@ -1,6 +1,6 @@
 import * as logger from 'loglevel';
 import CancelablePromise, { cancelablePromise } from '../helper/cancelablepromise';
-import { Socket, RequestEvent } from '../network/network';
+import { Socket, RequestEvent, SocketCloseEvent } from '../network/network';
 import SIORequestEvent from '../network/requestevent';
 import { Serializer, Deserializer } from './serializer';
 import { SIOSocket } from './sio-external';
@@ -14,16 +14,16 @@ const closeId = '_close';
 
 export default class SIONetworkSocket implements Socket {
 
-  private listeners: Array<(e: RequestEvent) => void>;
-  private promises: Map<string, (s: string) => void>;
+  private listeners: Array<(e: RequestEvent) => void> = [];
+  private closeListeners: Array<(e: SocketCloseEvent) => void> = [];
+  private promises: Map<string, (s: string) => void> = new Map();
   // True if accepted or rejected
   private responded: boolean = false;
   private closed: boolean = false;
 
   public constructor(private socket: SIOSocket,
     private serialize: Serializer, private deserialize: Deserializer) {
-    this.listeners = [];
-    this.promises = new Map();
+
   }
 
   public accept() {
@@ -70,10 +70,18 @@ export default class SIONetworkSocket implements Socket {
       this.closed = true;
       this.socket.disconnect();
     });
-    this.socket.on(closeId, () => {
+    this.socket.on(closeId, (msg) => {
+      if (this.closed) {
+        return;
+      }
+      this.closed = true;
       // Connection closed
       log.debug('Connection closed.');
-      this.closed = true;
+      for (const listener of this.closeListeners) {
+        listener({
+          reason: msg
+        });
+      }
       this.socket.disconnect();
     });
   }
@@ -95,6 +103,13 @@ export default class SIONetworkSocket implements Socket {
     this.listeners.push(callback);
   }
 
+  public addCloseListener(callback: (e: SocketCloseEvent) => void): void {
+    if (this.closed){
+      throw Error('Socket already closed');
+    }
+    this.closeListeners.push(callback);
+  }
+
   public request(key: string, message: string): CancelablePromise<string> {
     this.socketReadyCheck();
     return cancelablePromise((resolve, reject) => {
@@ -110,7 +125,7 @@ export default class SIONetworkSocket implements Socket {
     this.socket.emit(responseId, this.serialize(key, message));
   }
 
-  // Closing a rejected socket/already closed socket throws an error
+  // Closing a rejected socket/already closed should not throw an error
   public close(): void {
     if (this.closed) {
       return;
@@ -121,6 +136,9 @@ export default class SIONetworkSocket implements Socket {
     this.closed = true;
     this.socket.emit(closeId);
     this.socket.disconnect();
+    for (const listener of this.closeListeners) {
+      listener({});
+    }
   }
 
   private socketReadyCheck() {

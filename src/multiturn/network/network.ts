@@ -21,6 +21,7 @@ export interface ConnectionEvent {
 
 export interface Socket {
   addRequestListener(callback: (e: RequestEvent) => void): void;
+  addCloseListener(callback: (e: SocketCloseEvent) => void): void;
   request(key: string, message: string): CancelablePromise<string>;
   close(): void;
 }
@@ -29,4 +30,8 @@ export interface RequestEvent {
   readonly key: string;
   readonly message: string;
   respond(message: string): void;
+}
+
+export interface SocketCloseEvent {
+  readonly reason?: string;
 }

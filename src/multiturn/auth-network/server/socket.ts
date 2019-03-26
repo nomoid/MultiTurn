@@ -1,5 +1,5 @@
 import CancelablePromise from '../../helper/cancelablepromise';
-import { Socket, RequestEvent } from '../../network/network';
+import { Socket, RequestEvent, SocketCloseEvent } from '../../network/network';
 import RefreshSocket, { RefreshEvent } from '../../network/refresh';
 import AuthUser from './user';
 
@@ -24,6 +24,10 @@ export default class AuthSocket implements RefreshSocket {
 
   public addRequestListener(callback: (e: RequestEvent) => void): void {
     this.user.addRequestListener(callback);
+  }
+
+  public addCloseListener(callback: (e: SocketCloseEvent) => void): void {
+    this.user.addCloseListener(callback);
   }
 
   public request(key: string, message: string): CancelablePromise<string> {
