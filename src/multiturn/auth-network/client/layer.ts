@@ -95,6 +95,7 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
         failures += 1;
         if (failures > 3) {
           log.debug('Refresh failed!');
+          socket.close();
           break;
         }
         log.debug('Refresh failed, trying again');
@@ -102,10 +103,10 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
       }
       else {
         log.warn(`Invalid server response: ${response}`);
+        socket.close();
         break;
       }
     }
-    socket.close();
   }
 
   private tryLogin(socket: Socket, token: string) {
