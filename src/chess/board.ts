@@ -76,15 +76,20 @@ export default class Board {
     const endOccupant = this.spaces[endFile][endRank];
     let special: SpecialMove | undefined;
     // Check for castling
-    if (occupant && endOccupant) {
+    if (occupant) {
       const [color, piece] = occupant;
-      const [endColor, endPiece] = endOccupant;
-      if (color === endColor && piece === 'king' && endPiece === 'rook') {
-        const kingFile = Math.sign(endFile - startFile) * 2 + startFile;
+      if (piece === 'king' && Math.abs(endFile - startFile) === 2) {
+        let oldRookFile: number;
+        if (endFile - startFile > 0) {
+          oldRookFile = 7;
+        }
+        else {
+          oldRookFile = 0;
+        }
         const rookFile = Math.sign(endFile - startFile) + startFile;
         this.spaces[startFile][startRank] = '';
-        this.spaces[endFile][endRank] = '';
-        this.spaces[kingFile][startRank] = [color, 'king'];
+        this.spaces[oldRookFile][startRank] = '';
+        this.spaces[endFile][endRank] = [color, 'king'];
         this.spaces[rookFile][startRank] = [color, 'rook'];
         special = ['castling'];
       }
@@ -145,16 +150,22 @@ export default class Board {
       const special = specialMove[0];
       switch (special) {
         case 'castling':
-          const kingFile = Math.sign(endFile - startFile) * 2 + startFile;
+          let oldRookFile: number;
+          if (endFile - startFile > 0) {
+            oldRookFile = 7;
+          }
+          else {
+            oldRookFile = 0;
+          }
           const rookFile = Math.sign(endFile - startFile) + startFile;
-          const kingOccupant = this.spaces[kingFile][startRank];
+          const kingOccupant = this.spaces[endFile][endRank];
           if (!kingOccupant) {
             throw new Error('King is not at expected spot after castling!');
           }
           const [kingColor, kingPiece] = kingOccupant;
           this.spaces[startFile][startRank] = [kingColor, 'king'];
-          this.spaces[endFile][endRank] = [kingColor, 'rook'];
-          this.spaces[kingFile][startRank] = '';
+          this.spaces[oldRookFile][startRank] = [kingColor, 'rook'];
+          this.spaces[endFile][endRank] = '';
           this.spaces[rookFile][startRank] = '';
           break;
         case 'enpassant':
@@ -331,7 +342,7 @@ export default class Board {
             if (!this.isInCheck(color) &&
                 !this.hypotheticalIsInCheck(color, coord, [3, rank]) &&
                 !this.hypotheticalIsInCheck(color, coord, [2, rank])) {
-              indivMoves.push([0, rank]);
+              indivMoves.push([2, rank]);
             }
           }
         }
@@ -351,7 +362,7 @@ export default class Board {
             if (!this.isInCheck(color) &&
                 !this.hypotheticalIsInCheck(color, coord, [5, rank]) &&
                 !this.hypotheticalIsInCheck(color, coord, [6, rank])) {
-              indivMoves.push([7, rank]);
+              indivMoves.push([6, rank]);
             }
           }
         }
