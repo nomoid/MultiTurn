@@ -192,7 +192,10 @@ function updateHighlighting(toHighlight: boolean, fancyColors: boolean) {
   }
 }
 
+const images: Map<string, HTMLImageElement> = new Map();
+
 function preloadImages() {
+  images.clear();
   const colors = ['white', 'black'];
   const pieces = ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king'];
   for (const color of colors) {
@@ -200,7 +203,8 @@ function preloadImages() {
       const loc = imageLoc(color, piece);
       const image = new Image();
       image.src = loc;
-      // Do nothing with the image, but ensure it's already loaded
+      // Add image to dictionary to ensure it doesn't get garbage collected
+      images.set(loc, image);
     }
   }
 }
