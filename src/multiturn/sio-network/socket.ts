@@ -112,7 +112,12 @@ export default class SIONetworkSocket implements Socket {
 
   // Closing a rejected socket/already closed socket throws an error
   public close(): void {
-    this.socketReadyCheck();
+    if (this.closed) {
+      return;
+    }
+    if (!this.responded) {
+      throw Error('Socket not yet accepted');
+    }
     this.closed = true;
     this.socket.emit(closeId);
     this.socket.disconnect();

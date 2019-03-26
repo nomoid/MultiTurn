@@ -8,7 +8,8 @@
     "strict": true
   },
   "files": [
-    "src/chess/server.ts"
+    "src/chess/server.ts",
+    "typings/http-shutdown.d.ts"
   ],
   "exclude": [
     ".git",

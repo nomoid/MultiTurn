@@ -41,6 +41,7 @@
   "dependencies": {
     "ajv": "^6.7.0",
     "express": "^4.16.4",
+    "http-shutdown": "^1.2.0",
     "loglevel": "^1.6.1",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^2.2.0",

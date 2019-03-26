@@ -3,10 +3,11 @@ import '../multiturn/helper/loglevel-prefix-name';
 import * as log from 'loglevel';
 
 // Set the proper level before all of the other imports
-log.setLevel(log.levels.WARN);
+log.setLevel(log.levels.INFO);
 
 import * as express from 'express';
 import * as http from 'http';
+import * as httpshutdown from 'http-shutdown';
 import * as socketio from 'socket.io';
 import { fillDefault, makeDefaultWithRefresh } from '../multiturn/game/default';
 import Server from '../multiturn/game/server';
@@ -20,7 +21,8 @@ function main() {
   const clientPath = `${__dirname}/../../dist`;
   app.use(express.static(clientPath));
 
-  const server = http.createServer(app);
+  const unwrappedServer = http.createServer(app);
+  const server = httpshutdown(unwrappedServer);
 
   const io = socketio(server);
 
@@ -31,8 +33,7 @@ function main() {
     const gameServer = new Server<Remote, Board>(
       runner, Remote, Board, options);
     gameServer.start().then(() => {
-      log.info('Closing server.');
-      server.close();
+      log.info('Closing instance of server.');
     });
   });
   mux.listen();

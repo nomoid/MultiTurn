@@ -1,6 +1,6 @@
 import * as logger from 'loglevel';
 import { Serializer, Deserializer } from '../sio-network/serializer';
-import { ServerSyncLayer, StateManager } from '../sync/server';
+import { ServerSyncLayer, StateManager, SyncResponse } from '../sync/server';
 import Player from './player';
 import ServerStateManager from './state';
 
@@ -19,6 +19,7 @@ export default class Server<R, T> {
   private stateManager: ServerStateManager<R, T>;
   private started: boolean;
   private standardTurns: boolean;
+  private gameOverUpdate?: SyncResponse;
 
   public constructor(
     private mainLoop: (server: Server<R, T>) => Promise<void>,
@@ -84,6 +85,10 @@ export default class Server<R, T> {
     if (fullPromise) {
       await fullPromise;
     }
+    if (this.gameOverUpdate) {
+      await Promise.all(this.gameOverUpdate.updates.values());
+    }
+    log.info('Exiting.');
   }
 
   // Array index will be off by turn number by 1
@@ -113,7 +118,7 @@ export default class Server<R, T> {
       throw new Error('Cannot call game over more than once!');
     }
     this.stateManager.endGame(message);
-    this.syncLayer.update();
+    this.gameOverUpdate = this.syncLayer.update();
   }
 }
 
