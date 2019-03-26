@@ -14,6 +14,8 @@ import Move from './move';
 import Remote from './remote';
 import { Space, Coordinate } from './rules';
 
+const refreshDelay = 0;
+
 const io = sio();
 const remote = new Remote();
 
@@ -24,7 +26,8 @@ let inverted = false;
 function main() {
   preloadImages();
   attachHandler();
-  const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote));
+  const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote),
+    refreshDelay);
   layer.listen();
 }
 

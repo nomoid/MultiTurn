@@ -105,6 +105,7 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
         break;
       }
     }
+    socket.close();
   }
 
   private tryLogin(socket: Socket, token: string) {

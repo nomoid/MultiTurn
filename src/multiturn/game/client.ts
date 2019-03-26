@@ -22,21 +22,27 @@ const verbose = false;
 const defaultRefreshRepeatDelay = 0;
 
 export function defaultClientSyncLayer(io: SIOSocket,
-    responder: ClientSyncResponder) {
+    responder: ClientSyncResponder, refreshRepeatDelay?: number) {
+  if (!refreshRepeatDelay) {
+    refreshRepeatDelay = defaultRefreshRepeatDelay;
+  }
   const localToken = defaultGetLocalToken();
   const netLayer = new SIOClientNetworkLayer(io);
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
-    defaultRefreshRepeatDelay);
+    refreshRepeatDelay);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
 }
 
 export function defaultClientSyncLayerFromNetLayer(netLayer: NetworkLayer,
-  responder: ClientSyncResponder) {
+  responder: ClientSyncResponder, refreshRepeatDelay?: number) {
+  if (!refreshRepeatDelay) {
+    refreshRepeatDelay = defaultRefreshRepeatDelay;
+  }
   const localToken = defaultGetLocalToken();
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
-    defaultRefreshRepeatDelay);
+    refreshRepeatDelay);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
