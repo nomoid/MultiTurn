@@ -125,9 +125,8 @@ For the complete Tic-Tac-Toe sample, see [here](src/tictactoe).
 
 ## Attribution
 
-The Chess assets present in the [public/assets/chess](public/assets/chess)
-directory created by
-Wikimedia commons user en:User:Cburnett can be found
+The Chess assets present [here](public/chess/assets/chess) created by Wikimedia
+commons user en:User:Cburnett can be found
 [here](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces) and are
 licensed under the [Creative Commons Attribution-Share Alike 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/deed.en)
 license.
