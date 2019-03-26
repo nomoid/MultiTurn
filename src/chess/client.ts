@@ -65,8 +65,10 @@ function attachHandler() {
   const roomOutput = document.getElementById('room-output')!;
   const loading = document.getElementById('loading')!;
   const content = document.getElementById('main-content')!;
+  const closedDiv = document.getElementById('closed')!;
   const updateState = (state: Board) => {
     loading.hidden = true;
+    closedDiv.hidden = true;
     content.hidden = false;
     const roomCode = parseInt(remote.getState().boardId, 16).toString();
     const roomCodeDisplay = roomCode.substring(
@@ -124,6 +126,11 @@ function attachHandler() {
     }
   }
   remote.addStateListener(updateState);
+  remote.addCloseListener((reason?: string) => {
+    loading.hidden = true;
+    content.hidden = true;
+    closedDiv.hidden = false;
+  });
   const label = document.getElementById('header-output');
   if (label) {
     remote.addMessageListener((message: string) => {

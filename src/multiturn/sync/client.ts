@@ -6,6 +6,7 @@ export interface ClientSyncLayer {
 export interface ClientSyncResponder {
   onUpdateState(e: ClientSyncStateEvent): Promise<void>;
   onRequest(e: ClientSyncRequestEvent): Promise<string>;
+  onClose(e: ClientSyncCloseEvent): void;
 }
 
 export interface ClientSyncStateEvent {
@@ -21,4 +22,8 @@ export interface ClientSyncCombinedEvent {
   readonly key: string;
   readonly message: string;
   readonly state: string;
+}
+
+export interface ClientSyncCloseEvent {
+  readonly reason?: string;
 }

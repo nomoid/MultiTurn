@@ -1,15 +1,17 @@
-import { ClientSyncStateEvent } from '../sync/client';
+import { ClientSyncStateEvent, ClientSyncCloseEvent } from '../sync/client';
 import { Client } from './client';
 import { CombinedInfo } from './info';
 
 type StateListener<S> = (s: S) => void;
 type MessageListener = (s: string) => void;
+type ClientCloseListener = (reason?: string) => void;
 
 export default abstract class DefaultClient<T, S, R> implements Client<T> {
 
   protected latestMoveResolver?: (m: R) => void;
   private stateListeners: Array<StateListener<S>> = [];
   private messageListeners: MessageListener[] = [];
+  private closeListeners: ClientCloseListener[] = [];
   private state!: S;
   private lastestInfo?: CombinedInfo;
 
@@ -44,12 +46,22 @@ export default abstract class DefaultClient<T, S, R> implements Client<T> {
     }
   }
 
+  public onClose(e: ClientSyncCloseEvent) {
+    for (const listener of this.closeListeners) {
+      listener(e.reason);
+    }
+  }
+
   public addStateListener(listener: StateListener<S>) {
     this.stateListeners.push(listener);
   }
 
   public addMessageListener(listener: MessageListener) {
     this.messageListeners.push(listener);
+  }
+
+  public addCloseListener(listener: ClientCloseListener) {
+    this.closeListeners.push(listener);
   }
 
   public resolveMove(move: R) {

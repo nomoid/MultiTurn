@@ -7,7 +7,8 @@ import RepeatClientSyncLayer from '../repeat-sync/client/layer';
 import SIOClientNetworkLayer from '../sio-network/client/layer';
 import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../sio-network/serializer';
 import { SIOSocket } from '../sio-network/sio-external';
-import { ClientSyncResponder, ClientSyncStateEvent, ClientSyncRequestEvent } from '../sync/client';
+import { ClientSyncResponder, ClientSyncStateEvent, ClientSyncRequestEvent,
+  ClientSyncCloseEvent } from '../sync/client';
 import { PlayerInfo, CombinedInfo } from './info';
 
 const assignNumId = '_assignNum';
@@ -83,6 +84,13 @@ export class ClientGameResponder<T> implements ClientSyncResponder {
       return Promise.resolve(failureId);
     }
   }
+
+  public onClose(e: ClientSyncCloseEvent): void {
+    const onClose = this.client.onClose;
+    if (onClose) {
+      this.client.onClose!(e);
+    }
+  }
 }
 
 export interface Client<T> {
@@ -90,4 +98,6 @@ export interface Client<T> {
   updateState(e: ClientSyncStateEvent, info: CombinedInfo): void;
 
   getRemote(): T;
+
+  onClose?(e: ClientSyncCloseEvent): void;
 }

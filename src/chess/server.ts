@@ -3,7 +3,7 @@ import '../multiturn/helper/loglevel-prefix-name';
 import * as log from 'loglevel';
 
 // Set the proper level before all of the other imports
-log.setLevel(log.levels.INFO);
+log.setLevel(log.levels.WARN);
 
 import * as express from 'express';
 import * as http from 'http';

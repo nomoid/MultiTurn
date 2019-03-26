@@ -1,5 +1,5 @@
 import * as logger from 'loglevel';
-import { NetworkLayer, ConnectionEvent, RequestEvent } from '../../network/network';
+import { NetworkLayer, ConnectionEvent, RequestEvent, SocketCloseEvent } from '../../network/network';
 import { ClientSyncLayer, ClientSyncResponder, ClientSyncCombinedEvent } from '../../sync/client';
 
 const log = logger.getLogger('Sync');
@@ -53,6 +53,9 @@ export default class RepeatClientSyncLayer implements ClientSyncLayer {
         } else {
           log.warn(`Invalid key: ${e2.key}`);
         }
+      });
+      sock.addCloseListener((e2: SocketCloseEvent) => {
+        this.responder.onClose(e2);
       });
     });
     this.layer.listen();
