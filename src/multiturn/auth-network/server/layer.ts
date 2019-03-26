@@ -102,6 +102,8 @@ export default class AuthServerNetworkLayer implements NetworkLayer {
     if (this.users.has(id)) {
       const user = this.users.get(id)!;
       log.debug(`User found with id ${id}`);
+      // Close old socket
+      user.socket.close();
       user.socket = socket;
       e.respond(loginSuccessId);
     }
