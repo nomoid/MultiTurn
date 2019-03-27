@@ -4,7 +4,8 @@
     "module": "commonjs",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strict": true
+    "strict": true,
+    "sourceMap": true
   },
   "files": [
     "src/chess/client.ts"
