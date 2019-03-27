@@ -48,6 +48,14 @@ module.exports = {
       {
         from: 'public/chess/assets',
         to: 'assets'
+      },
+      {
+        from: 'node_modules/react/umd',
+        to: 'assets/scripts/react'
+      },
+      {
+        from: 'node_modules/react-dom/umd',
+        to: 'assets/scripts/react-dom'
       }
     ])
   ],
