@@ -5,7 +5,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strict": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   },
   "files": [
     "src/chess/client.ts"

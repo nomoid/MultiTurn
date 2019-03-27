@@ -5,11 +5,13 @@ import * as log from 'loglevel';
 // Set the proper level before all of the other imports
 log.setLevel(log.levels.DEBUG);
 
+import * as ReactDOM from 'react-dom';
 import * as sio from 'socket.io-client';
 import '../../public/chess/styles.css';
 import { clearLocalToken } from '../multiturn/auth-network/client/cookie';
 import { ClientGameResponder, defaultClientSyncLayer } from '../multiturn/game/client';
 import Board, { boardCache } from './board';
+import { Root } from './components/root';
 import Move from './move';
 import Remote from './remote';
 import { Space, Coordinate } from './rules';
@@ -24,6 +26,7 @@ let highlighted: Coordinate | undefined;
 let inverted = false;
 
 function main() {
+  reactRender();
   preloadImages();
   attachHandler();
   const layer = defaultClientSyncLayer(io, new ClientGameResponder(remote),
@@ -31,13 +34,12 @@ function main() {
   layer.listen();
 }
 
-function adj(num: number) {
-  if (inverted) {
-    return 7 - num;
-  }
-  else {
-    return num;
-  }
+function reactRender() {
+  ReactDOM.render(Root({
+    roomOutput: 'abc',
+    headerOutput: 'def',
+    boardState: remote.getState()
+  }), document.getElementById('root'));
 }
 
 function attachHandler() {
@@ -145,6 +147,15 @@ function attachHandler() {
     location.reload();
   };
   clearHighlighting(chessboardColors.checked);
+}
+
+function adj(num: number) {
+  if (inverted) {
+    return 7 - num;
+  }
+  else {
+    return num;
+  }
 }
 
 function selectColorForSpace(i: number, j: number, fancyColors: boolean) {

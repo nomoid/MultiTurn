@@ -4,107 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data: blob:; style-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://unpkg.com; connect-src 'self'; img-src 'self' data: blob:; style-src 'self';">
   <link rel="stylesheet" href="styles.css">
   <title>Chess - MultiTurn</title>
 </head>
 <body>
-  <div id="loading">
-    <div>Loading...</div>
-    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-  </div>
-  <div id="closed" hidden>
-    <div>Connection lost! Refresh the page to reconnect.</div>
-  </div>
-  <div id="main-content" hidden>
-    <div id="room-output"></div>
-    <div id="header-output"></div>
-    <br />
-    <div class="chess"
-      ><button name="a8" class="chess-button">&nbsp;</button
-      ><button name="b8" class="chess-button">&nbsp;</button
-      ><button name="c8" class="chess-button">&nbsp;</button
-      ><button name="d8" class="chess-button">&nbsp;</button
-      ><button name="e8" class="chess-button">&nbsp;</button
-      ><button name="f8" class="chess-button">&nbsp;</button
-      ><button name="g8" class="chess-button">&nbsp;</button
-      ><button name="h8" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a7" class="chess-button">&nbsp;</button
-      ><button name="b7" class="chess-button">&nbsp;</button
-      ><button name="c7" class="chess-button">&nbsp;</button
-      ><button name="d7" class="chess-button">&nbsp;</button
-      ><button name="e7" class="chess-button">&nbsp;</button
-      ><button name="f7" class="chess-button">&nbsp;</button
-      ><button name="g7" class="chess-button">&nbsp;</button
-      ><button name="h7" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a6" class="chess-button">&nbsp;</button
-      ><button name="b6" class="chess-button">&nbsp;</button
-      ><button name="c6" class="chess-button">&nbsp;</button
-      ><button name="d6" class="chess-button">&nbsp;</button
-      ><button name="e6" class="chess-button">&nbsp;</button
-      ><button name="f6" class="chess-button">&nbsp;</button
-      ><button name="g6" class="chess-button">&nbsp;</button
-      ><button name="h6" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a5" class="chess-button">&nbsp;</button
-      ><button name="b5" class="chess-button">&nbsp;</button
-      ><button name="c5" class="chess-button">&nbsp;</button
-      ><button name="d5" class="chess-button">&nbsp;</button
-      ><button name="e5" class="chess-button">&nbsp;</button
-      ><button name="f5" class="chess-button">&nbsp;</button
-      ><button name="g5" class="chess-button">&nbsp;</button
-      ><button name="h5" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a4" class="chess-button">&nbsp;</button
-      ><button name="b4" class="chess-button">&nbsp;</button
-      ><button name="c4" class="chess-button">&nbsp;</button
-      ><button name="d4" class="chess-button">&nbsp;</button
-      ><button name="e4" class="chess-button">&nbsp;</button
-      ><button name="f4" class="chess-button">&nbsp;</button
-      ><button name="g4" class="chess-button">&nbsp;</button
-      ><button name="h4" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a3" class="chess-button">&nbsp;</button
-      ><button name="b3" class="chess-button">&nbsp;</button
-      ><button name="c3" class="chess-button">&nbsp;</button
-      ><button name="d3" class="chess-button">&nbsp;</button
-      ><button name="e3" class="chess-button">&nbsp;</button
-      ><button name="f3" class="chess-button">&nbsp;</button
-      ><button name="g3" class="chess-button">&nbsp;</button
-      ><button name="h3" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a2" class="chess-button">&nbsp;</button
-      ><button name="b2" class="chess-button">&nbsp;</button
-      ><button name="c2" class="chess-button">&nbsp;</button
-      ><button name="d2" class="chess-button">&nbsp;</button
-      ><button name="e2" class="chess-button">&nbsp;</button
-      ><button name="f2" class="chess-button">&nbsp;</button
-      ><button name="g2" class="chess-button">&nbsp;</button
-      ><button name="h2" class="chess-button">&nbsp;</button
-    ></div><div class="chess"
-      ><button name="a1" class="chess-button">&nbsp;</button
-      ><button name="b1" class="chess-button">&nbsp;</button
-      ><button name="c1" class="chess-button">&nbsp;</button
-      ><button name="d1" class="chess-button">&nbsp;</button
-      ><button name="e1" class="chess-button">&nbsp;</button
-      ><button name="f1" class="chess-button">&nbsp;</button
-      ><button name="g1" class="chess-button">&nbsp;</button
-      ><button name="h1" class="chess-button">&nbsp;</button
-    ></div>
-    <br />
-    <div>
-      Options:
-      <input type="checkbox" id="chessboard-colors" checked>Colors</input>
-      <input type="checkbox" id="highlight-moves" checked>Highlight Moves</input>
-      <input type="checkbox" id="invert-board" checked>Invert on Black</input>
-    </div>
-    <br />
-    <div>
-      <button id="leave-button" hidden>Leave Game</button>
-    </div>
-  </div>
+  <div id="root"></div>
+  <!-- Dependencies
+  <script src="./node_modules/react/umd/react.development.js"></script>
+  <script src="./node_modules/react-dom/umd/react-dom.development.js"></script>
+  -->
+  <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src="./bundle.js"></script>
 </body>
 </html>
