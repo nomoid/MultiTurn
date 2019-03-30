@@ -57,3 +57,13 @@ export function cancelableThen<T, S>(oldPromise: CancelablePromise<T>,
   return cancelable(oldPromise.then(continuation),
     oldPromise.cancel.bind(oldPromise));
 }
+
+export function timeout<T>(oldPromise: CancelablePromise<T>,
+    timeoutMillis: number): CancelablePromise<T | undefined> {
+  const newPromise = new PromiseHolder<T | undefined>();
+  oldPromise.then((t: T) => newPromise.resolve(t));
+  if (timeoutMillis >= 0) {
+    setTimeout(() => newPromise.resolve(undefined), timeoutMillis);
+  }
+  return newPromise.promise;
+}

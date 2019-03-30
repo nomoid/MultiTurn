@@ -1,4 +1,5 @@
 import * as logger from 'loglevel';
+import { timeout } from '../../helper/cancelablepromise';
 import AbstractConnectionEvent from '../../network/connectionevent';
 import { NetworkLayer, ConnectionEvent, Socket, RequestEvent } from '../../network/network';
 import { Serializer, Deserializer, defaultSerializer, defaultDeserializer } from '../../sio-network/serializer';
@@ -22,10 +23,14 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
   private serializer: Serializer;
   private deserializer: Deserializer;
   private tokenHandler?: TokenHandler;
+  private maxPing: number;
+  private maxFailures: number;
 
   public constructor(private network: NetworkLayer, public token?: string,
     // Timeout in milliseconds between refreshes, 0 for no repeat
     private repeatDelay?: number,
+    maxPing?: number,
+    maxFailures?: number,
     serializer?: Serializer, deserializer?: Deserializer) {
     this.listeners = [];
     if (serializer) {
@@ -39,6 +44,18 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     }
     else {
       this.deserializer = defaultDeserializer('*');
+    }
+    if (maxPing) {
+      this.maxPing = maxPing;
+    }
+    else {
+      this.maxPing = -1;
+    }
+    if (maxFailures) {
+      this.maxFailures = maxFailures;
+    }
+    else {
+      this.maxFailures = -1;
     }
   }
 
@@ -74,7 +91,8 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
     while (true) {
       log.debug('Initiating refresh');
       const pingStart = window.performance.now();
-      const response = await socket.request(refreshId, token);
+      const response = await timeout(socket.request(refreshId, token),
+        this.maxPing);
       const pingEnd = window.performance.now();
       const ping = Math.floor(pingEnd - pingStart);
       log.info(`Ping is ${ping} ms`);
@@ -91,9 +109,9 @@ export default class AuthClientNetworkLayer implements NetworkLayer {
           break;
         }
       }
-      else if (response === refreshFailId) {
+      else if (response === undefined || response === refreshFailId) {
         failures += 1;
-        if (failures > 3) {
+        if (this.maxFailures >= 0 && failures >= this.maxFailures) {
           log.debug('Refresh failed!');
           socket.close();
           break;
