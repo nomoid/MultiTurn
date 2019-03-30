@@ -20,6 +20,8 @@ const authTokenId = 'auth.token';
 const verbose = false;
 
 const defaultRefreshRepeatDelay = 0;
+const defaultMaxPing = 1000;
+const defaultMaxFailures = 3;
 
 export function defaultClientSyncLayer(io: SIOSocket,
     responder: ClientSyncResponder, refreshRepeatDelay?: number) {
@@ -29,7 +31,7 @@ export function defaultClientSyncLayer(io: SIOSocket,
   const localToken = defaultGetLocalToken();
   const netLayer = new SIOClientNetworkLayer(io);
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
-    refreshRepeatDelay);
+    refreshRepeatDelay, defaultMaxPing, defaultMaxFailures);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
@@ -42,7 +44,7 @@ export function defaultClientSyncLayerFromNetLayer(netLayer: NetworkLayer,
   }
   const localToken = defaultGetLocalToken();
   const authLayer = new AuthClientNetworkLayer(netLayer, localToken,
-    refreshRepeatDelay);
+    refreshRepeatDelay, defaultMaxPing, defaultMaxFailures);
   authLayer.setTokenHandler(new AuthClientCookieTokenHandler());
   const syncLayer = new RepeatClientSyncLayer(authLayer, responder);
   return syncLayer;
