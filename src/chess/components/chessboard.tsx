@@ -83,13 +83,12 @@ export const ChessBoard = (props: Props) => {
       const file = name.charCodeAt(0) - 97;
       const rank = name.charCodeAt(1) - 49;
       const img = icon(props.boardState.spaces[adj(file)][adj(rank)]);
-      const style = {
-        background: buttonArray[file][rank],
-        backgroundImage: img
-      };
       const elem = <button name={name}
         key={name}
-        className='chess-button' style={style}
+        className='chess-button' style={{
+          backgroundColor: buttonArray[file][rank],
+          backgroundImage: img
+        }}
           onClick={buttonClick(file, rank)}>&nbsp;</button>;
       elems.push(elem);
     }
