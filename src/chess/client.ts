@@ -76,6 +76,7 @@ function attachHandler() {
   });
   remote.addCloseListener((reason?: string) => {
     closed = true;
+    updateState(remote.getState());
   });
   reactRender(updateState, 'loading', false, '', '');
 }
