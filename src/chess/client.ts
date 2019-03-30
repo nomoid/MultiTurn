@@ -29,14 +29,14 @@ function main() {
   layer.listen();
 }
 
-function reactRender(updater: (board: Board) => void, scene: Scene,
-    started: boolean, roomOutput: string, headerOutput: string) {
+function reactRender(updater: (board: Board) => void, state: Board,
+    scene: Scene, started: boolean, roomOutput: string, headerOutput: string) {
   ReactDOM.render(Root({
     scene,
     started,
     roomOutput,
     headerOutput,
-    boardState: remote.getState(),
+    boardState: state,
     remoteColor: remote.getColor() || 'white',
     isCurrentTurn: remote.isCurrentTurn(),
     resolveMove: remote.resolveMove.bind(remote),
@@ -51,11 +51,11 @@ function attachHandler() {
   let headerOutput = '';
   const updateState = (state: Board) => {
     if (closed) {
-      reactRender(updateState, 'closed', true, '', '');
+      reactRender(updateState, state, 'closed', true, '', '');
       return;
     }
     let started = false;
-    const roomCode = parseInt(remote.getState().boardId, 16).toString();
+    const roomCode = parseInt(state.boardId, 16).toString();
     const roomCodeDisplay = roomCode.substring(
       0, Math.min(4, roomCode.length));
     const roomOutput = `Room ${roomCodeDisplay}`;
@@ -67,7 +67,8 @@ function attachHandler() {
     if (info.turn > 0) {
       started = true;
     }
-    reactRender(updateState, 'content', started, roomOutput, headerOutput);
+    reactRender(updateState, state, 'content', started, roomOutput,
+      headerOutput);
   };
   remote.addStateListener(updateState);
   remote.addMessageListener((msg: string) => {
@@ -78,7 +79,7 @@ function attachHandler() {
     closed = true;
     updateState(remote.getState());
   });
-  reactRender(updateState, 'loading', false, '', '');
+  reactRender(updateState, remote.getState(), 'loading', false, '', '');
 }
 
 const images: Map<string, HTMLImageElement> = new Map();
