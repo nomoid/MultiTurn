@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Board from '../board';
 import Move from '../move';
-import { Coordinate, Color } from '../rules';
+import { Coordinate, Color, Space } from '../rules';
 
 interface Props {
   remoteColor: Color;
@@ -54,7 +54,7 @@ export const ChessBoard = (props: Props) => {
     return (e: React.MouseEvent) => {
       const file = adj(constFile);
       const rank = adj(constRank);
-      if (props.isCurrentTurn) {
+      if (!props.isCurrentTurn) {
         return;
       }
       const coord: Coordinate = [file, rank];
@@ -82,13 +82,18 @@ export const ChessBoard = (props: Props) => {
       const name = toName(i, j);
       const file = name.charCodeAt(0) - 97;
       const rank = name.charCodeAt(1) - 49;
+      const img = icon(props.boardState.spaces[adj(file)][adj(rank)]);
+      const style = {
+        background: buttonArray[file][rank],
+        backgroundImage: img
+      };
       const elem = <button name={name}
-        className='chess-button' style={
-          {background: buttonArray[file][rank]}
-        } onClick={buttonClick(file, rank)}>&nbsp;</button>;
+        key={name}
+        className='chess-button' style={style}
+          onClick={buttonClick(file, rank)}>&nbsp;</button>;
       elems.push(elem);
     }
-    outerElems.push(<div className='chess'>{elems}</div>);
+    outerElems.push(<div className='chess' key={i}>{elems}</div>);
   }
   return (
     <div>
@@ -126,4 +131,18 @@ function colorForSpace(light: string, dark: string, i: number, j: number) {
   else {
     return light;
   }
+}
+
+function icon(space: Space) {
+  if (!space) {
+    return '';
+  }
+  else {
+    const [color, piece] = space;
+    return `url('${imageLoc(color, piece)}')`;
+  }
+}
+
+function imageLoc(color: string, piece: string) {
+  return `assets/chess/${color}_${piece}.png`;
 }

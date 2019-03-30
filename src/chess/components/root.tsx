@@ -6,7 +6,12 @@ import { Closed } from './closed';
 import { Content } from './content';
 import { Loading } from './loading';
 
+export type Scene = 'loading' | 'closed' | 'content';
+
 interface Props {
+  scene: Scene;
+  started: boolean;
+
   roomOutput: string;
   headerOutput: string;
 
@@ -19,11 +24,16 @@ interface Props {
 }
 
 export const Root = (props: Props) => {
-  return (
-    <div>
-      <Loading />
-      <Closed />
-      <Content {...props}/>
-    </div>
-  );
+  if (props.scene === 'loading') {
+    return <Loading />;
+  }
+  else if (props.scene === 'closed') {
+    return <Closed />;
+  }
+  else if (props.scene === 'content') {
+    return <Content {...props} />;
+  }
+  else {
+    throw new Error(`Invalid scene type ${props.scene}`);
+  }
 };

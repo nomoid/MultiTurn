@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { clearLocalToken } from '../../multiturn/auth-network/client/cookie';
 import Board from '../board';
 import Move from '../move';
 import { Color } from '../rules';
@@ -6,6 +7,8 @@ import { ChessBoard } from './chessboard';
 import { ChessOptions } from './chessoptions';
 
 interface Props {
+  started: boolean;
+
   roomOutput: string;
   headerOutput: string;
 
@@ -23,20 +26,13 @@ export const Content = (props: Props) => {
   const [highlight, setHighlight] = React.useState(true);
   const [invert, setInvert] = React.useState(true);
 
-  const updateColor = (b: boolean) => {
-    setColor(b);
-  };
-
-  const updateHighlight = (b: boolean) => {
-    setHighlight(b);
-  };
-
-  const updateInvert = (b: boolean) => {
-    setInvert(b);
+  const leave = (e: React.MouseEvent) => {
+    clearLocalToken();
+    location.reload();
   };
 
   return (
-    <div id='main-content' hidden>
+    <div id='main-content'>
       <div id='room-output'>{props.roomOutput}</div>
       <div id='header-output'>{props.headerOutput}</div>
       <br />
@@ -46,10 +42,11 @@ export const Content = (props: Props) => {
         color={color} highlight={highlight} invert={invert} />
       <br />
       <ChessOptions color={color} highlight={highlight} invert={invert}
-        updateColor={updateColor} updateHighlight={updateHighlight}
-        updateInvert={updateInvert} />
+        updateColor={setColor} updateHighlight={setHighlight}
+        updateInvert={setInvert} />
       <br />
-      <button id='leave-button' hidden>Leave Game</button>
+      <button id='leave-button' onClick={leave}
+        hidden={!props.started}>Leave Game</button>
     </div>
   );
 };
