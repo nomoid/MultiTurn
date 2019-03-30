@@ -379,6 +379,16 @@ export default class Board {
     return indivMoves;
   }
 
+  public isValidMove(start: Coordinate, end: Coordinate): boolean {
+    const validMoves = this.getValidMoves(start);
+    for (const move of validMoves) {
+      if (coordEq(move, end)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public isInCheck(defendingPlayer: Color): boolean {
     // Assuming only one king is in play
     const kingLocations = this.findPieces(defendingPlayer, 'king');
@@ -413,11 +423,26 @@ export default class Board {
     return coords;
   }
 
+  public hasOwnPiece(currColor: Color, coord: Coordinate): boolean {
+    const occupant = this.space(coord);
+    if (!occupant) {
+      return false;
+    }
+    const [color, piece] = occupant;
+    return color === currColor;
+  }
+
   public getCache(): BoardCache {
     if (!boardCache.has(this.boardId)) {
       boardCache.set(this.boardId, new BoardCache());
     }
     return boardCache.get(this.boardId)!;
+  }
+
+  public clone(): Board {
+    const boardCopy = JSON.parse(JSON.stringify(this));
+    Object.setPrototypeOf(boardCopy, Board.prototype);
+    return boardCopy;
   }
 
   private hypotheticalIsInCheck(defendingPlayer: Color, start: Coordinate,

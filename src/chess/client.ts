@@ -36,9 +36,15 @@ function main() {
 
 function reactRender() {
   ReactDOM.render(Root({
-    roomOutput: 'abc',
-    headerOutput: 'def',
-    boardState: remote.getState()
+    roomOutput: '',
+    headerOutput: '',
+    boardState: remote.getState(),
+    remoteColor: remote.getColor() || 'white',
+    isCurrentTurn: remote.isCurrentTurn(),
+    resolveMove: remote.resolveMove.bind(remote),
+    setNewBoard: (board: Board) => {
+      // TODO
+    }
   }), document.getElementById('root'));
 }
 
@@ -115,7 +121,7 @@ function attachHandler() {
           const [startFile, startRank] = highlighted;
           // Simulate move locally
           const board = remote.getState();
-          board.tryMove(remote.getColor(),
+          board.tryMove(remote.getColor()!,
             [startFile, startRank], [file, rank]);
           updateState(board);
           // Sends move to remote

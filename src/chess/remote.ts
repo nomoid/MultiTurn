@@ -41,8 +41,12 @@ export default class Remote extends DefaultClient<Remote, Board, Move> {
     return color === this.getColor();
   }
 
-  public getColor(): Color {
-    return numToColor(this.getPlayerNum());
+  public getColor(): Color | undefined {
+    const num = this.getPlayerNum();
+    if (num === 0){
+      return undefined;
+    }
+    return numToColor(num);
   }
 
   protected bindPrototype(s: Board): void {
