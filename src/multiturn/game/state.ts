@@ -112,6 +112,7 @@ export default class ServerStateManager<R, T> implements StateManager {
   public endGame(message: string) {
     this.gameIsOver = true;
     this.gameOverMessage = message;
+    this.turn = -1;
   }
 
   private addUser(user: SyncUser) {
