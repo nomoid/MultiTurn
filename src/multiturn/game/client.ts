@@ -20,8 +20,8 @@ const authTokenId = 'auth.token';
 const verbose = false;
 
 const defaultRefreshRepeatDelay = 0;
-const defaultMaxPing = 1000;
-const defaultMaxFailures = 3;
+const defaultMaxPing = 10000;
+const defaultMaxFailures = 1;
 
 export function defaultClientSyncLayer(io: SIOSocket,
     responder: ClientSyncResponder, refreshRepeatDelay?: number) {
